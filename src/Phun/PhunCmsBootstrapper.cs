@@ -11,6 +11,7 @@
 
     using Phun.Configuration;
     using Phun.Data;
+    using Phun.Routing;
 
     /// <summary>
     /// Class for MVC web initialization.

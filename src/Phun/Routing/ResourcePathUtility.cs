@@ -1,21 +1,16 @@
-﻿namespace Phun
+﻿namespace Phun.Routing
 {
-    using System;
     using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Reflection;
     using System.Text;
     using System.Web;
-    using System.Web.Hosting;
-    using System.Web.Mvc;
 
     using Phun.Configuration;
 
     /// <summary>
-    /// Get virtual file from resource.
+    /// CMS resource path utility.
     /// </summary>
-    public class ResourceVirtualFile : VirtualFile
+    public class ResourcePathUtility 
     {
         #region "Virtual file string"
 
@@ -23,7 +18,7 @@
         /// The scripts phuncms config js - Phun.Properties.scripts.phuncms.config.js
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        private const string ScriptsphuncmsConfigJs = @"
+        internal const string ScriptsphuncmsConfigJs = @"
 window.PhunCms = (function (PhunCms, $, undefined) [
     // pouplate global object 
     PhunCms.contentsToLoad = 0;
@@ -69,27 +64,12 @@ window.PhunCms = (function (PhunCms, $, undefined) [
 ])(window.PhunCms || [], jQuery);";
 
         #endregion
-        
-        /// <summary>
-        /// The resource path
-        /// </summary>
-        private readonly string resourcePath;
 
         /// <summary>
-        /// The virtual file path, this is use for debugging purposes.
+        /// Initializes a new instance of the <see cref="ResourcePathUtility"/> class.
         /// </summary>
-        private string virtualFilePath;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceVirtualFile" /> class.
-        /// </summary>
-        /// <param name="virtualPath">The virtual path to the resource represented by this instance.</param>
-        /// <param name="resourcePath">The resource path.</param>
-        public ResourceVirtualFile(string virtualPath, string resourcePath)
-            : base(virtualPath)
+        public ResourcePathUtility()
         {
-            this.resourcePath = resourcePath;
-            this.virtualFilePath = virtualPath;
             this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
         }
 
@@ -100,34 +80,6 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// The config.
         /// </value>
         protected internal PhunCmsConfigurationSection Config { get; set; }
-
-        /// <summary>
-        /// When overridden in a derived class, returns a read-only stream to the virtual resource.
-        /// </summary>
-        /// <returns>
-        /// A read-only stream to the virtual file.
-        /// </returns>
-        public override System.IO.Stream Open()
-        {
-            var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(this.resourcePath);
-            if (result == null && this.resourcePath.EndsWith("scripts.phuncms.config.js"))
-            {
-                var fileString =
-                    string.Format(ScriptsphuncmsConfigJs, this.Config.ResourceRouteNormalized, this.Config.RouteNormalized)
-                        .Replace("[", "{")
-                        .Replace("]", "}");
-
-                result = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(fileString));
-            }
-
-            if (result == null)
-            {
-                throw new HttpException(404, "Resource virtual file not found.");
-            }
-
-            return result;
-        }
-
 
         /// <summary>
         /// Renders the simple CMS bundles.
@@ -183,6 +135,16 @@ window.PhunCms = (function (PhunCms, $, undefined) [
             }
 
             return files.ToString();
-        }                                              
+        }
+
+        /// <summary>
+        /// Gets the resource path.
+        /// </summary>
+        /// <param name="resource">The resource.</param>
+        /// <returns>Resource path.</returns>
+        protected internal virtual string GetResourcePath(string resource)
+        {
+            return string.Format("/{0}/{1}", this.Config.ResourceRouteNormalized, resource.Trim('/'));
+        }
     }
 }

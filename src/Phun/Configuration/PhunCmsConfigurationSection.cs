@@ -113,13 +113,45 @@
         /// <value>
         /// The route stripped of all invalid characters.
         /// </value>
-        public string RouteNormalized
+        public string ContentRouteNormalized
         {
             get
             {
                 var result = (this.ContentRoute + string.Empty).Replace("~", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty);
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Determines whether [is resource route] [the specified path].
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if [is resource route] [the specified path]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsResourceRoute(string path)
+        {
+            return
+                (path + string.Empty).Trim()
+                           .Replace("~", string.Empty)
+                           .StartsWith(
+                               string.Concat("/", this.ResourceRouteNormalized, "/"), StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether [is content route] [the specified path].
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if [is content route] [the specified path]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsContentRoute(string path)
+        {
+            return
+                (path + string.Empty).Trim()
+                           .Replace("~", string.Empty)
+                           .StartsWith(
+                               string.Concat("/", this.ContentRouteNormalized, "/"), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

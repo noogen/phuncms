@@ -1,11 +1,11 @@
-﻿namespace Phun
+﻿namespace Phun.Routing
 {
     using System.Web;
     using System.Web.Hosting;
     using System.Web.Routing;
 
     /// <summary>
-    /// Resource route handler.  This allow for mapping phumcms static content when runAllManagedModulesForAllRequests is false.
+    /// Resource route handler.  This allow for mapping static content when runAllManagedModulesForAllRequests is false.
     /// </summary>
     /// <code>
     /// <add name="phuncms" path="phuncms/*" verb="*" type="Phun.ResourceRouteHandler" preCondition="integratedMode,runtimeVersionv4.0"/>
@@ -30,25 +30,8 @@
         /// <param name="context">An <see cref="T:System.Web.HttpContext" /> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
         public void ProcessRequest(HttpContext context)
         {
-            var request = context.Request;
-            var response = context.Response;
-
-            VirtualFile vf = null;
-            VirtualPathProvider vpp = new ResourcePathProvider();
-            string vpath = request.Path;
-
-            vf = vpp.GetFile(vpath);
-            var stream = vf.Open();
-
-            if (stream == null)
-            {
-                throw new HttpException(404, "Path '" + vpath + "' cannot be found.");
-            }
-
-            response.ContentType = MimeTypes.GetContentType(System.IO.Path.GetExtension(vpath));
-            stream.CopyTo(response.OutputStream);
-            response.OutputStream.Flush();
-            response.End();
+            var vf = new ResourceVirtualFile(context.Request.Path);
+            vf.WriteFile(new HttpContextWrapper(context));
         }
     }
 }

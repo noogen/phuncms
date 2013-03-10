@@ -5,6 +5,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Phun.Routing;
+
     /// <summary>
     /// Unit tests for Bootstrapper.
     /// </summary>

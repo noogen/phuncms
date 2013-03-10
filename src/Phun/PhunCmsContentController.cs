@@ -27,7 +27,7 @@
             this.MyContentConfig =
                 this.Config.ContentMaps.FirstOrDefault(
                     c =>
-                    string.Compare(c.RouteNormalized, this.Config.RouteNormalized, StringComparison.OrdinalIgnoreCase)
+                    string.Compare(c.RouteNormalized, this.Config.ContentRouteNormalized, StringComparison.OrdinalIgnoreCase)
                     == 0);
         }
 

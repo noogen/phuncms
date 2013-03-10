@@ -10,6 +10,8 @@
     using Moq;
     using Moq.Protected;
 
+    using Phun.Routing;
+
     /// <summary>
     /// PhunCmsMvcRouteHandler Tests
     /// </summary>

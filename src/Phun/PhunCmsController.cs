@@ -13,6 +13,7 @@
     using Phun.Configuration;
     using Phun.Data;
     using Phun.Extensions;
+    using Phun.Routing;
 
     /// <summary>
     /// Default controller.
@@ -147,7 +148,7 @@
             }
 
             // return the content
-            return this.Content(resultString);
+            return this.Content(resultString + string.Empty);
         }
 
         /// <summary>
@@ -252,11 +253,11 @@
                 path = (this.Request.Path + string.Empty).Trim().TrimEnd('/');
             }
 
-            // resource get route to here then we intercept
-            if (path.StartsWith("/" + this.Config.ResourceRouteNormalized + "/", StringComparison.OrdinalIgnoreCase))
+            // if somehow, CMS resource url get routed to here then we intercept
+            if (this.Config.IsResourceRoute(path))
             {
-                var handler = new ResourceRouteHandler();
-                handler.ProcessRequest(System.Web.HttpContext.Current);
+                var vf = new ResourceVirtualFile(path);
+                vf.WriteFile(this.HttpContext);
                 return null;
             }
 
@@ -267,8 +268,8 @@
 
             // when content is view as a page, attempt to auto load resources
             var result = this.Retrieve(path) as ContentResult;
-            var file = new ResourceVirtualFile("~/", string.Empty);
-            if (result.Content.IndexOf("</head>", StringComparison.OrdinalIgnoreCase) > 0)
+            var file = new ResourcePathUtility();
+            if (result != null && result.Content.IndexOf("</head>", StringComparison.OrdinalIgnoreCase) > 0)
             {
                 result.Content = result.Content.Replace("</head>", file.PhunCmsRenderBundles() + "</head>");
             }
@@ -286,7 +287,7 @@
         [HttpGet]
         public virtual ActionResult Edit(string path)
         {
-            var resourceProvider = new ResourcePathProvider();
+            var resourceProvider = new ResourcePathUtility();
 
             return this.View(resourceProvider.GetResourcePath("edit.cshtml"));
         }
@@ -325,7 +326,7 @@
         [HttpGet]
         public virtual ActionResult FileManager()
         {
-            var resourceProvider = new ResourcePathProvider();
+            var resourceProvider = new ResourcePathUtility();
 
             return this.View(resourceProvider.GetResourcePath("filemanager.cshtml"));
         }

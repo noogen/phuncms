@@ -8,6 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Phun.Extensions;
+    using Phun.Routing;
 
     /// <summary>
     /// Unit tests for resource virtual file
@@ -22,7 +23,7 @@
         public void TestRenderBundlesWithNoParametersReturnValidPath()
         {
             // Arrange
-            var rvf = new ResourceVirtualFile("~/blah", string.Empty);
+            var rvf = new ResourcePathUtility();
             rvf.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
             var expected = "<script type='text/javascript' src='/BogusRoute/Scripts/jquery.js'></script>";
 
@@ -41,7 +42,7 @@
         public void TestRenderBundlesDoesNotRenderEditorInitialize()
         {
             // Arrange
-            var rvf = new ResourceVirtualFile("~/blah", string.Empty);
+            var rvf = new ResourcePathUtility();
             rvf.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
             var expected = "<script type='text/javascript' src='/BogusRoute/Scripts/jquery.js'></script>";
 
@@ -60,7 +61,7 @@
         public void TestOpenReturnStaticResourceVirtualFile()
         {
             // Arrange
-            var rvf = new ResourceVirtualFile("~/blah", "Phun.Properties.scripts.phuncms.config.js");
+            var rvf = new ResourceVirtualFile("~/PhunCms/scripts/phuncms.config.js");
 
             // Act
             using (var result = rvf.Open())
@@ -79,7 +80,7 @@
         public void TestOpenThrowExceptionForNullResult()
         {
             // Arrange
-            var rvf = new ResourceVirtualFile("~/blah", "blah.js");
+            var rvf = new ResourceVirtualFile("~/PhunCms/Scripts/blah.js");
 
             // Act
             rvf.Open();
@@ -92,7 +93,7 @@
         public void TestOpenReturnAValidStream()
         {
             // Arrange
-            var rvf = new ResourceVirtualFile("~/blah", "Phun.Properties.scripts.jquery.js");
+            var rvf = new ResourceVirtualFile("~/PhunCms/scripts/jquery.js");
 
             // Act
             var stream = rvf.Open();

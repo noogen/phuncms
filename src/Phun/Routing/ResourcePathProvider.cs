@@ -1,4 +1,4 @@
-﻿namespace Phun
+﻿namespace Phun.Routing
 {
     using System;
     using System.Collections;
@@ -53,7 +53,7 @@
         {
             if (this.IsEmbeddedResourcePath(virtualPath))
             {
-                return new ResourceVirtualFile(virtualPath, this.TranslateToResourcePath(virtualPath));
+                return new ResourceVirtualFile(virtualPath);
             }
 
             return base.GetFile(virtualPath);
@@ -79,34 +79,6 @@
         }
 
         /// <summary>
-        /// Gets the resource path.
-        /// </summary>
-        /// <param name="resource">The resource.</param>
-        /// <returns>Resource path.</returns>
-        protected internal virtual string GetResourcePath(string resource)
-        {
-            var resourcePath = (this.Config.ResourceRoute + string.Empty).Replace("~", string.Empty).Trim('/');
-
-            return string.Format("/{0}/{1}", resourcePath, resource.Trim('/'));
-        }
-
-        /// <summary>
-        /// Translates to resource path.
-        /// </summary>
-        /// <param name="virtualPath">The virtual path.</param>
-        /// <returns>The resource path.</returns>
-        protected virtual string TranslateToResourcePath(string virtualPath)
-        {
-            // resource file name are stored in lowerred case
-            var resourceRoute = this.GetResourcePath(string.Empty).ToLowerInvariant();
-
-            // actual resource folders are translated to periods
-            var resource = (virtualPath + string.Empty).Replace("~", string.Empty).ToLowerInvariant().Replace(resourceRoute, string.Empty).Replace("/", ".").Trim('.');
-
-            return string.Concat("Phun.Properties.", resource);
-        }
-
-        /// <summary>
         /// Determines whether [is embedded resource path] [the specified virtual path].
         /// </summary>
         /// <param name="virtualPath">The virtual path.</param>
@@ -116,10 +88,7 @@
         private bool IsEmbeddedResourcePath(string virtualPath)
         {
             var checkPath = VirtualPathUtility.ToAppRelative(virtualPath).Trim();
-            var resourceRoute = "~" + this.GetResourcePath(string.Empty).Trim();
-
-            var result = checkPath.StartsWith(resourceRoute, StringComparison.OrdinalIgnoreCase);
-            return result;
+            return this.Config.IsResourceRoute(checkPath);
         }
     }
 }

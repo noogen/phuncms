@@ -10,6 +10,7 @@
 
     using Phun.Configuration;
     using Phun.Data;
+    using Phun.Routing;
 
     /// <summary>
     /// CMS Html Helpers.
@@ -84,7 +85,7 @@
         /// </returns>
         public static MvcHtmlString PhunResourceUrl(this HtmlHelper html, string path)
         {
-            var provider = new ResourcePathProvider();
+            var provider = new ResourcePathUtility();
             return new MvcHtmlString(provider.GetResourcePath(path));
         }
 
@@ -103,7 +104,7 @@
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         public static MvcHtmlString PhunRenderBundles(this HtmlHelper html, bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
         {
-            var file = new ResourceVirtualFile("~/", string.Empty);
+            var file = new ResourcePathUtility();
             return new MvcHtmlString(file.PhunCmsRenderBundles(
                 includeJquery, includeJqueryui, includeBackbone, includeCkEditor, includeEditorInit));
         }

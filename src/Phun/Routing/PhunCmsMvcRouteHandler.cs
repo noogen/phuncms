@@ -1,4 +1,4 @@
-﻿namespace Phun
+﻿namespace Phun.Routing
 {
     using System.Configuration;
     using System.Linq;
@@ -69,7 +69,7 @@
                 if (string.IsNullOrEmpty(contentControllerName))
                 {
                     var config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
-                    var routeController = config.RouteNormalized + "/";
+                    var routeController = config.ContentRouteNormalized + "/";
 
                     var route =
                         RouteTable.Routes.Cast<Route>()
