@@ -6,6 +6,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using System.Web.Mvc;
+    using System.Web.Routing;
 
     using Phun.Configuration;
     using Phun.Data;
@@ -41,28 +42,36 @@
         }
 
         /// <summary>
+        /// Phuns the render partial for inline edit.
+        /// </summary>
+        /// <param name="html">The HTML.</param>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="htmlAttributes">The HTML attributes.</param>
+        public static MvcHtmlString PhunRenderPartialForInlineEdit(
+            this HtmlHelper html, string tagName, string contentName, object htmlAttributes)
+        {
+            return PhunRenderPartialForInlineEdit(html, tagName, contentName, new RouteValueDictionary(htmlAttributes));
+        }
+
+        /// <summary>
         /// Renders a div box and content of the CMS.
         /// </summary>
         /// <param name="html">The HTML helper.</param>
         /// <param name="tagName">Name of the tag.</param>
         /// <param name="contentName">Name of the content.</param>
-        /// <param name="attributes">The attributes.</param>
-        public static void PhunRenderPartialForInlineEdit(this HtmlHelper html, string tagName, string contentName, IDictionary<string, object> attributes = null)
+        /// <param name="htmlAttributes">The HTML attributes.</param>
+        public static MvcHtmlString PhunRenderPartialForInlineEdit(this HtmlHelper html, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
         {
             var tagBuilder = new TagBuilder(tagName);
             tagBuilder.Attributes.Add("about", contentName);
-            if (attributes != null)
+            if (htmlAttributes != null)
             {
-                tagBuilder.MergeAttributes(attributes);
+                tagBuilder.MergeAttributes(htmlAttributes);
             }
-
-            var writer = html.ViewContext.Writer;
-            writer.Write(tagBuilder.ToString(TagRenderMode.StartTag));
-            writer.Write("<div property=\"content\">");
             var data = html.PhunRenderPartialContent(contentName);
-            writer.Write(string.IsNullOrEmpty(data) ? "&nbsp;" : data);
-            writer.Write("</div>");
-            writer.Write(tagBuilder.ToString(TagRenderMode.EndTag));
+            tagBuilder.InnerHtml = string.Concat("<div property=\"content\">", data, "</div>");
+            return new MvcHtmlString(tagBuilder.ToString(TagRenderMode.Normal));
         }
 
         /// <summary>

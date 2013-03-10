@@ -115,10 +115,11 @@
         /// </returns>
         private bool IsEmbeddedResourcePath(string virtualPath)
         {
-            var checkPath = VirtualPathUtility.ToAppRelative(virtualPath);
-            var resourceRoute = "~" + this.GetResourcePath(string.Empty);
+            var checkPath = VirtualPathUtility.ToAppRelative(virtualPath).Trim();
+            var resourceRoute = "~" + this.GetResourcePath(string.Empty).Trim();
 
-            return checkPath.StartsWith(resourceRoute, StringComparison.InvariantCultureIgnoreCase);
+            var result = checkPath.StartsWith(resourceRoute, StringComparison.OrdinalIgnoreCase);
+            return result;
         }
     }
 }

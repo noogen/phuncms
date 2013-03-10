@@ -3,7 +3,7 @@
 @inherits System.Web.Mvc.WebViewPage
 @{
     Layout = null;
-    var basePath = this.Request.Path.ToLowerInvariant().Replace("/filebrowser", string.Empty).TrimEnd('/');
+    var basePath = this.Request.Path.ToLowerInvariant().Replace("/filemanager", string.Empty).TrimEnd('/');
 }
 <!DOCTYPE html>
 <html>      
@@ -87,7 +87,7 @@
                     autoCollapse: true,
                     initAjax: {
                         type: "POST",
-                        url: "@basePath/FileBrowserDynatree",
+                        url: "@basePath/FileManagerDynatree",
                         data: { path: '/' },
                         cache: false
                     },
@@ -99,7 +99,7 @@
                     onLazyRead: function (node) {
                         node.appendAjax({
                             type: "POST",
-                            url: "@basePath/FileBrowserDynatree",
+                            url: "@basePath/FileManagerDynatree",
                             data: { path: node.data.key },
                             cache: false,
                             success: function(loadedNode) {
@@ -240,7 +240,7 @@
                     <tbody>
                         <tr>
                             <td><span>Current Path: </span><span class="path" style="padding-right: 20px;">/</span> </td>
-                            <td><form method="post" enctype="multipart/form-data" action="@basePath/FileBrowser"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
+                            <td><form method="post" enctype="multipart/form-data" action="@basePath/FileManager"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
                         </tr>
                     </tbody>
                 </table>

@@ -122,6 +122,11 @@
                         baseBath = System.IO.Path.Combine(baseBath, this.RepositoryStorage);
                     }
 
+                    if (!System.IO.Directory.Exists(baseBath))
+                    {
+                        System.IO.Directory.CreateDirectory(baseBath);
+                    }
+
                     var repo = new FileContentRepository(baseBath);
                     result = repo;
                 }

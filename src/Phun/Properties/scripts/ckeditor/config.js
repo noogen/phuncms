@@ -37,7 +37,7 @@ CKEDITOR.editorConfig = function( config ) {
     ];
     
     if (typeof(PhunCms) != "undefined") {
-        config.filebrowserBrowseUrl = '/' + PhunCms.contentRoute + '/filebrowser';
+        config.filebrowserBrowseUrl = '/' + PhunCms.contentRoute + '/filemanager';
     }
     
     config.filebrowserWindowWidth = '960';

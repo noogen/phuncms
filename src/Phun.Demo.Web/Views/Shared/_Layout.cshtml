@@ -12,7 +12,7 @@
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("your logo here", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink("Phun CMS", "Index", "Home")</p>
                 </div>
                 <div class="float-right">
                     <section id="login">
@@ -21,8 +21,7 @@
                     <nav>
                         <ul id="menu">
                             <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                            <li>@Html.ActionLink("About", "About", "Home")</li>
-                            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                            <li><a href="/CmsContent/FileManager">File Manager</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -42,7 +41,6 @@
             </div>
         </footer>
 
-        @Scripts.Render("~/bundles/jquery")
         @RenderSection("scripts", required: false)
     </body>
 </html>

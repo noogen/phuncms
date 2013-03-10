@@ -252,6 +252,14 @@
                 path = (this.Request.Path + string.Empty).Trim().TrimEnd('/');
             }
 
+            // resource get route to here then we intercept
+            if (path.StartsWith("/" + this.Config.ResourceRouteNormalized + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                var handler = new ResourceRouteHandler();
+                handler.ProcessRequest(System.Web.HttpContext.Current);
+                return null;
+            }
+
             if (!path.EndsWith("_default"))
             {
                 path = path + "/_default";
@@ -288,7 +296,7 @@
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>DYNATREE result.</returns>
-        public virtual ActionResult FileBrowserDynatree(string path)
+        public virtual ActionResult FileManagerDynatree(string path)
         {
             var model = new ContentModel
                             {
@@ -315,11 +323,11 @@
         /// View result that display a file browser.
         /// </returns>
         [HttpGet]
-        public virtual ActionResult FileBrowser()
+        public virtual ActionResult FileManager()
         {
             var resourceProvider = new ResourcePathProvider();
 
-            return this.View(resourceProvider.GetResourcePath("filebrowser.cshtml"));
+            return this.View(resourceProvider.GetResourcePath("filemanager.cshtml"));
         }
 
         /// <summary>
@@ -331,7 +339,7 @@
         /// Result for file upload.
         /// </returns>
         [HttpPost]
-        public virtual ActionResult FileBrowser(HttpPostedFileBase upload, string path)
+        public virtual ActionResult FileManager(HttpPostedFileBase upload, string path)
         {
             var contentModel = new ContentModel()
             {
@@ -357,7 +365,7 @@
 
             this.ContentRepository.Save(contentModel);
 
-            return this.FileBrowser();
+            return this.FileManager();
         }
 
         /// <summary>

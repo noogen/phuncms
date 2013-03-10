@@ -6,25 +6,18 @@ using System.Web.Mvc;
 
 namespace Phun.Demo.Web.Controllers
 {
+    /// <summary>
+    /// Home controller.
+    /// </summary>
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Indexes this instance.
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
-
-            return View();
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your app description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Welcome to Phun CMS demo page.";
 
             return View();
         }

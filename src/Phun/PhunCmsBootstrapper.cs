@@ -58,7 +58,6 @@
                                         routeMap.RouteNormalized + "/Download/{*path}",
                                         new RouteValueDictionary(new { controller = routeMap.Controller, action = "Download", path = UrlParameter.Optional }),
                                                                    new MvcRouteHandler()));
-
             }
 
             // handle embedded resources route 

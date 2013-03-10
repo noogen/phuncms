@@ -182,13 +182,13 @@
         /// Tests the file browser return resource view result.
         /// </summary>
         [TestMethod]
-        public void TestFileBrowserReturnResourceViewResult()
+        public void TestFileManagerReturnResourceViewResult()
         {
             // Arrange
             var controller = new PhunCmsContentController();
 
             // Act
-            var result = controller.FileBrowser() as ViewResult;
+            var result = controller.FileManager() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -198,7 +198,7 @@
         /// Tests the file browser post save file and return resource view result.
         /// </summary>
         [TestMethod]
-        public void TestFileBrowserPostSaveFileAndReturnResourceViewResult()
+        public void TestFileManagerPostSaveFileAndReturnResourceViewResult()
         {
             // Arrange
             var controller = new PhunCmsContentController();
@@ -219,7 +219,7 @@
             httpPostFile.Setup(pf => pf.InputStream).Returns(new MemoryStream(new byte[] { 1, 1 }));
 
             // Act
-            var result = controller.FileBrowser(httpPostFile.Object, "~/blah") as ViewResult;
+            var result = controller.FileManager(httpPostFile.Object, "~/blah") as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -230,7 +230,7 @@
         /// Tests the file browser DYNATREE returns multiple result.
         /// </summary>
         [TestMethod]
-        public void TestFileBrowserDynatreeReturnsMultipleResult()
+        public void TestFileManagerDynatreeReturnsMultipleResult()
         {
             // Arrange
             var controller = new PhunCmsContentController();
@@ -251,7 +251,7 @@
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            var result = controller.FileBrowserDynatree("/blah") as JsonResult;
+            var result = controller.FileManagerDynatree("/blah") as JsonResult;
             
             // Assert
             repo.VerifyAll();
@@ -266,7 +266,7 @@
         /// Tests the file browser DYNATREE of root path return A single result.
         /// </summary>
         [TestMethod]
-        public void TestFileBrowserDynatreeOfRootPathReturnASingleResult()
+        public void TestFileManagerDynatreeOfRootPathReturnASingleResult()
         {
             // Arrange
             var controller = new PhunCmsContentController();
@@ -287,7 +287,7 @@
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            var result = controller.FileBrowserDynatree("/") as JsonResult;
+            var result = controller.FileManagerDynatree("/") as JsonResult;
 
             // Assert
             repo.VerifyAll();
