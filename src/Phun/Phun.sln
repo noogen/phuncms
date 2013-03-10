@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phun", "Phun\Phun.csproj", "{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phun.Tests", "Phun.Tests\Phun.Tests.csproj", "{A3DCE3A1-43F5-4532-9485-2C6F16CF335B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phun.Demo.Web", "Phun.Demo.Web\Phun.Demo.Web.csproj", "{3576C3EC-7B80-4611-B5DD-946A2481B9A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{98909D4B-DF6A-4E65-9369-A814BA4C946A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C3805761-2238-4029-99EE-F4CD3463BAD1}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		Phun.vsmdi = Phun.vsmdi
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Phun.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3DCE3A1-43F5-4532-9485-2C6F16CF335B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3DCE3A1-43F5-4532-9485-2C6F16CF335B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3DCE3A1-43F5-4532-9485-2C6F16CF335B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3DCE3A1-43F5-4532-9485-2C6F16CF335B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3576C3EC-7B80-4611-B5DD-946A2481B9A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3576C3EC-7B80-4611-B5DD-946A2481B9A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3576C3EC-7B80-4611-B5DD-946A2481B9A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3576C3EC-7B80-4611-B5DD-946A2481B9A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

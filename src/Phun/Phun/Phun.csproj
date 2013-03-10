@@ -1,0 +1,457 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{19D1FBA2-5BBD-47C2-9D2B-23448BE01179}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Phun</RootNamespace>
+    <AssemblyName>Phun</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="MiniProfiler">
+      <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20715.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CmsAdminAuthorizeAttribute.cs" />
+    <Compile Include="Extensions\HtmlHelpers.cs" />
+    <Compile Include="Configuration\AConfigurationElementCollection.cs" />
+    <Compile Include="Configuration\HostAuthorizationCollection.cs" />
+    <Compile Include="Configuration\HostAuthorizationConfiguration.cs" />
+    <Compile Include="Configuration\MapRouteCollection.cs" />
+    <Compile Include="Configuration\MapRouteConfiguration.cs" />
+    <Compile Include="Configuration\PhunCmsConfigurationSection.cs" />
+    <Compile Include="DynaTreeViewModel.cs" />
+    <Compile Include="MimeTypes.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourcePathProvider.cs" />
+    <Compile Include="ResourceVirtualFile.cs" />
+    <Compile Include="PhunCmsBootstrapper.cs" />
+    <Compile Include="PhunCmsContentController.cs" />
+    <Compile Include="PhunCmsController.cs" />
+    <Compile Include="PhunCmsMvcRouteHandler.cs" />
+    <Compile Include="Data\ContentModel.cs" />
+    <Compile Include="Data\FileContentRepository.cs" />
+    <Compile Include="Data\IContentRepository.cs" />
+    <Compile Include="Data\SqlContentRepository.cs" />
+    <Compile Include="Extensions\StreamExtensions.cs" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\filebrowser.cshtml" />
+    <EmbeddedResource Include="Properties\_viewstart.cshtml" />
+    <EmbeddedResource Include="Properties\css\font_awesome\font\fontawesome-webfont.eot" />
+    <EmbeddedResource Include="Properties\css\font_awesome\font\fontawesome-webfont.svgz" />
+    <EmbeddedResource Include="Properties\css\font_awesome\font\fontawesome-webfont.ttf" />
+    <EmbeddedResource Include="Properties\css\font_awesome\font\fontawesome-webfont.woff" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\CHANGES.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\LICENSE.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\scayt\LICENSE.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\scayt\README.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\LICENSE.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\README.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\README.md" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\readme.md" />
+    <EmbeddedResource Include="Properties\edit.cshtml" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\css\create_ui\css\create-ui.css" />
+    <EmbeddedResource Include="Properties\css\create_ui\img\create-ui-bg.png" />
+    <EmbeddedResource Include="Properties\css\create_ui\img\create-ui-logo.png" />
+    <EmbeddedResource Include="Properties\css\create_ui\img\create-ui-xdivider.png" />
+    <EmbeddedResource Include="Properties\css\midgard_notifications\leftright.png" />
+    <EmbeddedResource Include="Properties\css\midgard_notifications\midgardnotif.css" />
+    <EmbeddedResource Include="Properties\css\midgard_notifications\topbottom.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\application.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\code.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\css.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\db.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\directory.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\doc.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\file.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\film.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\flash.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\folder_open.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\html.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\java.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\linux.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\music.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\pdf.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\php.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\picture.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\ppt.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\psd.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\ruby.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\script.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\spinner.gif" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\txt.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\xls.png" />
+    <EmbeddedResource Include="Properties\css\dynatree\images\zip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\create.js" />
+    <EmbeddedResource Include="Properties\scripts\jquery.js" />
+    <EmbeddedResource Include="Properties\scripts\jqueryui.js" />
+    <EmbeddedResource Include="Properties\scripts\jquery.dynatree.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\underscore.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\backbone.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\hallo.js" />
+    <EmbeddedResource Include="Properties\scripts\rangy-core.js" />
+    <EmbeddedResource Include="Properties\scripts\vie.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\require.js" />
+    <EmbeddedResource Include="Properties\scripts\phuncms.boot.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\jquery.cookie.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\css\dynatree\icons-rtl.gif" />
+    <EmbeddedResource Include="Properties\css\dynatree\icons.gif" />
+    <EmbeddedResource Include="Properties\css\dynatree\loading.gif" />
+    <EmbeddedResource Include="Properties\css\dynatree\ui.dynatree.css" />
+    <EmbeddedResource Include="Properties\css\dynatree\vline-rtl.gif" />
+    <EmbeddedResource Include="Properties\css\dynatree\vline.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\css\font_awesome\css\font-awesome-ie7.css" />
+    <EmbeddedResource Include="Properties\css\font_awesome\css\font-awesome.css" />
+    <EmbeddedResource Include="Properties\css\font_awesome\font\fontawesome-webfont.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\ckeditor\build-config.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\ckeditor.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\config.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\contents.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\af.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ar.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\bg.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\bn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\bs.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ca.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\cs.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\cy.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\da.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\de.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\el.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\en-au.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\en-ca.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\en-gb.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\en.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\eo.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\es.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\et.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\eu.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\fa.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\fi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\fo.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\fr-ca.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\fr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\gl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\gu.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\he.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\hi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\hr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\hu.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\is.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\it.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ja.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ka.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\km.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ko.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ku.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\lt.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\lv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\mk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\mn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ms.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\nb.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\nl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\no.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\pl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\pt-br.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\pt.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ro.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ru.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\sk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\sl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\sr-latn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\sr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\sv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\th.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\tr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\ug.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\uk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\vi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\zh-cn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\lang\zh.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\a11yhelp.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ar.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\bg.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ca.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\cs.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\cy.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\da.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\de.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\el.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\en.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\eo.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\es.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\et.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\fa.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\fi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\fr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\gu.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\he.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\hi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\hr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\hu.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\it.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ja.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ku.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\lt.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\lv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\mk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\mn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\nb.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\nl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\no.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\pl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\pt-br.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\pt.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ro.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ru.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\sk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\sl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\sv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\tr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\ug.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\uk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\vi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\zh-cn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\a11yhelp\dialogs\lang\_translationstatus.txt" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\about\dialogs\about.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\about\dialogs\logo_ckeditor.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\clipboard\dialogs\paste.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\colordialog\dialogs\colordialog.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\dialog\dialogdefinition.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\div\dialogs\div.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\fakeobjects\images\spacer.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\find\dialogs\find.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\flash\dialogs\flash.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\flash\images\placeholder.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\button.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\checkbox.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\form.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\hiddenfield.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\radio.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\select.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\textarea.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\dialogs\textfield.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\forms\images\hiddenfield.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\icons.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\iframe\dialogs\iframe.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\iframe\images\placeholder.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\image\dialogs\image.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\image\images\noimage.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\link\dialogs\anchor.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\link\dialogs\link.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\link\images\anchor.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\liststyle\dialogs\liststyle.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\magicline\images\icon.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\pagebreak\images\pagebreak.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\pastefromword\filter\default.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\preview\preview.html" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\scayt\dialogs\options.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\scayt\dialogs\toolbar.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_address.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_blockquote.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_div.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h1.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h2.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h3.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h4.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h5.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_h6.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_p.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\showblocks\images\block_pre.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\dialogs\smiley.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\angel_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\angry_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\broken_heart.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\confused_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\cry_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\devil_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\embaressed_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\embarrassed_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\envelope.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\heart.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\kiss.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\lightbulb.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\omg_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\regular_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\sad_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\shades_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\teeth_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\thumbs_down.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\thumbs_up.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\tongue_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\tounge_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\whatchutalkingabout_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\smiley\images\wink_smile.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\ca.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\cs.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\cy.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\de.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\el.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\en.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\eo.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\et.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\fa.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\fi.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\fr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\he.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\hr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\it.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\ku.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\lv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\nb.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\nl.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\no.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\pt-br.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\sk.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\sv.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\tr.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\ug.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\zh-cn.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\lang\_translationstatus.txt" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\specialchar\dialogs\specialchar.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\tabletools\dialogs\tablecell.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\table\dialogs\table.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\dialogs\templates.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\dialogs\templates.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\templates\default.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\templates\images\template1.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\templates\images\template2.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\templates\templates\images\template3.gif" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\dialogs\ciframe.html" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\dialogs\tmpframeset.html" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\dialogs\wsc.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wsc\dialogs\wsc.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog_ie.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog_ie7.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog_ie8.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog_iequirks.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\dialog_opera.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor_gecko.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor_ie.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor_ie7.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor_ie8.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\editor_iequirks.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\icons.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\images\arrow.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\images\close.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\skins\moono\images\mini.png" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\styles.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\annotate.js" />
+    <EmbeddedResource Include="Properties\scripts\jquery.rdfquery.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\phuncms.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wordcount\css\wordcount.css" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wordcount\lang\de.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wordcount\lang\en.js" />
+    <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\wordcount\plugin.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\scripts\phuncms.config.js" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

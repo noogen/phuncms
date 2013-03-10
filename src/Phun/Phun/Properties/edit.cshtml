@@ -1,0 +1,49 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@{
+    Layout = null;
+    var basePath = this.Request.Path.ToLowerInvariant().Replace("/edit", string.Empty).TrimEnd('/');
+}
+<!DOCTYPE html>
+<html>      
+    <head>
+        <meta charset="utf-8" />
+        <title>Simple CMS file editor</title>
+        <style type="text/css">
+            body { text-align: center; }
+            .content {
+                margin: 0 auto;
+                width: 960px;
+                text-align: left;
+                border: black dotted 1px;
+            } 
+            .action_menu {
+                background-color: white;
+                border: 1px solid #BBBBBB;
+                padding: 0 0 10px 10px;
+                text-align: right;
+            }
+        </style> 
+
+        @Html.PhunCmsRenderBundles(true, true, true, true, false)
+    </head>
+    <body>
+        <header>
+            <h1>Simple Cms file editor</h1>
+        </header>
+        <div class="content">
+            <form action="@basePath/Create?path=@Request.QueryString["path"]" method="POST">
+                <input type="hidden" value="@this.Request.Url.PathAndQuery" name="returnUrl"/> 
+		        <textarea cols="80" id="editor1" name="data" rows="50">
+			        @Html.PhunCmsContentData(this.Request.QueryString["path"])
+		        </textarea>
+	            <script type="text/javascript">
+		            CKEDITOR.replace( 'editor1', {
+			            fullPage: true,
+			            extraPlugins: 'wysiwygarea,wordcount',
+			            height: '600px'
+		            });
+	            </script>
+	        </form>  
+        </div>
+    </body>
+</html>
