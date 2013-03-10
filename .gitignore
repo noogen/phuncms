@@ -42,7 +42,7 @@ ipch/
 *.aps
 *.ncb
 *.opensdf
-*.sdf
+# *.sdf allow for checkin of sqlce database
 
 # Visual Studio profiler
 *.psess
