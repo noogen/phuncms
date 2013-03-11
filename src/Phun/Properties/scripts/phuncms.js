@@ -59,7 +59,7 @@
         });
 
     };
-
+    
     if (typeof (PhunCms) != "undefined") {
         
         // method for auto loading cms content
@@ -67,12 +67,26 @@
             var nodes = $('[data-cmscontent]');
             PhunCms.contentsToLoad = nodes.length;
             
+            function afterAllLoaded() {
+                if (PhunCms.contentsToLoad <= 0) {
+                    PhunCms.initEditor();
+                }
+            }
+            
             $('[data-cmscontent]').each(function () {
                 
                 var $this = $(this);
+                if (!$this.is(':empty')) {
+                    PhunCms.contentsToLoad--;
+                    var html = $this.html();
+                    $this.html('<div property="content">' + html + '</div>');
+                    afterAllLoaded();
+                    return;
+                }                
+
                 var path = $this.data("cmscontent");
-                $this.attr("about", path);
-                
+                $this.attr("about", path);                
+
                 // if path is a file, then append path to the current location path
                 // otherwise, it is a full path so just use the full path
                 if (path.indexOf('/') === -1) {
@@ -87,16 +101,12 @@
                         PhunCms.contentsToLoad--;
                         if (html == "") html = "&nbsp;";
                         $this.html('<div property="content">' + html + '</div>');
-                        if (PhunCms.contentsToLoad <= 0) {
-                            PhunCms.initEditor();
-                        }
+                        afterAllLoaded();
                     },
                     error: function(xhr, errDesc, ex) {
                         PhunCms.contentsToLoad--;
                         $this.html('<div property="content">&nbsp;</div>');
-                        if (PhunCms.contentsToLoad <= 0) {
-                            PhunCms.initEditor();
-                        }
+                        afterAllLoaded();
                     }
                 });
             });

@@ -89,5 +89,38 @@
 
             throw new HttpException(401, "Request upsert to path '" + path + "' is unauthorized.");
         }
+
+        /// <summary>
+        /// Uploads the specified file.
+        /// </summary>
+        /// <param name="upload">The upload.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Web.HttpException">401;Request upload to path ' + path + ' is unauthorized.</exception>
+        [AllowAnonymous]
+        public virtual ActionResult Upload(HttpPostedFileBase upload, string path)
+        {
+            var contentModel = new ContentModel()
+            {
+                Path = path,
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+            };
+
+            // if it's a file path then get the folder
+            if (!contentModel.Path.EndsWith("/"))
+            {
+                contentModel.Path = contentModel.Path.Substring(0, contentModel.Path.LastIndexOf('/'));
+            }
+
+            var fileName = (upload.FileName + string.Empty).Replace("/", "\\").Replace("\\\\", "\\");
+            contentModel.Path = string.Concat(contentModel.Path, "/", fileName.IndexOf('/') >= 0 ? System.IO.Path.GetFileName(upload.FileName) : upload.FileName);
+
+            if (this.ContentPathPermissionHandler != null && this.ContentPathPermissionHandler.IsAdmin(this, contentModel))
+            {
+                return this.FileManager(upload, path);
+            }
+
+            throw new HttpException(401, "Request upload to path '" + path + "' is unauthorized.");
+        }
     }
 }

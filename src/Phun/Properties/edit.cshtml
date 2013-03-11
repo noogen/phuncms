@@ -1,4 +1,5 @@
-﻿@inherits System.Web.Mvc.WebViewPage
+﻿@using Phun.Extensions
+@inherits System.Web.Mvc.WebViewPage
 @{
     Layout = null;
     var basePath = this.Request.Path.ToLowerInvariant().Replace("/edit", string.Empty).TrimEnd('/');
@@ -7,7 +8,7 @@
 <html>      
     <head>
         <meta charset="utf-8" />
-        <title>Simple CMS file editor</title>
+        <title>Phun CMS file editor</title>
         <style type="text/css">
             body { text-align: center; }
             .content {
@@ -24,17 +25,17 @@
             }
         </style> 
 
-        @Html.PhunCmsRenderBundles(true, true, true, true, false)
+        @Html.PhunRenderBundles(true, true, true, true, false)
     </head>
     <body>
         <header>
-            <h1>Simple Cms file editor</h1>
+            <h1>Phun Cms file editor</h1>
         </header>
         <div class="content">
             <form action="@basePath/Create?path=@Request.QueryString["path"]" method="POST">
                 <input type="hidden" value="@this.Request.Url.PathAndQuery" name="returnUrl"/> 
 		        <textarea cols="80" id="editor1" name="data" rows="50">
-			        @Html.PhunCmsContentData(this.Request.QueryString["path"])
+			        @Html.PhunRenderPartialContent(this.Request.QueryString["path"])
 		        </textarea>
 	            <script type="text/javascript">
 		            CKEDITOR.replace( 'editor1', {
