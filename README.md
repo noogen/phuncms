@@ -11,7 +11,9 @@ Base on the modular CMS movement
    - utilize createjs client-side CMS ui for support
    - server CRUD interface/repository/connector for content storage
    - basic server + client interface for file management
-   
+
+![Architecture](http://i.imgur.com/chzYYGN.png)
+
 howto
 =======
  - Make sure to provide correct configuration for content repository: file, sql, etc...
