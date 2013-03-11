@@ -30,13 +30,20 @@ from razor or view
 ========
  - You can use custom helpers to render partial content and scripts.
  - Content get server-side rendered when using html helper.
- 
-@Html.PhunRenderPartialContent("LeftHeader") or @Html.PhunRenderPartialForInlineEdit("h2", "LeftHeader", new { @class= "one" })
+
+```c#
+@Html.PhunRenderPartialContent("LeftHeader") 
+```
+or
+
+```c#
+@Html.PhunRenderPartialForInlineEdit("h2", "LeftHeader", new { @class= "one" })
 
 @section scripts
 {
     @Html.PhunRenderBundles()
 }
+```
 
 from any html page
 =========
