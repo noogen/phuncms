@@ -9,7 +9,7 @@
 <html>      
     <head>
         <meta charset="utf-8" />
-        <title>Simple CMS file browser</title>
+        <title>Phun CMS file manager</title>
         @this.InitClientTimings()
         <script src="@Html.PhunResourceUrl("Scripts/jquery.js")" type="text/javascript"></script>
         <script src="@Html.PhunResourceUrl("Scripts/jqueryui.js")" type="text/javascript"></script>
@@ -119,8 +119,39 @@
                     }
                 });
             
+                $(".new-page").click(function (e) {
+                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+                    
+                    if (window.location.hash == "#" || node == null) {
+                        alert("Please select a folder.");
+                        return false;
+                    }
+
+                    var the_name = window.prompt("Enter name of new page under current directory: ", "");
+
+                    if (the_name != null && the_name != "") {
+                        var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+                        if (!node.data.isFolder) {
+                            node = node.getParent();
+                        }
+                        var newKey = (node.data.key + the_name.replace(/\//gi, "").replace(/\\/gi, "") + "\/");
+                        var newNode = node.addChild({ title: the_name, key: newKey, isFolder: true, isLazy: true });
+                        $.ajax({
+                            type: "POST",
+                            url: "@basePath/Create",
+                            data: { path: newKey + "_default", data: '' },
+                            cache: false,
+                            success: function (data) {
+                                newNode.activate();
+                            }
+                        });
+                    }
+                });
+                
                 $(".new-directory").click(function (e) {
-                    if (window.location.hash == "#") {
+                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+
+                    if (window.location.hash == "#" || node == null) {
                         alert("Please select a folder.");
                         return false;
                     }
@@ -128,7 +159,6 @@
                     var the_name = window.prompt("Please note that directory does not exists on it's own.  You must upload file to persist.\r\nEnter name of new directory under current directory: ", "");
                 
                     if (the_name != null && the_name != "") {
-                        var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
                         if (!node.data.isFolder) {
                             node = node.getParent();
                         }

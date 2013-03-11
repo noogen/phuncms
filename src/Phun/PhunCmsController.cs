@@ -83,6 +83,11 @@
                                 Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
                             };
 
+            if (this.ContentRepository.Exists(model))
+            {
+                throw new ArgumentException("Cannot overwrite an existing content of path: " + path, path);
+            }
+
             this.ContentRepository.Save(model);
 
             if (!string.IsNullOrEmpty(returnUrl))
@@ -162,7 +167,16 @@
         [HttpPut, ValidateInput(false)]
         public virtual ActionResult Update(string path, string data)
         {
-            return this.Create(path, data, null);
+            var model = new ContentModel()
+            {
+                Path = path,
+                Data = System.Text.Encoding.UTF8.GetBytes(data),
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+            };
+
+            this.ContentRepository.Save(model);
+
+            return this.Json(new { createdate = model.CreateDate, success = true });
         }
 
         /// <summary>
