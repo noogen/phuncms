@@ -48,3 +48,9 @@ from any html page
 ```
 - Example will render LeftHeader on server-side, while RightHeader get ajax load.
 - Phun javascript and css are automatically get injected before content </head> or you can reference them yourself.
+
+demo
+========
+- I'm still working getting the demo on my free WebSpark Azure account.
+- For now, go ahead and try it.  Grab the source and run Phun.Demo.Web or try out the nuget PhunCMS package.  Project requires Visual Studio 2012.
+- Drop a comment, suggestion or request on github issue page.
