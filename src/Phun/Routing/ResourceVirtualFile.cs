@@ -54,7 +54,7 @@
         {
             var util = new ResourcePathUtility();
             var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(this.resourcePath);
-            if (result == null && this.resourcePath.EndsWith("scripts.phuncms.config.js"))
+            if (this.resourcePath.EndsWith("scripts.phuncms.config.js"))
             {
                 var fileString =
                     string.Format(ResourcePathUtility.ScriptsphuncmsConfigJs, this.Config.ResourceRouteNormalized, this.Config.ContentRouteNormalized)
@@ -86,13 +86,48 @@
             {
                 throw new HttpException(404, "Path '" + this.virtualFilePath + "' cannot be found.");
             }
+            
+            // since this is embedded resource, set last modified by specific date
+            if (!this.TrySet304(context))
+            {
+                response.ContentType = MimeTypes.GetContentType(System.IO.Path.GetExtension(this.virtualFilePath));
+                stream.CopyTo(response.OutputStream);
+                response.OutputStream.Flush();
+            }
 
-            response.ContentType = MimeTypes.GetContentType(System.IO.Path.GetExtension(this.virtualFilePath));
-            stream.CopyTo(response.OutputStream);
-            response.OutputStream.Flush();
             response.End();
         }
 
+        /// <summary>
+        /// Tries the set304.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>To to set 304 response.</returns>
+        public bool TrySet304(HttpContextBase context)
+        {
+            if (this.Config.DisableResourceCache || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js"))
+            {
+                return false;
+            }
+
+            var currentDate = System.IO.File.GetLastAccessTime(Assembly.GetExecutingAssembly().Location);
+            context.Response.Cache.SetLastModified(currentDate);
+            context.Response.Cache.SetCacheability(HttpCacheability.Public);
+ 
+            DateTime previousDate;
+            string data = context.Request.Headers["If-Modified-Since"] + string.Empty;
+            if (DateTime.TryParse(data, out previousDate))
+            {
+                if (currentDate > previousDate.AddMilliseconds(100))
+                 {
+                     context.Response.StatusCode = 304;
+                     context.Response.StatusDescription = "Not Modified";
+                     return true;
+                 }
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Translates to resource path.

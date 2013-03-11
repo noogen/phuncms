@@ -20,7 +20,6 @@
         {
             var config =  ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
             this.PopulateRolesFromConfiguration(config, filterContext);
-
             base.OnAuthorization(filterContext);
         }
 

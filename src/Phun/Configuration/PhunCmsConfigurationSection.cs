@@ -35,6 +35,19 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether [disable resource cache].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [disable resource cache]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("disableResourceCache", IsRequired = false, DefaultValue = false)]
+        public bool DisableResourceCache
+        {
+            get { return (bool)this["disableResourceCache"]; }
+            set { this["disableResourceCache"] = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the content route.
         /// </summary>
         /// <value>

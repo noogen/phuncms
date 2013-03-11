@@ -36,7 +36,7 @@
         /// <param name="context">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         public override void PostResolveRequestCache(HttpContextBase context)
         {
-            if (this.Config.IsContentRoute(context.Request.Path) || this.Config.IsContentRoute(context.Request.Path))
+            if (this.Config.IsResourceRoute(context.Request.Path) || this.Config.IsContentRoute(context.Request.Path))
             {
                 return;
             }

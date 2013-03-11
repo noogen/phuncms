@@ -3,6 +3,8 @@
     using System;
     using System.Collections;
     using System.Configuration;
+    using System.Linq;
+    using System.Reflection;
     using System.Web;
     using System.Web.Caching;
     using System.Web.Hosting;
@@ -12,12 +14,12 @@
     /// <summary>
     /// Allow for mapping of contents to our resources.
     /// </summary>
-    public class ResourcePathProvider : VirtualPathProvider
+    public class ResourceVirtualPathProvider : VirtualPathProvider
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ResourcePathProvider"/> class.
+        /// Initializes a new instance of the <see cref="ResourceVirtualPathProvider"/> class.
         /// </summary>
-        public ResourcePathProvider()
+        public ResourceVirtualPathProvider()
         {
             this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
         }
@@ -53,7 +55,16 @@
         {
             if (this.IsEmbeddedResourcePath(virtualPath))
             {
-                return new ResourceVirtualFile(virtualPath);
+                var file = new ResourceVirtualFile(virtualPath);
+                if ((System.Web.HttpContext.Current != null) && file.TrySet304(new HttpContextWrapper(System.Web.HttpContext.Current)))
+                {
+                    System.Web.HttpContext.Current.Response.End();
+                    return null;
+                }
+                else
+                {
+                    return file;
+                }
             }
 
             return base.GetFile(virtualPath);
@@ -68,11 +79,13 @@
         /// <returns>
         /// A <see cref="T:System.Web.Caching.CacheDependency" /> object for the specified virtual resources.
         /// </returns>
-        public override CacheDependency GetCacheDependency(string virtualPath, IEnumerable virtualPathDependencies, DateTime utcStart)
+        public override CacheDependency GetCacheDependency(
+            string virtualPath, IEnumerable virtualPathDependencies, DateTime utcStart)
         {
+            // set cache dependency to the web.config file for embedded resources
             if (this.IsEmbeddedResourcePath(virtualPath))
             {
-                return null;
+                return (virtualPath + string.Empty).ToLowerInvariant().Contains("phuncms.config.js") ? null : new CacheDependency(Assembly.GetExecutingAssembly().Location);
             }
 
             return base.GetCacheDependency(virtualPath, virtualPathDependencies, utcStart);

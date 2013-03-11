@@ -1,0 +1,14 @@
+<configuration>
+  <configSections>
+    <section name="phuncms" type="Phun.Configuration.PhunCmsConfigurationSection, Phun" requirePermission="false" />
+  </configSections>
+  <phuncms resourceRoute="PhunCms" contentRoute="CmsContent">
+    <contentMap>
+      <add route="CmsContent" repositoryType="file" repositorySource="App_Data" repositoryStorage="CmsContent" />
+      <!--<add route="CmsContent" repositoryType="sql" repositorySource="DefaultConnection" repositoryStorage="CmsContent" />   -->
+    </contentMap>
+  </phuncms>
+  <system.webServer>
+    <modules runAllManagedModulesForAllRequests="true"/>
+  </system.webServer>
+</configuration>

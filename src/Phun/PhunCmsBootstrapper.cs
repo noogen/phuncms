@@ -64,7 +64,7 @@
             // handle embedded resources route 
             if (registerPhunCmsVirtualPath)
             {
-                HostingEnvironment.RegisterVirtualPathProvider(new ResourcePathProvider());
+                HostingEnvironment.RegisterVirtualPathProvider(new ResourceVirtualPathProvider());
             }
         }
     }

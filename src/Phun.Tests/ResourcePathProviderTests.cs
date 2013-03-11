@@ -21,7 +21,7 @@
         public void TestGetFileReturnResourceVirtualFile()
         {
             // Arrange
-            var rvp = new ResourcePathProvider();
+            var rvp = new ResourceVirtualPathProvider();
             rvp.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
 
             // Act
@@ -38,7 +38,7 @@
         public void TestFileExistsReturnTrueForResourceRoute()
         {
             // Arrange
-            var rvp = new ResourcePathProvider();
+            var rvp = new ResourceVirtualPathProvider();
             rvp.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
 
             // Act
@@ -46,23 +46,6 @@
 
             // Assert
             Assert.IsTrue(result);
-        }
-
-        /// <summary>
-        /// Tests the cache dependency return null for resource route.
-        /// </summary>
-        [TestMethod]
-        public void TestCacheDependencyReturnNullForResourceRoute()
-        {
-            // Arrange
-            var rvp = new ResourcePathProvider();
-            rvp.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
-
-            // Act
-            var result = rvp.GetCacheDependency("~/BogusRoute/blah", null, DateTime.Now);
-
-            // Assert
-            Assert.IsNull(result);
         }
     }
 }
