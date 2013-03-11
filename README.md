@@ -60,6 +60,6 @@ from any html page
 
 demo
 ========
-- I'm still working getting the demo on my free WebSpark Azure account.
+- http://phuncms.azurewebsites.net/
 - For now, go ahead and try it.  Grab the source and run Phun.Demo.Web or try out the nuget PhunCMS package.  Project requires Visual Studio 2012.
 - Drop a comment, suggestion or request on github issue page.
