@@ -34,7 +34,7 @@
         if (method == 'create') {
             ajaxType = 'POST';
         } else if (method == 'update') {
-            ajaxType = 'PUT';
+            ajaxType = 'POST';
         } else if (method == 'delete') {
             ajaxType = 'DELETE';
         } else {

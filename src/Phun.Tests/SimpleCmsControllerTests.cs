@@ -72,7 +72,7 @@
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            var result = controller.Update("/blah", "blah") as JsonResult;
+            var result = controller.Update("/blah", "blah", null) as JsonResult;
 
             // Assert
             repo.VerifyAll();
@@ -343,7 +343,7 @@
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/"))).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head>%ReplaceMe%</head>%AndMe%</html>") });
+            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/test"))).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head>%ReplaceMe%</head>%AndMe%</html>") });
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
             mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
@@ -353,7 +353,7 @@
             repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/AndMe"))).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("metoo") });
             
             // Act
-            var result = controller.Retrieve("/") as ContentResult;
+            var result = controller.Retrieve("/test") as ContentResult;
 
             // Assert
             repo.VerifyAll();

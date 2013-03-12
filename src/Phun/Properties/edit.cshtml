@@ -32,8 +32,9 @@
             <h1>Phun Cms file editor</h1>
         </header>
         <div class="content">
-            <form action="@basePath/Create?path=@Request.QueryString["path"]" method="POST">
-                <input type="hidden" value="@this.Request.Url.PathAndQuery" name="returnUrl"/> 
+            <form action="@basePath/Update" method="POST">
+                <input type="hidden" name="returnUrl" value="@this.Request.Url.PathAndQuery"/>
+                <input type="hidden" name="path" value="@Request.QueryString["path"]"/> 
 		        <textarea cols="80" id="editor1" name="data" rows="50">
 			        @Html.PhunRenderPartialContent(this.Request.QueryString["path"])
 		        </textarea>

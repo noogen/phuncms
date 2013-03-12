@@ -72,7 +72,7 @@
         /// Allow for updating of path.
         /// </returns>
         /// <exception cref="System.Web.HttpException">401;Request update to path ' + path + ' is unauthorized.</exception>
-        [AllowAnonymous]
+        [ValidateInput(false), AllowAnonymous]
         public virtual ActionResult Upsert(string path, string data)
         {
             var model = new ContentModel()
@@ -84,7 +84,7 @@
 
             if (this.ContentPathPermissionHandler != null && this.ContentPathPermissionHandler.IsAdmin(this, model))
             {
-                return this.Update(path, data);
+                return this.Update(path, data, null);
             }
 
             throw new HttpException(401, "Request upsert to path '" + path + "' is unauthorized.");

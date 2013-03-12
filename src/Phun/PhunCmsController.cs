@@ -79,8 +79,7 @@
             var model = new ContentModel()
                             {
                                 Path = path,
-                                Data = System.Text.Encoding.UTF8.GetBytes(data),
-                                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+                                Data = System.Text.Encoding.UTF8.GetBytes(data)
                             };
 
             if (this.ContentRepository.Exists(model))
@@ -88,14 +87,7 @@
                 throw new ArgumentException("Cannot overwrite an existing content of path: " + path, path);
             }
 
-            this.ContentRepository.Save(model);
-
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
-                return this.Redirect(returnUrl);
-            }
-
-            return this.Json(new { createdate = model.CreateDate, success = true });
+            return this.Update(path, data, returnUrl);
         }
 
         /// <summary>
@@ -112,6 +104,11 @@
                 Path = path,
                 Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
             };
+
+            if (model.Path.Equals("/", StringComparison.OrdinalIgnoreCase))
+            {
+                return this.Redirect("/");
+            }
 
             var content = this.ContentRepository.Retrieve(model);
 
@@ -161,11 +158,12 @@
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="data">The data.</param>
+        /// <param name="returnUrl">The return URL.</param>
         /// <returns>
         /// Action result.
         /// </returns>
-        [HttpPut, ValidateInput(false)]
-        public virtual ActionResult Update(string path, string data)
+        [HttpPost, ValidateInput(false)]
+        public virtual ActionResult Update(string path, string data, string returnUrl)
         {
             var model = new ContentModel()
             {
@@ -175,6 +173,11 @@
             };
 
             this.ContentRepository.Save(model);
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return this.Redirect(returnUrl);
+            }
 
             return this.Json(new { createdate = model.CreateDate, success = true });
         }
@@ -302,7 +305,7 @@
         public virtual ActionResult Edit(string path)
         {
             var resourceProvider = new ResourcePathUtility();
-
+            
             return this.View(resourceProvider.GetResourcePath("edit.cshtml"));
         }
 
