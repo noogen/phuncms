@@ -14,22 +14,14 @@ Base on the modular CMS movement
 
 ![Architecture](http://i.imgur.com/chzYYGN.png)
 
-howto
+howto 
 =======
- - Make sure to provide correct configuration for content repository: file, sql, etc...
- - Login to your site as content admin.
+ - https://github.com/noogen/phuncms/wiki/How-to
  
-from the browser
-=======
- - Use /phuncms/filemanager to manage your content
- - Once you created a page, you can visit /phuncms/edit?path=/custom/yourpage to edit your page.
- - You can also visit /custom/yourpage to view your page.
- - You can create CustomController class and override this page with your own razor page.
- 
-from razor or view
+quick start
 ========
  - You can use custom helpers to render partial content and scripts.
- - Content get server-side rendered when using html helper.
+ - Content get server-side rendered when using HtmlHelper.
 
 ```c#
 @Html.PhunRenderPartialContent("LeftHeader") 
@@ -53,10 +45,10 @@ from any html page
 - The contents are ajax loaded and will become inline editable for content admin.
 
 ```html
-<div>%LeftHeader%</div><div data-cmscontent="RightHeader"></div>
+<div data-cmscontent="LeftHeader">%LeftHeader%</div><div data-cmscontent="RightHeader"></div>
 ```
 - Example will render LeftHeader on server-side, while RightHeader get ajax load.
-- Phun javascript and css are automatically get injected before content </head> or you can reference them yourself.
+- Because both contains data-cmscontent, both are inline editable.
 
 demo
 ========
