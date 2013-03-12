@@ -76,16 +76,17 @@
             $('[data-cmscontent]').each(function () {
                 
                 var $this = $(this);
-                if (!$this.is(':empty')) {
+                var path = $this.data("cmscontent");
+                $this.attr("about", path);  
+				var text = $this.text().replace(/\s/gi, '');
+				
+                if (text != "") {
                     PhunCms.contentsToLoad--;
                     var html = $this.html();
                     $this.html('<div property="content">' + html + '</div>');
                     afterAllLoaded();
                     return;
-                }                
-
-                var path = $this.data("cmscontent");
-                $this.attr("about", path);                
+                }                              
 
                 // if path is a file, then append path to the current location path
                 // otherwise, it is a full path so just use the full path
