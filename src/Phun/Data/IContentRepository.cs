@@ -53,5 +53,12 @@
         /// <param name="folder">The folder.</param>
         /// <returns>Path to temp file that is a zip of the folder content.</returns>
         string GetFolder(ContentModel folder);
+
+        /// <summary>
+        /// Histories the specified content.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>Specific content change history.</returns>
+        IQueryable<ContentModel> RetrieveHistory(ContentModel content);
     }
 }

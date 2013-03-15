@@ -440,6 +440,19 @@ CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])
 
 
         /// <summary>
+        /// Histories of the specified content.
+        /// Ansi sql repository does not have the ability store history.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>
+        /// Specific content change history.
+        /// </returns>
+        public IQueryable<ContentModel> RetrieveHistory(ContentModel content)
+        {
+            return new List<ContentModel>().AsQueryable();
+        }
+
+        /// <summary>
         /// Opens the connection.
         /// </summary>
         /// <returns>An opened connection.</returns>
@@ -537,6 +550,6 @@ CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])
                     System.IO.File.WriteAllBytes(contentPhysicalPath, content.Data);
                 }
             }
-        }
+        } // end getfolderto
     }
 }

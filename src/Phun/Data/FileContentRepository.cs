@@ -170,57 +170,16 @@
         }
 
         /// <summary>
-        /// Resolves the path.
+        /// Histories of the specified content.
+        /// File repository does not have the ability store history.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns>
-        /// The full path to the content or file.
+        /// Specific content change history.
         /// </returns>
-        /// <exception cref="System.ArgumentException">Content is required.;content
-        /// or
-        /// Content path is required or not valid:  + content.Path;content.Path</exception>
-        private string ResolvePath(ContentModel content)
+        public IQueryable<ContentModel> RetrieveHistory(ContentModel content)
         {
-            bool isFolder = content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase);
-
-            if (content == null)
-            {
-                throw new ArgumentException("Content is required.", "content");
-            }
-
-            if (string.IsNullOrEmpty(content.Host))
-            {
-                content.Host = this.defaultHost;
-            }
-
-            // add: 'basePath\host\contentPath'
-            var result = string.Concat(this.basePath, "\\", content.Host, "\\", content.Path.Trim('/').Replace("/", "\\"));
-
-            // make sure that there is no illegal path
-            result = result.Replace("..", string.Empty).Replace("\\\\", "\\").TrimEnd('\\');
-
-            // result full path must not be more than 3 characters
-            if (result.Length <= 3)
-            {
-                throw new ArgumentException("Illegal path detected: " + result, "path");
-            }
-
-            if (isFolder)
-            {
-                result = result + "\\";
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Empties the specified path.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        private void Empty(string path)
-        {
-            var directory = new DirectoryInfo(path);
-            directory.Delete(true);
+            return new List<ContentModel>().AsQueryable();
         }
 
         /// <summary>
@@ -279,6 +238,60 @@
         }
 
         /// <summary>
+        /// Resolves the path.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>
+        /// The full path to the content or file.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Content is required.;content
+        /// or
+        /// Content path is required or not valid:  + content.Path;content.Path</exception>
+        private string ResolvePath(ContentModel content)
+        {
+            bool isFolder = content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase);
+
+            if (content == null)
+            {
+                throw new ArgumentException("Content is required.", "content");
+            }
+
+            if (string.IsNullOrEmpty(content.Host))
+            {
+                content.Host = this.defaultHost;
+            }
+
+            // add: 'basePath\host\contentPath'
+            var result = string.Concat(this.basePath, "\\", content.Host, "\\", content.Path.Trim('/').Replace("/", "\\"));
+
+            // make sure that there is no illegal path
+            result = result.Replace("..", string.Empty).Replace("\\\\", "\\").TrimEnd('\\');
+
+            // result full path must not be more than 3 characters
+            if (result.Length <= 3)
+            {
+                throw new ArgumentException("Illegal path detected: " + result, "path");
+            }
+
+            if (isFolder)
+            {
+                result = result + "\\";
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Empties the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        private void Empty(string path)
+        {
+            var directory = new DirectoryInfo(path);
+            directory.Delete(true);
+        }
+
+        /// <summary>
         /// Gets the folder to.
         /// </summary>
         /// <param name="destPhysicalFolder">The destination physical folder.</param>
@@ -307,6 +320,6 @@
                     System.IO.File.WriteAllBytes(contentPhysicalPath, content.Data);
                 }
             }
-        }
+        } // end getfolderto
     }
 }
