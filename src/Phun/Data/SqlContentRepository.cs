@@ -62,10 +62,11 @@
         /// Populate or gets the content provided specific host, path, and name property.
         /// </summary>
         /// <param name="content">The content - requires host, path, and name property.</param>
+        /// <param name="includeData">if set to <c>true</c> [include data].</param>
         /// <returns>
         /// The <see cref="ContentModel" /> that was passed in.
         /// </returns>
-        public ContentModel Retrieve(ContentModel content)
+        public ContentModel Retrieve(ContentModel content, bool includeData = true)
         {
             /* this is horrible manual labor/classic asp.net direct access sql stuff
              * I'm only doing this for the benefit of integrating with mini-profiler
@@ -75,6 +76,11 @@
             using (var conn = this.OpenConnection())
             {
                 content.Path = this.NormalizedPath(content.Path);
+                var sqlCommand = string.Format("SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, Data FROM [{0}] WHERE HostName = @Host AND Path = @Path", this.TableName);
+                if (!includeData)
+                {
+                    sqlCommand = sqlCommand.Replace("ModifyBy, Data FROM", "ModifyBy FROM");
+                }
 
                 var command = this.DbFactory.CreateCommand();
                 command.Connection = conn;
@@ -88,15 +94,19 @@
                     return content;
                 }
 
-                var dataIdx = reader.GetOrdinal("Data");
-                long len = reader.GetBytes(dataIdx, 0, null, 0, 0);
+                if (includeData)
+                {
+                    var dataIdx = reader.GetOrdinal("Data");
+                    long len = reader.GetBytes(dataIdx, 0, null, 0, 0);
 
-                // Create a buffer to hold the bytes, and then 
-                // read the bytes from the DataTableReader.
-                var buffer = new byte[len];
-                reader.GetBytes(dataIdx, 0, buffer, 0, (int)len);
+                    // Create a buffer to hold the bytes, and then 
+                    // read the bytes from the DataTableReader.
+                    var buffer = new byte[len];
+                    reader.GetBytes(dataIdx, 0, buffer, 0, (int)len);
 
-                content.Data = buffer;
+                    content.Data = buffer;
+                }
+
                 content.CreateBy = reader.GetValue(reader.GetOrdinal("CreateBy")) + string.Empty;
                 content.ModifyBy = reader.GetValue(reader.GetOrdinal("ModifyBy")) + string.Empty;
 
@@ -252,7 +262,7 @@
         /// <returns>
         /// Enumerable to content model.
         /// </returns>
-        public System.Collections.Generic.IEnumerable<ContentModel> List(ContentModel content)
+        public IQueryable<ContentModel> List(ContentModel content)
         {
             /* this is horrible manual labor/classic asp.net direct access sql stuff
             * I'm only doing this for the benefit of integrating with mini-profiler
@@ -340,7 +350,7 @@ OR (Path LIKE (@StartPath + '/') AND PATH NOT LIKE (@StartPath + '/%/'))", this.
             result.AddRange(folders.Values);
             result.AddRange(files.Values);
 
-            return result;
+            return result.AsQueryable();
         }
 
         /// <summary>
@@ -517,7 +527,7 @@ CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])
                 {
                     string contentPhysicalPath = System.IO.Path.Combine(destPhysicalFolder, content.Path.TrimStart('/').Replace("/", "\\"));
                     string directoryName = System.IO.Path.GetDirectoryName(contentPhysicalPath);
-                    this.Retrieve(content);
+                    this.Retrieve(content, true);
 
                     if (!System.IO.Directory.Exists(directoryName))
                     {

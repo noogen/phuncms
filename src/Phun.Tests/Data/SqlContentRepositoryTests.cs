@@ -41,7 +41,7 @@
                 new SqlContentRepository("DefaultDatabase", "CmsContent");
 
             // Act
-            var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" });
+            var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" }, true);
 
             // Assert
             Assert.IsNotNull(result.Data);

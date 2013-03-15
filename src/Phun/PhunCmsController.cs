@@ -110,7 +110,7 @@
                 return this.Redirect("/");
             }
 
-            var content = this.ContentRepository.Retrieve(model);
+            var content = this.ContentRepository.Retrieve(model, true);
 
             if (content.Data == null)
             {
@@ -136,7 +136,7 @@
             foreach (var key in toLookup.Keys)
             {
                 var c = toLookup[key];
-                var result = this.ContentRepository.Retrieve(c);
+                var result = this.ContentRepository.Retrieve(c, true);
                 if (result.Data != null && result.Data.Length > 0)
                 {
                     resultString = resultString.Replace(
@@ -243,9 +243,9 @@
 
                 return this.File(localFilePath, MimeTypes.GetContentType("zip"), folderName + "zip");
             }
- 
 
-            var result = this.ContentRepository.Retrieve(content);
+
+            var result = this.ContentRepository.Retrieve(content, true);
 
             if (result.Data == null)
             {

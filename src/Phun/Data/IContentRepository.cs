@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.IO.Compression;
+    using System.Linq;
 
     /// <summary>
     /// Interface for storing content.
@@ -11,13 +12,12 @@
         /// <summary>
         /// Populate or gets the content provided specific host, path, and name property.
         /// </summary>
-        /// <param name="content">
-        /// The content - requires host, path, and name property.
-        /// </param>
+        /// <param name="content">The content - requires host, path, and name property.</param>
+        /// <param name="includeData">if set to <c>true</c> [include data].</param>
         /// <returns>
-        /// The <see cref="ContentModel"/> that was passed in.
+        /// The <see cref="ContentModel" /> that was passed in.
         /// </returns>
-        ContentModel Retrieve(ContentModel content);
+        ContentModel Retrieve(ContentModel content, bool includeData = true);
 
         /// <summary>
         /// Check for exist of content.
@@ -45,7 +45,7 @@
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns>Enumerable to content model.</returns>
-        IEnumerable<ContentModel> List(ContentModel content);
+        IQueryable<ContentModel> List(ContentModel content);
 
         /// <summary>
         /// Gets the folder.

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
 
     /// <summary>
     /// IContentRepository implementation for file store.
@@ -49,12 +50,19 @@
         /// Populate or gets the content provided specific host, path, and name property.
         /// </summary>
         /// <param name="content">The content - requires host, path, and name property.</param>
-        public ContentModel Retrieve(ContentModel content)
+        /// <param name="includeData">if set to <c>true</c> [include data].</param>
+        /// <returns>
+        /// The <see cref="ContentModel" /> that was passed in.
+        /// </returns>
+        public ContentModel Retrieve(ContentModel content, bool includeData = true)
         {
             var file = this.ResolvePath(content);
             if (File.Exists(file))
             {
-                content.Data = System.IO.File.ReadAllBytes(file);
+                if (includeData)
+                {
+                    content.Data = System.IO.File.ReadAllBytes(file);
+                }
 
                 var fi = new FileInfo(file);
                 content.ModifyDate = fi.LastWriteTime;
@@ -222,7 +230,7 @@
         /// <returns>
         /// Enumerable to content model.
         /// </returns>
-        public System.Collections.Generic.IEnumerable<ContentModel> List(ContentModel content)
+        public IQueryable<ContentModel> List(ContentModel content)
         {
             var path = this.ResolvePath(content);
             var result = new List<ContentModel>();
@@ -232,7 +240,7 @@
             // don't do anything for invalid path
             if (!isValidChildOfBasePath)
             {
-                return result;
+                return result.AsQueryable();
             }
 
             // only proceed if it is a folder 
@@ -267,7 +275,7 @@
                 }
             }
 
-            return result;
+            return result.AsQueryable();
         }
 
         /// <summary>
@@ -289,7 +297,7 @@
                 {
                     string contentPhysicalPath = System.IO.Path.Combine(destPhysicalFolder, content.Path.TrimStart('/').Replace("/", "\\"));
                     string directoryName = System.IO.Path.GetDirectoryName(contentPhysicalPath);
-                    this.Retrieve(content);
+                    this.Retrieve(content, true);
 
                     if (!System.IO.Directory.Exists(directoryName))
                     {

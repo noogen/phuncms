@@ -33,7 +33,7 @@
                 Path = contentName.Contains("/") ? contentName : html.ViewContext.RequestContext.HttpContext.Request.Path + "/" + contentName,
                 Host = controller.GetCurrentHost(controller.ContentConfig, html.ViewContext.RequestContext.HttpContext.Request.Url)
             };
-            controller.ContentRepository.Retrieve(content);
+            controller.ContentRepository.Retrieve(content, true);
             if (content.Data != null)
             {
                 result = System.Text.Encoding.UTF8.GetString(content.Data);

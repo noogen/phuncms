@@ -41,7 +41,7 @@
                 new FileContentRepository(System.IO.Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "CmsContent"));
 
             // Act
-            var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" });
+            var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" }, true);
 
             // Assert
             Assert.IsNotNull(result.Data);
