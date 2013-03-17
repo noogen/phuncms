@@ -96,42 +96,35 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         public string PhunCmsRenderBundles(bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
         {
             // this code is in here because it needs to be dynamic base on resource and content route
-            var files = new StringBuilder(string.Format(@"
-<link rel='stylesheet' href='/{0}/css/create_ui/css/create-ui.css'/>
-<link rel='stylesheet' href='/{0}/css/midgard_notifications/midgardnotif.css'/>
-<link rel='stylesheet' href='/{0}/css/font_awesome/css/font-awesome.css'/>", this.Config.ResourceRouteNormalized));
+            var files = new StringBuilder(string.Format("<link rel=\"stylesheet\" href=\"/{0}/css/create_ui/css/create-ui.css\"/><link rel=\"stylesheet\" href=\"/{0}/css/midgard_notifications/midgardnotif.css\"/><link rel=\"stylesheet\" href=\"/{0}/css/font_awesome/css/font-awesome.css\"/>", this.Config.ResourceRouteNormalized));
 
             if (includeJquery)
             {
                 files.AppendLine(
-                    string.Format("<script type='text/javascript' src='/{0}/Scripts/jquery.js'></script>", this.Config.ResourceRouteNormalized));
+                    string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/jquery.js\"></script>", this.Config.ResourceRouteNormalized));
             }
 
             if (includeJqueryui)
             {
-                files.AppendLine(string.Format("<script type='text/javascript' src='/{0}/Scripts/jqueryui.js'></script>", this.Config.ResourceRouteNormalized));
+                files.AppendLine(string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/jqueryui.js\"></script>", this.Config.ResourceRouteNormalized));
             }
 
             if (includeBackbone)
             {
-                files.AppendLine(string.Format("<script type='text/javascript' src='/{0}/Scripts/underscore.js'></script>", this.Config.ResourceRouteNormalized));
-                files.AppendLine(string.Format("<script type='text/javascript' src='/{0}/Scripts/backbone.js'></script>", this.Config.ResourceRouteNormalized));
+                files.AppendLine(string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/underscore.js\"></script>", this.Config.ResourceRouteNormalized));
+                files.AppendLine(string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/backbone.js\"></script>", this.Config.ResourceRouteNormalized));
             }
 
             if (includeCkEditor)
             {
-                files.AppendLine(string.Format("<script type='text/javascript' src='/{0}/Scripts/ckeditor/ckeditor.js'></script>", this.Config.ResourceRouteNormalized));
+                files.AppendLine(string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/ckeditor/ckeditor.js\"></script>", this.Config.ResourceRouteNormalized));
             }
 
-            files.AppendLine(string.Format(@"
-<script type='text/javascript' src='/{0}/Scripts/phuncms.config.js'></script>
-<script type='text/javascript' src='/{0}/Scripts/vie.js'></script>
-<script type='text/javascript' src='/{0}/Scripts/create.js'></script>
-<script type='text/javascript' src='/{0}/Scripts/phuncms.js'></script>", this.Config.ResourceRouteNormalized));
+            files.AppendLine(string.Format("<script type=\"text/javascript\" src=\"/{0}/scripts/phuncms.config.js\"></script><script type=\"text/javascript\" src=\"/{0}/scripts/vie.js\"></script><script type=\"text/javascript\" src=\"/{0}/scripts/create.js\"></script><script type=\"text/javascript\" src=\"/{0}/scripts/phuncms.js\"></script>", this.Config.ResourceRouteNormalized));
 
             if (includeEditorInit)
             {
-                files.AppendLine(@"<script type='text/javascript'>$(document).ready(function() { if (typeof(PhunCms) != 'undefined' && PhunCms.contentsToLoad <= 0) PhunCms.initEditor() });</script>");
+                files.AppendLine("<script type=\"text/javascript\">$(document).ready(function() { if (typeof(PhunCms) != 'undefined' && PhunCms.contentsToLoad <= 0) PhunCms.initEditor() });</script>");
             }
 
             return files.ToString();

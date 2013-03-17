@@ -54,7 +54,7 @@
         {
             var util = new ResourcePathUtility();
             var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Concat("Phun.Properties.", this.resourcePath));
-            if (this.resourcePath.EndsWith("scripts.phuncms.config.js"))
+            if (this.resourcePath.EndsWith("scripts.phuncms.config.js", StringComparison.OrdinalIgnoreCase))
             {
                 var fileString =
                     string.Format(ResourcePathUtility.ScriptsphuncmsConfigJs, this.Config.ResourceRouteNormalized, this.Config.ContentRouteNormalized)
