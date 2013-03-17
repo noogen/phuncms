@@ -1,7 +1,9 @@
 ﻿namespace Phun.Data
 {
     using System;
+    using System.Configuration;
     using System.Data;
+    using System.Data.Common;
     using System.Data.SqlClient;
 
     /// <summary>
@@ -25,10 +27,17 @@
         /// </param>
         public DapperContext(string connectionStringName)
         {
-            this.Connection = new SqlConnection(
-                        System.Configuration.ConfigurationManager.ConnectionStrings[connectionStringName]
-                            .ConnectionString);
+            var cstring = ConfigurationManager.ConnectionStrings[connectionStringName];
+            if (cstring == null)
+            {
+                throw new ArgumentException("Connection does not exist: " + connectionStringName);
+            }
 
+            var dbFactory = DbProviderFactories.GetFactory(cstring.ProviderName);
+            
+            this.Connection = dbFactory.CreateConnection();
+            this.Connection.ConnectionString = cstring.ConnectionString;
+            
             this.Connection.Open();
         }
 

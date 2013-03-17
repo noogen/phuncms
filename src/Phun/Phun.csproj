@@ -97,8 +97,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmsAdminAuthorizeAttribute.cs" />
+    <Compile Include="Data\AContentRepository.cs" />
     <Compile Include="Data\DapperContext.cs" />
-    <Compile Include="Data\SqlServerRepository.cs" />
+    <Compile Include="Data\ISqlDataRepository.cs" />
+    <Compile Include="Data\SqlDataRepository.cs" />
+    <Compile Include="Data\SqlServerContentRepository.cs" />
     <Compile Include="Extensions\HtmlHelpers.cs" />
     <Compile Include="Configuration\AConfigurationElementCollection.cs" />
     <Compile Include="Configuration\HostAuthorizationCollection.cs" />

@@ -1,11 +1,12 @@
 ﻿namespace Phun.Data
 {
     using System;
+    using System.IO;
 
     /// <summary>
     /// Content model for data store.
     /// </summary>
-    public class ContentModel
+    public class ContentModel : IDisposable
     {
         /// <summary>
         /// The path
@@ -85,7 +86,7 @@
         /// Gets the name of the folder.
         /// </summary>
         /// <returns>Folder name derived by path.</returns>
-        public string ParentDirectory
+        public string ParentPath
         {
             get
             {
@@ -123,6 +124,56 @@
             get
             {
                 return this.Path.IndexOf('.') > 0 ? this.Path.Substring(this.Path.IndexOf('.')).Trim('.') : string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the length of the data.
+        /// </summary>
+        /// <value>
+        /// The length of the data.
+        /// </value>
+        public long? DataLength { get; set; }
+
+        /// <summary>
+        /// Gets or sets the id.
+        /// </summary>
+        /// <value>
+        /// The id.
+        /// </value>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data id.
+        /// </summary>
+        /// <value>
+        /// The data id.
+        /// </value>
+        public System.Guid? DataId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data stream.  This provide support
+        /// for new SQL server FileStream or FileTable.
+        /// This property is related to Data.  When Data is null,
+        /// the controller would fallback on this property.  Therefore,
+        /// DataStream is use for retrieving purpose only.
+        /// </summary>
+        /// <value>
+        /// The data stream.
+        /// </value>
+        public Stream DataStream { get; set; }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            var stream = this.DataStream;
+            this.DataStream = null;
+
+            if (stream != null && stream.CanRead)
+            {
+                stream.Dispose();
             }
         }
     }

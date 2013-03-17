@@ -41,7 +41,7 @@
             model.Path = "/test/one/two/three";
 
             // Assert
-            Assert.AreEqual(expected, model.ParentDirectory);
+            Assert.AreEqual(expected, model.ParentPath);
 
             // Arrange
             expected = "/";
@@ -50,7 +50,7 @@
             model.Path = string.Empty;
 
             // Assert
-            Assert.AreEqual("/", model.ParentDirectory);
+            Assert.AreEqual("/", model.ParentPath);
         }
 
         /// <summary>

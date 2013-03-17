@@ -112,7 +112,8 @@
                     {
                         Host = "localhost",
                         Path = "/test/foo/article",
-                        Data = System.Text.Encoding.UTF8.GetBytes("test")
+                        Data = System.Text.Encoding.UTF8.GetBytes("test"),
+                        CreateBy = string.Empty
                     });
             var result = repo.List(model);
 
