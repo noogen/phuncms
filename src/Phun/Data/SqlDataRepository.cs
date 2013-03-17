@@ -11,20 +11,21 @@
     /// <summary>
     /// Use by SQL Server Repository to store and retrieve data.
     /// </summary>
-    public class PhunDataRepository : ISqlDataRepository
+    public class SqlDataRepository : ISqlDataRepository
     {
         /// <summary>
         /// Populates the data.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
         /// <returns>
         /// Content model with populated data stream.
         /// </returns>
-        public virtual ContentModel PopulateData(DapperContext context, ContentModel content, string cachePath)
+        public virtual ContentModel PopulateData(DapperContext context, ContentModel content, string tableName, string cachePath)
         {
-            this.CacheData(context, content, cachePath);
+            this.CacheData(context, content, tableName, cachePath);
 
             if (!string.IsNullOrEmpty(cachePath))
             {
@@ -43,14 +44,15 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
-        public virtual void CacheData(DapperContext context, ContentModel content, string cachePath)
+        public virtual void CacheData(DapperContext context, ContentModel content, string tableName, string cachePath)
         {
-            if (content.Data == null)
+            if (!string.IsNullOrEmpty(content.DataIdString))
             {
                 var data =
                     context.Connection.Query<ContentModel>(
-                        "SELECT Data, DataLength FROM PhunData WHERE Id = @DataId", content).FirstOrDefault();
+                        string.Format("SELECT Data, DataLength FROM [{0}] WHERE IdString = @DataIdString", tableName), content).FirstOrDefault();
 
                 if (data != null)
                 {
@@ -90,8 +92,9 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
-        public virtual void SaveData(DapperContext context, ContentModel content, string cachePath)
+        public virtual void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath)
         {
             var newDataId = Guid.NewGuid();
             var newContent = new ContentModel()
@@ -106,13 +109,14 @@
                                      Data =
                                          content.Data ?? content.DataStream.ReadAll(),
                                  };
+
             newContent.DataLength = content.Data != null ? content.Data.Length : 0;
             context.Connection.Execute(
-                    "INSERT INTO PhunData (Id, HostAndPath, Data, DataLength, CreateDate, CreateBy) VALUES (@DataId, @Host + @Path, @Data, @DataLength, getdate(), CreateBy)", content);
+                    string.Format("INSERT INTO [{0}] (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, getdate(), @CreateBy)", tableName), newContent);
             content.Data = newContent.Data;
             content.DataLength = newContent.DataLength;
             content.DataId = newContent.DataId;
-            this.CacheData(context, content, cachePath);
+            this.CacheData(context, content, tableName, cachePath);
         }
 
         /// <summary>

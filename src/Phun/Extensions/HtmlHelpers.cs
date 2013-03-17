@@ -34,8 +34,9 @@
                 Host = controller.GetCurrentHost(controller.ContentConfig, html.ViewContext.RequestContext.HttpContext.Request.Url)
             };
             controller.ContentRepository.Retrieve(content, true);
-            if (content.Data != null)
+            if (content.DataLength != null)
             {
+                content.SetDataFromStream();
                 result = System.Text.Encoding.UTF8.GetString(content.Data);
             }
 

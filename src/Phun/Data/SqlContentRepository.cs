@@ -17,6 +17,16 @@
     public class SqlContentRepository : AContentRepository, IContentRepository
     {
         /// <summary>
+        /// The cache path
+        /// </summary>
+        protected readonly string CachePath;
+
+        /// <summary>
+        /// The data repository
+        /// </summary>
+        protected readonly ISqlDataRepository DataRepository;
+
+        /// <summary>
         /// The connection string name
         /// </summary>
         protected readonly string ConnectionStringName;
@@ -34,10 +44,12 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlContentRepository" /> class.
         /// </summary>
+        /// <param name="dataRepo">The data repo.</param>
         /// <param name="connectionStringName">Name of the connection string.</param>
+        /// <param name="cachePath">The cache path.</param>
         /// <param name="tableName">Name of the table.</param>
         /// <exception cref="System.ArgumentException">Connection does not exist.</exception>
-        public SqlContentRepository(string connectionStringName, string tableName)
+        public SqlContentRepository(ISqlDataRepository dataRepo, string connectionStringName, string tableName, string cachePath)
         {
             var cstring = ConfigurationManager.ConnectionStrings[connectionStringName];
             if (cstring == null)
@@ -47,6 +59,8 @@
 
             this.ConnectionStringName = connectionStringName;
             this.TableName = tableName ?? "CmsContent";
+            this.CachePath = cachePath;
+            this.DataRepository = dataRepo;
 
             if (!schemaExists)
             {
@@ -75,7 +89,7 @@
 	[ModifyDate] [datetime] NULL,
 	[ModifyBy] [nvarchar](100) NULL,
     [DataLength] [bigint] NULL, 
-	[Data] [image] NULL,
+	[DataIdString] [nvarchar](38) NULL,
 	CONSTRAINT UC_{0} UNIQUE ([Host], [Path])
 )
 GO
@@ -103,13 +117,8 @@ this.TableName);
             content.Path = this.NormalizedPath(content.Path);
             var sqlCommand =
                 string.Format(
-                    "SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, DataLength, [Data] FROM [{0}] WHERE Host = @Host AND [Path] = @Path",
+                    "SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength FROM [{0}] WHERE Host = @Host AND [Path] = @Path",
                     this.TableName);
-
-            if (!includeData)
-            {
-                sqlCommand = sqlCommand.Replace(", [Data] FROM", " FROM");
-            }
 
             using (var db = new DapperContext(this.ConnectionStringName))
             {
@@ -123,8 +132,13 @@ this.TableName);
                     content.CreateBy = result.CreateBy;
                     content.ModifyDate = result.ModifyDate;
                     content.ModifyBy = result.ModifyBy;
-                    content.Data = result.Data;
+                    content.DataIdString = result.DataIdString;
                     content.DataLength = result.DataLength;
+
+                    if (includeData && content.DataId.HasValue)
+                    {
+                        this.DataRepository.PopulateData(db, content, this.TableName + "Data", this.CachePath);
+                    }
                 }
             }
 
@@ -159,20 +173,28 @@ this.TableName);
         public virtual void Save(ContentModel content)
         {
             content.Path = this.NormalizedPath(content.Path);
+            bool isFile = !content.Path.EndsWith("/");
 
             // this is an upsert
             using (var db = new DapperContext(this.ConnectionStringName))
             {
-                // is folder, set content to null to help with upsert for folder
-                if (content.Path.EndsWith("/"))
+                // save data first
+                if (isFile)
                 {
+                    content.DataLength = content.DataLength ?? content.Data.Length;
+
+                    this.DataRepository.SaveData(db, content, this.TableName + "Data", this.CachePath);
+                }
+                else
+                {
+                    // set null to help with upsert for folder
                     content.DataId = null;
                     content.DataLength = null;
                 }
 
                 this.Save(content, db);
 
-                // attempt to create parent folders
+                // create parent folders
                 var parentPath = content.ParentPath;
                 while (parentPath != "/")
                 {
@@ -246,17 +268,54 @@ this.TableName);
         /// </summary>
         protected virtual void EnsureSchema()
         {
+            var phunDataSchema = string.Format(@"
+CREATE TABLE [{0}Data](
+	[IdString] [nvarchar](38) NOT NULL CONSTRAINT [PK_{0}Data] PRIMARY KEY,
+	[Host] [nvarchar](200) NOT NULL,
+	[Path] [nvarchar](250) NOT NULL,
+	[Data] [image] NOT NULL,
+	[DataLength] [bigint] NULL,
+	[CreateDate] [datetime] NULL,
+	[CreateBy] [nvarchar](50) NULL
+)
+GO
+CREATE NONCLUSTERED INDEX [IX_{0}Data_Host] ON [{0}Data]
+(
+	[Host] ASC
+)
+GO
+CREATE NONCLUSTERED INDEX [IX_{0}Data_Path] ON [{0}Data]
+(
+	[Path] ASC
+)", 
+  this.TableName);
             using (var db = new DapperContext(this.ConnectionStringName))
             {
-                var tableExists = db.Connection.Query(string.Format(@"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName)).Any();
-                if (tableExists)
+                if (this.DataRepository is SqlDataRepository)
                 {
-                    return;
+                    var dataTableExists =
+                        db.Connection.Query(
+                            string.Format(
+                                @"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}Data'",
+                                this.TableName)).Any();
+                    if (!dataTableExists)
+                    {
+                        foreach (
+                            var sql in
+                                phunDataSchema.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            db.Connection.Execute(sql);
+                        }
+                    }
                 }
 
-                foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+                var tableExists = db.Connection.Query(string.Format(@"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName)).Any();
+                if (!tableExists)
                 {
-                    db.Connection.Execute(sql);
+                    foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        db.Connection.Execute(sql);
+                    }
                 }
             }
         }
@@ -272,13 +331,13 @@ this.TableName);
         {
             // upsert means we have to use two separate statement since this would support sqlce
             var sqlCommand = string.Format(
-@"UPDATE [{0}] SET ModifyDate = getdate(), ModifyBy = @ModifyBy, Data = @Data, DataLength = @DataLength WHERE Host = @Host AND [Path] = @Path",
+@"UPDATE [{0}] SET ModifyDate = getdate(), ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND [Path] = @Path",
        this.TableName);
             db.Connection.Execute(sqlCommand, content);
 
             sqlCommand =
                 string.Format(
-                    "INSERT INTO [{0}] (Host, [Path], ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, Data, DataLength) SELECT @Host, @Path, @ParentPath, getdate(), @CreateBy, getdate(), @ModifyBy, @Data, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM [{0}] WHERE Host = @Host AND [Path] = @Path)",
+                    "INSERT INTO [{0}] (Host, [Path], ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, getdate(), @CreateBy, getdate(), @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM [{0}] WHERE Host = @Host AND [Path] = @Path)",
                     this.TableName);
             db.Connection.Execute(sqlCommand, content);
         }

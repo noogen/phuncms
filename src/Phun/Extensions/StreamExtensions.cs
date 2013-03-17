@@ -18,6 +18,9 @@
             var buffer = new byte[16 * 1024];
             using (var ms = new MemoryStream())
             {
+                // set seek to 0
+                ms.Seek(0, SeekOrigin.Begin);
+
                 int read;
                 while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
                 {

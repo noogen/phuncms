@@ -3,6 +3,8 @@
     using System;
     using System.IO;
 
+    using Phun.Extensions;
+
     /// <summary>
     /// Content model for data store.
     /// </summary>
@@ -136,20 +138,31 @@
         public long? DataLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the id.
-        /// </summary>
-        /// <value>
-        /// The id.
-        /// </value>
-        public int Id { get; set; }
-
-        /// <summary>
         /// Gets or sets the data id.
         /// </summary>
         /// <value>
         /// The data id.
         /// </value>
         public System.Guid? DataId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data id string.
+        /// </summary>
+        /// <value>
+        /// The data id string.
+        /// </value>
+        public string DataIdString
+        {
+            get
+            {
+                return this.DataId.HasValue ? this.DataId.ToString() : null;
+            }
+
+            set
+            {
+                this.DataId = string.IsNullOrWhiteSpace(value) ? (Guid?)null : Guid.Parse(value);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the data stream.  This provide support
@@ -174,6 +187,17 @@
             if (stream != null && stream.CanRead)
             {
                 stream.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Sets the data from stream.
+        /// </summary>
+        public void SetDataFromStream()
+        {
+            if (this.DataStream != null)
+            {
+                this.Data = this.DataStream.ReadAll();
             }
         }
     }

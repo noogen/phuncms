@@ -22,7 +22,7 @@
                              {
                                  RepositoryType = "sql",
                                  RepositorySource = "DefaultDatabase",
-                                 RepositoryStorage = "CmsContent"
+                                 RepositoryTable = "CmsContent"
                              };
 
             // Act
@@ -44,7 +44,7 @@
             {
                 RepositoryType = "file",
                 RepositorySource = string.Empty,
-                RepositoryStorage = string.Empty
+                RepositoryTable = string.Empty
             };
 
             // Act

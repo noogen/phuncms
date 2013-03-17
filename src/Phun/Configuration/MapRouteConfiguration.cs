@@ -4,6 +4,8 @@
     using System.Configuration;
     using System.Web.Mvc;
 
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
     using Phun.Data;
 
     /// <summary>
@@ -77,16 +79,29 @@
         }
 
         /// <summary>
-        /// Gets or sets the storage or table name for SQL.
+        /// Gets or sets the storage.
         /// </summary>
         /// <value>
         /// The storage.
         /// </value>
-        [ConfigurationProperty("repositoryStorage", IsRequired = false, DefaultValue = "CmsContent")]
-        public virtual string RepositoryStorage
+        [ConfigurationProperty("repositoryTable", IsRequired = false, DefaultValue = "CmsContent")]
+        public virtual string RepositoryTable
         {
-            get { return (string)this["repositoryStorage"]; }
-            set { this["repositoryStorage"] = value; }
+            get { return (string)this["repositoryTable"]; }
+            set { this["repositoryTable"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the cache location.
+        /// </summary>
+        /// <value>
+        /// The storage.
+        /// </value>
+        [ConfigurationProperty("repositoryCache", IsRequired = false)]
+        public virtual string RepositoryCache
+        {
+            get { return (string)this["repositoryCache"]; }
+            set { this["repositoryCache"] = value; }
         }
 
         /// <summary>
@@ -103,36 +118,31 @@
 
                 if ((this.RepositoryType + string.Empty).Trim().Equals("sql", StringComparison.OrdinalIgnoreCase))
                 {
-                    var repo = new SqlContentRepository(this.RepositorySource, this.RepositoryStorage);
+                    string basePath = (this.RepositoryCache + string.Empty).Replace("~", string.Empty).Trim('/').Replace("/", "\\");
+                    if (!string.IsNullOrEmpty(basePath))
+                    {
+                        basePath = this.ResolveLocalPath(basePath);
+                    }
+
+                    var dataRepo = DependencyResolver.Current != null ? DependencyResolver.Current.GetService<ISqlDataRepository>() : null;
+                    if (dataRepo == null)
+                    {
+                        dataRepo = new SqlDataRepository();
+                    }
+
+                    var repo = new SqlContentRepository(dataRepo, this.RepositorySource, this.RepositoryTable, basePath);
                     result = repo;
                 }
                 else if ((this.RepositoryType + string.Empty).Trim().Equals("file", StringComparison.OrdinalIgnoreCase))
                 {
-                    string baseBath = this.RepositorySource.Replace("~", string.Empty).Trim('/').Replace("/", "\\");
-
-                    // relative path either start with ~ or not contain colon such, i.e. not c:\
-                    if (this.RepositorySource.StartsWith("~") || !this.RepositorySource.Contains(":"))
-                    {
-                        baseBath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseBath);
-                    }
-
-                    // append subfolder
-                    if (!string.IsNullOrEmpty(this.RepositoryStorage))
-                    {
-                        baseBath = System.IO.Path.Combine(baseBath, this.RepositoryStorage);
-                    }
-
-                    if (!System.IO.Directory.Exists(baseBath))
-                    {
-                        System.IO.Directory.CreateDirectory(baseBath);
-                    }
-
-                    var repo = new FileContentRepository(baseBath);
+                    string basePath = this.RepositorySource.Replace("~", string.Empty).Trim('/').Replace("/", "\\");
+                    basePath = this.ResolveLocalPath(basePath);
+                    var repo = new FileContentRepository(basePath);
                     result = repo;
                 }
                 else if ((this.RepositoryType + string.Empty).Trim().Equals("ioc", StringComparison.OrdinalIgnoreCase))
                 {
-                    result = DependencyResolver.Current.GetService<IContentRepository>();
+                    result = DependencyResolver.Current != null ? DependencyResolver.Current.GetService<IContentRepository>() : null;
                 }
                 else
                 {
@@ -150,6 +160,36 @@
 
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Resolves the local path.
+        /// </summary>
+        /// <param name="basePath">The path.</param>
+        /// <returns>A valid base path.</returns>
+        private string ResolveLocalPath(string basePath)
+        {
+            // relative path either start with ~ or not contain colon such, i.e. not c:\
+            if (basePath.Contains(":"))
+            {
+                if (basePath.StartsWith("localstorage:", StringComparison.OrdinalIgnoreCase))
+                {
+                    basePath = basePath.Replace("localstorage:", string.Empty).TrimStart('/', '\\');
+                    basePath = RoleEnvironment.GetLocalResource(basePath).RootPath;
+                }
+            }
+            else
+            {
+                basePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
+            }
+
+            // create directory if not exists
+            if (!System.IO.Directory.Exists(basePath))
+            {
+                System.IO.Directory.CreateDirectory(basePath);
+            }
+
+            return basePath;
         }
 
         /// <summary>

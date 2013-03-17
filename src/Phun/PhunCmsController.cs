@@ -79,7 +79,9 @@
             var model = new ContentModel()
                             {
                                 Path = path,
-                                Data = System.Text.Encoding.UTF8.GetBytes(data)
+                                Data = System.Text.Encoding.UTF8.GetBytes(data),
+                                CreateBy = this.User.Identity.Name,
+                                ModifyBy = this.User.Identity.Name
                             };
 
             if (this.ContentRepository.Exists(model))
@@ -112,10 +114,12 @@
 
             var content = this.ContentRepository.Retrieve(model, true);
 
-            if (content.Data == null)
+            if (content.DataLength == null)
             {
                 throw new HttpException(404, "PhunCms path not found for retrieve.");
             }
+
+            content.SetDataFromStream();
 
             var resultString = System.Text.Encoding.UTF8.GetString(content.Data);
             var toLookup = new Dictionary<string, ContentModel>();
@@ -137,8 +141,10 @@
             {
                 var c = toLookup[key];
                 var result = this.ContentRepository.Retrieve(c, true);
-                if (result.Data != null && result.Data.Length > 0)
+                if (result.DataLength > 0)
                 {
+                    result.SetDataFromStream();
+
                     resultString = resultString.Replace(
                         "%" + key + "%", System.Text.Encoding.UTF8.GetString(result.Data));
                 }
@@ -169,7 +175,9 @@
             {
                 Path = path,
                 Data = System.Text.Encoding.UTF8.GetBytes(data),
-                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url),
+                CreateBy = this.User.Identity.Name,
+                ModifyBy = this.User.Identity.Name
             };
 
             this.ContentRepository.Save(model);
@@ -244,12 +252,16 @@
                 return this.File(localFilePath, MimeTypes.GetContentType("zip"), folderName + "zip");
             }
 
-
             var result = this.ContentRepository.Retrieve(content, true);
 
-            if (result.Data == null)
+            if (result.DataLength == null)
             {
                 throw new HttpException(404, "PhunCms download path not found.");
+            }
+
+            if (result.DataStream != null)
+            {
+                return this.File(result.DataStream, MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)), result.FileName);
             }
 
             return this.File(result.Data, MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)), result.FileName);
@@ -362,7 +374,9 @@
             var contentModel = new ContentModel()
             {
                 Path = path,
-                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url),
+                CreateBy = this.User.Identity.Name,
+                ModifyBy = this.User.Identity.Name
             };
 
             // if it's a file path then get the folder

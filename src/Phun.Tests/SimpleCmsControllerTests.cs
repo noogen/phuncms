@@ -5,6 +5,7 @@
     using System.Collections.Specialized;
     using System.IO;
     using System.Linq;
+    using System.Security.Principal;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
@@ -36,7 +37,8 @@
             var context = new Mock<HttpContextBase>();
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
-            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object); 
+            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+            context.Setup(ctx => ctx.User.Identity.Name).Returns("admin");
             repo.Setup(rp => rp.Save(It.IsAny<ContentModel>())).Verifiable();
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
@@ -66,6 +68,7 @@
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+            context.Setup(ctx => ctx.User.Identity.Name).Returns("admin");
             repo.Setup(rp => rp.Save(It.IsAny<ContentModel>())).Verifiable();
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
@@ -150,7 +153,7 @@
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
             repo.Setup(rp => rp.Retrieve(It.IsAny<ContentModel>(), true))
-                .Returns(new ContentModel() { Data = new byte[] { 1, 1 } });
+                .Returns(new ContentModel() { Data = new byte[] { 1, 1 } , DataLength = 1});
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
             controller.MyContentConfig = contentConfig.Object;
@@ -211,6 +214,7 @@
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+            context.Setup(ctx => ctx.User.Identity.Name).Returns("admin");
             repo.Setup(rp => rp.Save(It.IsAny<ContentModel>())).Verifiable();
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
@@ -313,7 +317,7 @@
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            repo.Setup(rp => rp.Retrieve(It.IsAny<ContentModel>(), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head></head></html>") });
+            repo.Setup(rp => rp.Retrieve(It.IsAny<ContentModel>(), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head></head></html>"), DataLength = 1});
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
             mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
@@ -344,14 +348,14 @@
 
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
             context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/test"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head>%ReplaceMe%</head>%AndMe%</html>") });
+            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/test"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head>%ReplaceMe%</head>%AndMe%</html>"), DataLength = 1 });
             contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
             contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
             mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
             controller.MyContentConfig = contentConfig.Object;
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
-            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/ReplaceMe"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("woohooo") });
-            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/AndMe"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("metoo") });
+            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/ReplaceMe"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("woohooo"), DataLength = 1});
+            repo.Setup(rp => rp.Retrieve(It.Is<ContentModel>(m => m.Path == "/AndMe"), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("metoo"), DataLength = 1 });
             
             // Act
             var result = controller.Retrieve("/test") as ContentResult;

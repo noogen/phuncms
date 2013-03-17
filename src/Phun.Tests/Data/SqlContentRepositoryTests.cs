@@ -14,6 +14,31 @@
     public class SqlContentRepositoryTests
     {
         /// <summary>
+        /// Mies the test initialize.
+        /// </summary>
+        /// <param name="testContext">The test context.</param>
+        [AssemblyInitialize()]
+        public static void MyTestInitialize(TestContext testContext)
+        {
+            // Arrange
+            var repo =
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
+
+            var fileRepo =
+                new FileContentRepository(System.IO.Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "CmsContent"));
+
+            // Act
+            var result = fileRepo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" }, true);
+            repo.Save(result);
+
+            result = fileRepo.Retrieve(new ContentModel() { Host = "localhost", Path = "/test/test/article" }, true);
+            repo.Save(result);
+
+            result = fileRepo.Retrieve(new ContentModel() { Host = "localhost", Path = "/test/test/article-title" }, true);
+            repo.Save(result);
+        }
+
+        /// <summary>
         /// Tests the exists find file on system.
         /// </summary>
         [TestMethod]
@@ -21,7 +46,7 @@
         {
             // Arrange
             var repo =
-                new SqlContentRepository("DefaultDatabase", "CmsContent");
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
 
             // Act
             var result = repo.Exists(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" });
@@ -38,14 +63,14 @@
         {
             // Arrange
             var repo =
-                new SqlContentRepository("DefaultDatabase", "CmsContent");
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
 
             // Act
             var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/ArticleTitle" }, true);
 
             // Assert
             Assert.IsNotNull(result.Data);
-            Assert.IsTrue(result.Data.Length > 0);
+            Assert.IsTrue(result.DataLength > 0);
         }
 
         /// <summary>
@@ -56,7 +81,7 @@
         {
             // Arrange
             var repo =
-                new SqlContentRepository("DefaultDatabase", "CmsContent");
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
 
             // Act
             var result = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/test/test/article-title" });
@@ -73,7 +98,8 @@
             // Assert
             Assert.IsNotNull(result.Data);
             Assert.IsNotNull(result2.Data);
-            Assert.AreNotEqual(result.Data, result2.Data);
+
+            Assert.AreNotEqual(System.Text.Encoding.UTF8.GetString(result.Data), System.Text.Encoding.UTF8.GetString(result2.Data));
         }
 
         /// <summary>
@@ -84,7 +110,7 @@
         {
             // Arrange
             var repo =
-                new SqlContentRepository("DefaultDatabase", "CmsContent");
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
             var model = new ContentModel() { Host = "localhost", Path = "/test/test/article" };
 
             // Act
@@ -103,7 +129,7 @@
         {
             // Arrange
             var repo =
-                new SqlContentRepository("DefaultDatabase", "CmsContent");
+                new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
             var model = new ContentModel() { Host = "localhost", Path = "/" };
 
             // Act
