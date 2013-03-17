@@ -53,7 +53,7 @@
         public override System.IO.Stream Open()
         {
             var util = new ResourcePathUtility();
-            var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(this.resourcePath);
+            var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Concat("Phun.Properties.", this.resourcePath));
             if (this.resourcePath.EndsWith("scripts.phuncms.config.js"))
             {
                 var fileString =
@@ -62,6 +62,13 @@
                         .Replace("]", "}");
 
                 result = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(fileString));
+            }
+            else if (result == null)
+            {
+                // try to get resource in all lowered case
+                result = Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream(
+                            string.Concat("Phun.Properties.", this.resourcePath.ToLowerInvariant()));
             }
 
             if (result == null)
@@ -139,12 +146,10 @@
             // actual resource folders are translated to periods
             var resource = (virtualPath + string.Empty)
                 .Replace("~", string.Empty)
-                .ToLowerInvariant()
                 .Substring(this.Config.ResourceRouteNormalized.Length + 2)
                 .Replace("/", ".")
                 .Trim('.');
 
-            resource = string.Concat("Phun.Properties.", resource);
             return resource;
         }
     }

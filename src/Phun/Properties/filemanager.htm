@@ -1,27 +1,19 @@
-﻿@using Phun.Extensions
-@using StackExchange.Profiling;
-@inherits System.Web.Mvc.WebViewPage
-@{
-    Layout = null;
-    var basePath = this.Request.Path.ToLowerInvariant().Replace("/filemanager", string.Empty).TrimEnd('/');
-}
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>      
     <head>
         <meta charset="utf-8" />
         <title>Phun CMS file manager</title>
-        @this.InitClientTimings()
-        <script src="@Html.PhunResourceUrl("Scripts/jquery.js")" type="text/javascript"></script>
-        <script src="@Html.PhunResourceUrl("Scripts/jqueryui.js")" type="text/javascript"></script>
-        <script src="@Html.PhunResourceUrl("Scripts/jquery.cookie.js")" type="text/javascript"></script>
-        <script src="@Html.PhunResourceUrl("Scripts/jquery.dynatree.js")" type="text/javascript"></script>
+        <script src="scripts/jquery.js" type="text/javascript"></script>
+        <script src="scripts/jqueryui.js" type="text/javascript"></script>
+        <script src="scripts/jquery.cookie.js" type="text/javascript"></script>
+        <script src="scripts/jquery.dynatree.js" type="text/javascript"></script>
 
-        <link rel="stylesheet" type="text/css" href="@Html.PhunResourceUrl("css/dynatree/ui.dynatree.css")">
-        <script type="text/javascript"> 
+        <link rel="stylesheet" type="text/css" href="css/dynatree/ui.dynatree.css">
+        <script type="text/javascript">
             var initialUrl = window.location.hash.replace("#", "").toLowerCase();
             var initialUrlParts = initialUrl.split('/');
             var initialUrlLoading = "/";
-            
+
             function getParameterByName(name) {
                 name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
                 var regexS = "[\\?&]" + name + "=([^&#]*)";
@@ -29,25 +21,27 @@
                 var results = regex.exec(window.location.search);
                 return (results == null) ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
             }
+
+            var contentPath = '/' + getParameterByName("contentPath").replace(/(\/)+$/gi, '').replace(/^(\/)+/gi, '');
             
             // ckeditor callback model
             function ckEditorCallback(fileId) {
                 var funcNum = getParameterByName('CKEditorFuncNum');
-                window.opener.CKEDITOR.tools.callFunction(funcNum, '@basePath/Download' + fileId);
+                window.opener.CKEDITOR.tools.callFunction(funcNum, contentPath + '/Download' + fileId);
                 window.close();
             }
-            
+
 
             function continueInitialLoad() {
                 var tree = $("#tree").dynatree("getTree");
-                
+
                 if (initialUrlLoading != initialUrl && $.isArray(initialUrlParts)) {
                     var part = initialUrlParts.pop();
                     while (initialUrlParts.length > 0 && part == "") {
                         part = initialUrlParts.pop();
                     }
                     if (part == "") return;
-                    
+
                     initialUrlLoading += part;
                     var foundNode = tree.getNodeByKey(initialUrlLoading);
                     if (initialUrlParts.length > 0) {
@@ -73,8 +67,8 @@
                     }
                 }
             }
-            
-            $(document).ready(function(){
+
+            $(document).ready(function () {
                 // Attach the dynatree widget to an existing <div id="tree"> element
                 // and pass the tree options as an argument to the dynatree() function:
                 var tree = $("#tree").dynatree({
@@ -87,7 +81,7 @@
                     autoCollapse: true,
                     initAjax: {
                         type: "POST",
-                        url: "@basePath/FileManagerDynatree",
+                        url: contentPath +"/FileManagerDynatree",
                         data: { path: '/' },
                         cache: false
                     },
@@ -99,10 +93,10 @@
                     onLazyRead: function (node) {
                         node.appendAjax({
                             type: "POST",
-                            url: "@basePath/FileManagerDynatree",
+                            url: contentPath + "/FileManagerDynatree",
                             data: { path: node.data.key },
                             cache: false,
-                            success: function(loadedNode) {
+                            success: function (loadedNode) {
                                 var url = window.location.hash.replace("#", "");
                                 if (url == "") {
                                     return;
@@ -118,10 +112,10 @@
                         continueInitialLoad();
                     }
                 });
-            
+
                 $(".new-page").click(function (e) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-                    
+
                     if (window.location.hash == "#" || node == null) {
                         alert("Please select a folder.");
                         return false;
@@ -134,12 +128,13 @@
                         if (!node.data.isFolder) {
                             node = node.getParent();
                         }
+                        
                         var newKey = (node.data.key + the_name.replace(/\//gi, "").replace(/\\/gi, "") + "\/");
                         var newNode = node.addChild({ title: the_name, key: newKey, isFolder: true, isLazy: true });
                         $.ajax({
                             type: "POST",
-                            url: "@basePath/Create",
-                            data: { path: newKey + "_default", data: '' },
+                            url: contentPath + "/Create",
+                            data: { path: newKey + "_default", data: '<!DOCTYPE html><html><head><title>' + the_name + '</title></head><body></body>'  },
                             cache: false,
                             success: function (data) {
                                 newNode.activate();
@@ -147,7 +142,7 @@
                         });
                     }
                 });
-                
+
                 $(".new-directory").click(function (e) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
@@ -157,7 +152,7 @@
                     }
 
                     var the_name = window.prompt("Please note that directory does not exists on it's own.  You must upload file to persist.\r\nEnter name of new directory under current directory: ", "");
-                
+
                     if (the_name != null && the_name != "") {
                         if (!node.data.isFolder) {
                             node = node.getParent();
@@ -166,13 +161,13 @@
                         node.addChild({ title: the_name, key: newKey, isFolder: true });
                     }
                 });
-            
+
                 $(".delete").click(function (e) {
                     if (window.location.hash == "#" || window.location.hash.replace("#", "") == "/") {
                         alert("Root path delete is not allowed.");
                         return false;
                     }
-                
+
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
                     var parent = node.getParent();
                     var message = "Delete " + (node.data.isFolder ? "folder: " : "file: ");
@@ -180,7 +175,7 @@
                     if (confirm(message)) {
                         $.ajax({
                             type: "DELETE",
-                            url: "@basePath/Delete",
+                            url: contentPath + "/Delete",
                             data: { path: window.location.hash.replace("#", "") },
                             cache: false,
                             success: function (data) {
@@ -189,8 +184,8 @@
                         });
                     }
                 });
-            
-                $(".upload").click(function(e) {
+
+                $(".upload").click(function (e) {
                     if (window.location.hash == "#") {
                         alert("Please select a folder.");
                         return false;
@@ -201,18 +196,18 @@
                     }
                     return true;
                 });
-                
+
                 $(".download").click(function (e) {
                     if (window.location.hash == "#") {
                         alert("Please select a file or folder.");
                         return false;
                     }
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-                    
-                    window.open("@basePath/Download" + node.data.key, '', '');
+
+                    window.open(contentPath + "/Download" + node.data.key, '', '');
                     return true;
                 });
-                
+
                 $(".edit").click(function (e) {
                     if (window.location.hash == "#") {
                         alert("Please select a file.");
@@ -225,10 +220,10 @@
                         return false;
                     }
 
-                    window.open("@basePath/Edit?path=" + node.data.key, '', '');
+                    window.open(contentPath + "/Edit?path=" + node.data.key, '', '');
                     return true;
                 });
-                
+
                 $(".select").click(function (e) {
                     if (window.location.hash == "#") {
                         alert("Please select a file.");
@@ -244,7 +239,7 @@
                     ckEditorCallback(node.data.key);
                 });
             });
-           
+
         </script>
         <style type="text/css">
             body { text-align: center; }
@@ -270,7 +265,7 @@
                     <tbody>
                         <tr>
                             <td><span>Current Path: </span><span class="path" style="padding-right: 20px;">/</span> </td>
-                            <td><form method="post" enctype="multipart/form-data" action="@basePath/FileManager"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
+                            <td><form method="post" enctype="multipart/form-data" action="contentPath/FileManager" id="uploadForm"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
                         </tr>
                     </tbody>
                 </table>
@@ -278,6 +273,5 @@
             </div>
             <div id="tree"></div> 
         </div>
-        @MiniProfiler.RenderIncludes()
     </body>
 </html>

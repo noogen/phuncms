@@ -83,6 +83,11 @@
                 if (text != "") {
                     PhunCms.contentsToLoad--;
                     var html = $this.html();
+
+                    if (html.toLowerCase().indexOf("<body>") > 0) {
+                        html = html.split(/(<body>|<\/body>)/ig)[2];
+                    }
+                    
                     $this.html('<div property="content">' + html + '</div>');
                     afterAllLoaded();
                     return;
@@ -100,7 +105,12 @@
                     url: url.replace(/\/\//gi, '/'),
                     success: function (html) {
                         PhunCms.contentsToLoad--;
-                        if (html == "") html = "&nbsp;";
+                        if (html == "") html = "";
+
+                        if (html.toLowerCase().indexOf("<body>") > 0) {
+                            html = html.split(/(<body>|<\/body>)/ig)[2];
+                        }
+                       
                         $this.html('<div property="content">' + html + '</div>');
                         afterAllLoaded();
                     },

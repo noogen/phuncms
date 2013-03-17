@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Net;
     using System.Text.RegularExpressions;
@@ -98,7 +99,7 @@
         /// <param name="path">The path.</param>
         /// <returns></returns>
         /// <exception cref="System.Web.HttpException">404;PhunCMS view content path not found.</exception>
-        [HttpGet, AllowAnonymous]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here."),HttpGet, AllowAnonymous]
         public virtual ActionResult Retrieve(string path)
         {
             var model = new ContentModel()
@@ -124,6 +125,11 @@
             var resultString = System.Text.Encoding.UTF8.GetString(content.Data);
             var toLookup = new Dictionary<string, ContentModel>();
 
+            if (resultString.StartsWith("<html>", StringComparison.OrdinalIgnoreCase))
+            {
+                resultString = "<!DOCTYPE html>" + resultString;
+            }
+
             // assuming all content are templates, attempt to identity replace patterns #partialcontentpath#
             foreach (Match match in TemplateRegex.Matches(resultString).Cast<Match>().Where(match => !toLookup.ContainsKey(match.Value.Replace("%", string.Empty))))
             {
@@ -144,9 +150,17 @@
                 if (result.DataLength > 0)
                 {
                     result.SetDataFromStream();
+                    var dataString = System.Text.Encoding.UTF8.GetString(result.Data);
+                    var startIndex = dataString.IndexOf("<body>", StringComparison.OrdinalIgnoreCase);
+                    var endIndex = dataString.IndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+                    if (startIndex > 0 && endIndex > 0)
+                    {
+                        startIndex = startIndex + 6;
+                        dataString = dataString.Substring(startIndex, endIndex - startIndex);
+                    }
 
                     resultString = resultString.Replace(
-                        "%" + key + "%", System.Text.Encoding.UTF8.GetString(result.Data));
+                        "%" + key + "%", dataString);
                 }
                 else
                 {
@@ -340,7 +354,7 @@
             // return extra root path
             if (model.Path == "/")
             {
-                return this.Json(new DynaTreeViewModel("/") { children = myJsonResult, expand = true });
+                return this.Json(new DynaTreeViewModel("/") { children = myJsonResult, expand = true, isFolder = true, isLazy = false });
             }
 
             return this.Json(myJsonResult);
@@ -355,9 +369,7 @@
         [HttpGet]
         public virtual ActionResult FileManager()
         {
-            var resourceProvider = new ResourcePathUtility();
-
-            return this.View(resourceProvider.GetResourcePath("filemanager.cshtml"));
+            return this.Redirect("/" + Config.ResourceRouteNormalized + "/filemanager.htm?contentPath=" + this.Config.ContentRouteNormalized);
         }
 
         /// <summary>

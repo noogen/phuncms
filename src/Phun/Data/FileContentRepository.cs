@@ -64,6 +64,7 @@
                 if (includeData)
                 {
                     content.Data = System.IO.File.ReadAllBytes(file);
+                    content.DataLength = content.Data.Length;
                 }
 
                 var fi = new FileInfo(file);
