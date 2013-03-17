@@ -192,7 +192,7 @@
             var controller = new PhunCmsContentController();
 
             // Act
-            var result = controller.FileManager() as ViewResult;
+            var result = controller.FileManager() as RedirectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -224,7 +224,7 @@
             httpPostFile.Setup(pf => pf.InputStream).Returns(new MemoryStream(new byte[] { 1, 1 }));
 
             // Act
-            var result = controller.FileManager(httpPostFile.Object, "~/blah") as ViewResult;
+            var result = controller.FileManager(httpPostFile.Object, "~/blah") as RedirectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -330,7 +330,7 @@
             // Assert
             repo.VerifyAll();
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Content.Contains("<script type='text/javascript' src='/PhunCms/Scripts/jquery.js'></script>"));
+            Assert.IsTrue(result.Content.Contains(@"<script type=""text/javascript"" src=""/PhunCms/scripts/jquery.js""></script>"));
         }
 
         /// <summary>
@@ -363,7 +363,7 @@
             // Assert
             repo.VerifyAll();
             Assert.IsNotNull(result);
-            Assert.AreEqual("<html><head>woohooo</head>metoo</html>", result.Content);
+            Assert.AreEqual("<!DOCTYPE html><html><head>woohooo</head>metoo</html>", result.Content);
         }
 
         /// <summary>

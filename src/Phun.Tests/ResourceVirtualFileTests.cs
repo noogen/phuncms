@@ -25,7 +25,7 @@
             // Arrange
             var rvf = new ResourcePathUtility();
             rvf.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
-            var expected = "<script type='text/javascript' src='/BogusRoute/Scripts/jquery.js'></script>";
+            var expected = @"<script type=""text/javascript"" src=""/BogusRoute/scripts/jquery.js""></script>";
 
             // Act
             var result = rvf.PhunCmsRenderBundles();
@@ -44,7 +44,7 @@
             // Arrange
             var rvf = new ResourcePathUtility();
             rvf.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
-            var expected = "<script type='text/javascript' src='/BogusRoute/Scripts/jquery.js'></script>";
+            var expected = @"<script type=""text/javascript"" src=""/BogusRoute/scripts/jquery.js""></script>";
 
             // Act
             var result = rvf.PhunCmsRenderBundles(includeEditorInit: false);
