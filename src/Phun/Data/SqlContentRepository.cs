@@ -81,15 +81,15 @@
             {
                 return string.Format(
 @"CREATE TABLE [{0}](
-	[Host] [nvarchar](200) NOT NULL,
-	[Path] [nvarchar](250) NOT NULL,
-    [ParentPath] nvarchar(250) NOT NULL,
-	[CreateDate] [datetime] NULL,
-	[CreateBy] [nvarchar](100) NULL,
-	[ModifyDate] [datetime] NULL,
-	[ModifyBy] [nvarchar](100) NULL,
-    [DataLength] [bigint] NULL, 
-	[DataIdString] [nvarchar](38) NULL,
+	[Host]         NVARCHAR(200) NOT NULL,
+	[Path]         NVARCHAR(250) NOT NULL,
+    [ParentPath]   NVARCHAR(250) NOT NULL,
+	[CreateDate]   DATETIME NULL,
+	[CreateBy]     NVARCHAR(100) NULL,
+	[ModifyDate]   DATETIME NULL,
+	[ModifyBy]     NVARCHAR(100) NULL,
+    [DataLength]   BIGINT NULL, 
+	[DataIdString] NVARCHAR(38) NULL,
 	CONSTRAINT UC_{0} UNIQUE ([Host], [Path])
 )
 GO
@@ -99,7 +99,8 @@ CREATE INDEX IX_{0}_Path ON [{0}] ([Path])
 GO
 CREATE INDEX IX_{0}_ParentPath ON [{0}] ([ParentPath])
 GO
-CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])", 
+CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])
+", 
 this.TableName);
             }
         }
@@ -270,24 +271,19 @@ this.TableName);
         {
             var phunDataSchema = string.Format(@"
 CREATE TABLE [{0}Data](
-	[IdString] [nvarchar](38) NOT NULL CONSTRAINT [PK_{0}Data] PRIMARY KEY,
-	[Host] [nvarchar](200) NOT NULL,
-	[Path] [nvarchar](250) NOT NULL,
-	[Data] [image] NOT NULL,
-	[DataLength] [bigint] NULL,
-	[CreateDate] [datetime] NULL,
-	[CreateBy] [nvarchar](50) NULL
+	[IdString]    NVARCHAR(38) NOT NULL PRIMARY KEY,
+	[Host]        NVARCHAR(200) NOT NULL,
+	[Path]        NVARCHAR(250) NOT NULL,
+	[Data]        IMAGE,
+	[DataLength]  BIGINT NULL,
+	[CreateDate]  DATETIME NULL,
+	[CreateBy]    NVARCHAR(50) NULL
 )
 GO
-CREATE NONCLUSTERED INDEX [IX_{0}Data_Host] ON [{0}Data]
-(
-	[Host] ASC
-)
+CREATE INDEX [IX_{0}Data_Host] ON [{0}Data] ([Host])
 GO
-CREATE NONCLUSTERED INDEX [IX_{0}Data_Path] ON [{0}Data]
-(
-	[Path] ASC
-)", 
+CREATE INDEX [IX_{0}Data_Path] ON [{0}Data] ([Path])
+", 
   this.TableName);
             using (var db = new DapperContext(this.ConnectionStringName))
             {
@@ -300,11 +296,25 @@ CREATE NONCLUSTERED INDEX [IX_{0}Data_Path] ON [{0}Data]
                                 this.TableName)).Any();
                     if (!dataTableExists)
                     {
-                        foreach (
-                            var sql in
-                                phunDataSchema.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+                        foreach (var sql in
+                            phunDataSchema.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            db.Connection.Execute(sql);
+                            try
+                            {
+                                db.Connection.Execute(sql);
+                            }
+                            catch (Exception ex)
+                            {
+                                if (sql.IndexOf("IMAGE,", StringComparison.OrdinalIgnoreCase) > 0)
+                                {
+                                    var sql2 = sql.Replace("IMAGE,", "BLOB,");
+                                    db.Connection.Execute(sql2);
+                                }
+                                else
+                                {
+                                    throw ex;
+                                }
+                            }
                         }
                     }
                 }
@@ -330,14 +340,20 @@ CREATE NONCLUSTERED INDEX [IX_{0}Data_Path] ON [{0}Data]
         private void Save(ContentModel content, DapperContext db)
         {
             // upsert means we have to use two separate statement since this would support sqlce
+            content.ModifyDate = DateTime.UtcNow;
+            if (!content.CreateDate.HasValue || content.CreateDate.Value == DateTime.MinValue)
+            {
+                content.CreateDate = DateTime.UtcNow;
+            }
+
             var sqlCommand = string.Format(
-@"UPDATE [{0}] SET ModifyDate = getdate(), ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND [Path] = @Path",
+@"UPDATE [{0}] SET ModifyDate = @ModifyDate, ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND [Path] = @Path",
        this.TableName);
             db.Connection.Execute(sqlCommand, content);
 
             sqlCommand =
                 string.Format(
-                    "INSERT INTO [{0}] (Host, [Path], ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, getdate(), @CreateBy, getdate(), @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM [{0}] WHERE Host = @Host AND [Path] = @Path)",
+                    "INSERT INTO [{0}] (Host, [Path], ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM [{0}] WHERE Host = @Host AND [Path] = @Path)",
                     this.TableName);
             db.Connection.Execute(sqlCommand, content);
         }

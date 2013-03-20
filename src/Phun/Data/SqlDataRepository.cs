@@ -111,8 +111,14 @@
                                  };
 
             newContent.DataLength = content.Data != null ? content.Data.Length : 0;
+            newContent.ModifyDate = DateTime.UtcNow;
+            if (!newContent.CreateDate.HasValue || newContent.CreateDate.Value == DateTime.MinValue)
+            {
+                newContent.CreateDate = DateTime.UtcNow;
+            }
+
             context.Connection.Execute(
-                    string.Format("INSERT INTO [{0}] (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, getdate(), @CreateBy)", tableName), newContent);
+                    string.Format("INSERT INTO [{0}] (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, @CreateDate, @CreateBy)", tableName), newContent);
             content.Data = newContent.Data;
             content.DataLength = newContent.DataLength;
             content.DataId = newContent.DataId;
