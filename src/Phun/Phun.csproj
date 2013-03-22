@@ -61,6 +61,9 @@
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
     </Reference>
+    <Reference Include="Noesis.Javascript">
+      <HintPath>..\lib\Noesis.Javascript.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -131,6 +134,17 @@
     <Compile Include="Data\IContentRepository.cs" />
     <Compile Include="Data\SqlContentRepository.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Templating\IFileSystem.cs" />
+    <Compile Include="Templating\IPath.cs" />
+    <Compile Include="Templating\PhunFileSystem.cs" />
+    <Compile Include="Templating\PhunPath.cs" />
+    <EmbeddedResource Include="Properties\scripts\vash.js" />
+    <None Include="msvcp100.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="msvcr100.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <EmbeddedResource Include="Properties\css\jquery_ui\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <EmbeddedResource Include="Properties\css\jquery_ui\images\ui-bg_flat_75_ffffff_40x100.png" />
     <EmbeddedResource Include="Properties\css\jquery_ui\images\ui-bg_glass_55_fbf9ee_1x400.png" />
