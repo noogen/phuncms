@@ -7,7 +7,7 @@ goal
 ======
 Provide a simple way to add content management capability to any Asp.NET MVC 4 project.
 
-Base on the modular CMS movement
+Base on the decoupled CMS concept - http://decoupledcms.org/
    - utilize createjs client-side CMS ui for support
    - server CRUD interface/repository/connector for content storage
    - basic server + client interface for file management
