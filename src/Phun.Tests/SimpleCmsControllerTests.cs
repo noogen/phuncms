@@ -256,15 +256,15 @@
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
             // Act
-            var result = controller.FileManagerDynatree("/blah") as JsonResult;
+            var result = controller.FileManagerDynatree("/") as JsonResult;
             
             // Assert
             repo.VerifyAll();
             Assert.IsNotNull(result);
 
-            var data = result.Data as List<DynaTreeViewModel>;
+            var data = result.Data as DynaTreeViewModel;
             Assert.IsNotNull(data);
-            Assert.AreEqual(2, data.Count);
+            Assert.AreEqual(2, data.children.Count);
         }
 
         /// <summary>

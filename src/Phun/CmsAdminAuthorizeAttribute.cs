@@ -18,7 +18,7 @@
         /// <param name="filterContext">The filter context, which encapsulates information for using <see cref="T:System.Web.Mvc.AuthorizeAttribute" />.</param>
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
-            var config =  ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            var config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
             this.PopulateRolesFromConfiguration(config, filterContext);
             base.OnAuthorization(filterContext);
         }

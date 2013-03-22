@@ -141,7 +141,7 @@
         /// </summary>
         /// <param name="virtualPath">The virtual path.</param>
         /// <returns>The resource path.</returns>
-        protected virtual string TranslateToResourcePath(string virtualPath)
+        protected string TranslateToResourcePath(string virtualPath)
         {
             // actual resource folders are translated to periods
             var resource = (virtualPath + string.Empty)

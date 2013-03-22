@@ -542,7 +542,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MimeTypes" /> class.
+        /// Initializes static members of the <see cref="MimeTypes"/> class. 
         /// </summary>
         static MimeTypes()
         {

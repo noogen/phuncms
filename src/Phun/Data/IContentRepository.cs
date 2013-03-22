@@ -1,5 +1,6 @@
 ﻿namespace Phun.Data
 {
+    using System;
     using System.Collections.Generic;
     using System.IO.Compression;
     using System.Linq;
@@ -60,5 +61,12 @@
         /// <param name="content">The content.</param>
         /// <returns>Specific content change history.</returns>
         IQueryable<ContentModel> RetrieveHistory(ContentModel content);
+
+        /// <summary>
+        /// Popuplates the history data.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="historyDataId">The history data id.</param>
+        void PopulateHistoryData(ContentModel content, System.Guid historyDataId);
     }
 }

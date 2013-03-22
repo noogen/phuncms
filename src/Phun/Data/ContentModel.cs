@@ -32,7 +32,19 @@
             {
                 // normalize the path
                 var myValue = (value + string.Empty).Replace("\\", "/").Replace("//", "/").TrimStart('/');
+                var isFolder = myValue.EndsWith("/", StringComparison.OrdinalIgnoreCase);
+
                 this.path = "/" + myValue;
+                if (isFolder)
+                {
+                    this.path = this.path.ToSeoName();
+                }
+                else
+                {
+                    var parentPath = this.ParentPath.ToSeoName();
+                    var fileName = this.FileName;
+                    this.path = string.Concat(parentPath, fileName);
+                }
             }
         }
 
@@ -98,7 +110,7 @@
                 {
                     result = this.Path.Substring(0, this.Path.TrimEnd('/').LastIndexOf('/')) + "/"; 
                 }
-
+                
                 return result;
             }
         }

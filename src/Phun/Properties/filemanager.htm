@@ -298,7 +298,7 @@
                     }
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
-                    if (node.isFolder) {
+                    if (node.data.isFolder) {
                         alert("Please select a file.");
                         return false;
                     }
@@ -314,12 +314,29 @@
                     }
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
-                    if (node.isFolder) {
+                    if (node.data.isFolder) {
                         alert("Please select a file.");
                         return false;
                     }
 
                     ckEditorCallback(node.data.key);
+                    return true;
+                });
+                
+                $(".open").click(function (e) {
+                    if (window.location.hash == "#") {
+                        alert("Please select a folder.");
+                        return false;
+                    }
+                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+
+                    if (!node.data.isFolder) {
+                        alert("Please select a folder.");
+                        return false;
+                    }
+
+                    window.open(node.data.key, '', '');
+                    return true;
                 });
             });
 
@@ -344,15 +361,16 @@
         </header>
         <div class="content">
             <div class="action_menu">
+                <span style="font-weight: bold"> Actions: </span><input type="button" class="open" title="Open selected directory" value="Open"/>  <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="edit" title="edit selected" value="Edit"/><input type="button" class="new-directory" value="New Directory"/> <input type="button" class="new-page" value="New Page"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
+                <hr/>
                 <table>
                     <tbody>
                         <tr>
-                            <td><span>Current Path: </span><span class="path" style="padding-right: 20px;">/</span> </td>
+                            <td><span style="font-weight: bold">Upload: </span><span class="path" style="padding-right: 20px;">/</span> </td>
                             <td><form method="post" enctype="multipart/form-data" action="/FileManager" id="uploadForm"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
                         </tr>
                     </tbody>
                 </table>
-                <input type="button" class="new-page" value="New Page"/> <input type="button" class="new-directory" value="New Directory"/> <input type="button" class="delete" value="Delete"/> <input type="button" class="edit" value="Edit"/> <input type="button" class="download" value="Download"/> <input type="button" class="select" value="Select" style="display:none"/>
             </div>
             <div id="tree"></div> 
         </div>

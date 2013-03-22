@@ -8,6 +8,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.IO.Compression;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using Dapper;
 
@@ -42,12 +43,17 @@
         private static volatile bool schemaExists = false;
 
         /// <summary>
+        /// The illegal character replace
+        /// </summary>
+        private static Regex illegalTableNameReplace = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SqlContentRepository" /> class.
         /// </summary>
         /// <param name="dataRepo">The data repo.</param>
         /// <param name="connectionStringName">Name of the connection string.</param>
-        /// <param name="cachePath">The cache path.</param>
         /// <param name="tableName">Name of the table.</param>
+        /// <param name="cachePath">The cache path.</param>
         /// <exception cref="System.ArgumentException">Connection does not exist.</exception>
         public SqlContentRepository(ISqlDataRepository dataRepo, string connectionStringName, string tableName, string cachePath)
         {
@@ -58,7 +64,7 @@
             }
 
             this.ConnectionStringName = connectionStringName;
-            this.TableName = tableName ?? "CmsContent";
+            this.TableName = illegalTableNameReplace.Replace(tableName ?? "CmsContent", string.Empty);
             this.CachePath = cachePath;
             this.DataRepository = dataRepo;
 
@@ -80,26 +86,26 @@
             get
             {
                 return string.Format(
-@"CREATE TABLE [{0}](
-	[Host]         NVARCHAR(200) NOT NULL,
-	[Path]         NVARCHAR(250) NOT NULL,
-    [ParentPath]   NVARCHAR(250) NOT NULL,
-	[CreateDate]   DATETIME NULL,
-	[CreateBy]     NVARCHAR(100) NULL,
-	[ModifyDate]   DATETIME NULL,
-	[ModifyBy]     NVARCHAR(100) NULL,
-    [DataLength]   BIGINT NULL, 
-	[DataIdString] NVARCHAR(38) NULL,
-	CONSTRAINT UC_{0} UNIQUE ([Host], [Path])
+@"CREATE TABLE {0}(
+	Host         NVARCHAR(200) NOT NULL,
+	Path         NVARCHAR(250) NOT NULL,
+    ParentPath   NVARCHAR(250) NOT NULL,
+	CreateDate   DATETIME NULL,
+	CreateBy     NVARCHAR(100) NULL,
+	ModifyDate   DATETIME NULL,
+	ModifyBy     NVARCHAR(100) NULL,
+    DataLength   BIGINT NULL, 
+	DataIdString NVARCHAR(38) NULL,
+	CONSTRAINT UC_{0} UNIQUE (Host, Path)
 )
 GO
-CREATE INDEX IX_{0}_Host ON [{0}] ([Host])
+CREATE INDEX IX_{0}_Host ON {0} (Host)
 GO
-CREATE INDEX IX_{0}_Path ON [{0}] ([Path])
+CREATE INDEX IX_{0}_Path ON {0} (Path)
 GO
-CREATE INDEX IX_{0}_ParentPath ON [{0}] ([ParentPath])
+CREATE INDEX IX_{0}_ParentPath ON {0} (ParentPath)
 GO
-CREATE INDEX IX_{0}_ModifyDate ON [{0}] ([ModifyDate])
+CREATE INDEX IX_{0}_ModifyDate ON {0} (ModifyDate)
 ", 
 this.TableName);
             }
@@ -118,7 +124,7 @@ this.TableName);
             content.Path = this.NormalizedPath(content.Path);
             var sqlCommand =
                 string.Format(
-                    "SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength FROM [{0}] WHERE Host = @Host AND [Path] = @Path",
+                    "SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength FROM {0} WHERE Host = @Host AND Path = @Path",
                     this.TableName);
 
             using (var db = new DapperContext(this.ConnectionStringName))
@@ -161,7 +167,7 @@ this.TableName);
             {
                 return db.Connection.Query(
                                   string.Format(
-                                      "SELECT TOP 1 Host FROM [{0}] WHERE Host = @Host AND [Path] = @Path",
+                                      "SELECT TOP 1 Host FROM {0} WHERE Host = @Host AND Path = @Path",
                                       this.TableName),
                                   new { Host = content.Host, Path = content.Path }).Any();
             }
@@ -234,7 +240,7 @@ this.TableName);
             {
                 db.Connection.Execute(
                     string.Format(
-                        "DELETE FROM [{0}] WHERE Host = @Host AND ([Path] {1} @Path)", this.TableName, operString),
+                        "DELETE FROM {0} WHERE Host = @Host AND (Path {1} @Path)", this.TableName, operString),
                     new { Path = path, Host = content.Host });
             }
         }
@@ -258,7 +264,7 @@ this.TableName);
                 return
                     db.Connection.Query<ContentModel>(
                         string.Format(
-                            @"SELECT Path, CreateDate, CreateBy, ModifyDate, ModifyBy FROM [{0}] WHERE Host = @Host AND ParentPath = @ParentPath ORDER BY Path",
+                            @"SELECT Path, CreateDate, CreateBy, ModifyDate, ModifyBy FROM {0} WHERE Host = @Host AND ParentPath = @ParentPath ORDER BY Path",
                             this.TableName),
                         new { Host = content.Host, ParentPath = content.Path }).AsQueryable();
             }
@@ -281,24 +287,44 @@ this.TableName);
         }
 
         /// <summary>
+        /// Populates the history data.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="historyDataId">The history data id.</param>
+        /// <exception cref="System.ArgumentException">PopulateHistoryData historyDataId is required.;historyDataId</exception>
+        public override void PopulateHistoryData(ContentModel content, Guid historyDataId)
+        {
+            if (historyDataId.Equals(Guid.Empty))
+            {
+                throw new ArgumentException("PopulateHistoryData historyDataId is required.", "historyDataId");
+            }
+
+            content.DataId = historyDataId;
+            using (var ctx = new DapperContext(this.ConnectionStringName))
+            {
+                this.DataRepository.PopulateHistoryData(ctx, content, this.TableName + "Data");
+            }
+        }
+
+        /// <summary>
         /// Ensures the schema.
         /// </summary>
         protected virtual void EnsureSchema()
         {
             var phunDataSchema = string.Format(
-@"CREATE TABLE [{0}Data](
-	[IdString]    NVARCHAR(38) NOT NULL PRIMARY KEY,
-	[Host]        NVARCHAR(200) NOT NULL,
-	[Path]        NVARCHAR(250) NOT NULL,
-	[Data]        IMAGE,
-	[DataLength]  BIGINT NULL,
-	[CreateDate]  DATETIME NULL,
-	[CreateBy]    NVARCHAR(50) NULL
+@"CREATE TABLE {0}Data(
+	IdString    NVARCHAR(38) NOT NULL PRIMARY KEY,
+	Host        NVARCHAR(200) NOT NULL,
+	Path        NVARCHAR(250) NOT NULL,
+	Data        IMAGE,
+	DataLength  BIGINT NULL,
+	CreateDate  DATETIME NULL,
+	CreateBy    NVARCHAR(50) NULL
 )
 GO
-CREATE INDEX [IX_{0}Data_Host] ON [{0}Data] ([Host])
+CREATE INDEX IX_{0}Data_Host ON {0}Data (Host)
 GO
-CREATE INDEX [IX_{0}Data_Path] ON [{0}Data] ([Path])
+CREATE INDEX IX_{0}Data_Path ON {0}Data (Path)
 ", 
 this.TableName);
             using (var db = new DapperContext(this.ConnectionStringName))
@@ -366,13 +392,13 @@ this.TableName);
             }
 
             var sqlCommand = string.Format(
-@"UPDATE [{0}] SET ModifyDate = @ModifyDate, ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND [Path] = @Path",
+@"UPDATE {0} SET ModifyDate = @ModifyDate, ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND Path = @Path",
        this.TableName);
             db.Connection.Execute(sqlCommand, content);
 
             sqlCommand =
                 string.Format(
-                    "INSERT INTO [{0}] (Host, [Path], ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM [{0}] WHERE Host = @Host AND [Path] = @Path)",
+                    "INSERT INTO {0} (Host, Path, ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM {0} WHERE Host = @Host AND Path = @Path)",
                     this.TableName);
             db.Connection.Execute(sqlCommand, content);
         }

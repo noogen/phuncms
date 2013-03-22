@@ -52,7 +52,7 @@
             {
                 var data =
                     context.Connection.Query<ContentModel>(
-                        string.Format("SELECT Data, DataLength FROM [{0}] WHERE IdString = @DataIdString", tableName), content).FirstOrDefault();
+                        string.Format("SELECT Data, DataLength FROM {0} WHERE IdString = @DataIdString", tableName), content).FirstOrDefault();
 
                 if (data != null)
                 {
@@ -118,7 +118,7 @@
             }
 
             context.Connection.Execute(
-                    string.Format("INSERT INTO [{0}] (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, @CreateDate, @CreateBy)", tableName), newContent);
+                    string.Format("INSERT INTO {0} (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, @CreateDate, @CreateBy)", tableName), newContent);
             content.Data = newContent.Data;
             content.DataLength = newContent.DataLength;
             content.DataId = newContent.DataId;
@@ -136,8 +136,35 @@
         /// </returns>
         public virtual IQueryable<ContentModel> RetrieveHistory(DapperContext context, ContentModel content, string tableName)
         {
-            var result = context.Connection.Query<ContentModel>(string.Format("SELECT IdString AS DataIdString, Host, Path, DataLength, CreateDate, CreateBy FROM [{0}] WHERE Host = @Host and Path = @Path", tableName), content);
+            var result = context.Connection.Query<ContentModel>(string.Format("SELECT IdString AS DataIdString, Host, Path, DataLength, CreateDate, CreateBy FROM {0} WHERE Host = @Host and Path = @Path", tableName), content);
             return result.AsQueryable();
+        }
+
+        /// <summary>
+        /// Populates the history data.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
+        public void PopulateHistoryData(DapperContext context, ContentModel content, string tableName)
+        {
+            if (string.IsNullOrEmpty(content.DataIdString))
+            {
+                throw new ArgumentException("PopulateHistoryData content.DataIdString is required.", "content");
+            }
+
+            var data =
+                context.Connection.Query<ContentModel>(
+                    string.Format("SELECT Data, DataLength FROM {0} WHERE IdString = @DataIdString AND Host = @Host AND Path = @Path", tableName),
+                    content).FirstOrDefault();
+
+            if (data == null)
+            {
+                return;
+            }
+
+            content.Data = data.Data;
+            content.DataLength = data.DataLength;
         }
 
         /// <summary>

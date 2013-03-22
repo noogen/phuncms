@@ -45,5 +45,13 @@
         /// <param name="tableName">Name of the table.</param>
         /// <returns>The content history.</returns>
         IQueryable<ContentModel> RetrieveHistory(DapperContext context, ContentModel content, string tableName);
+
+        /// <summary>
+        /// Populates the history data.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
+        void PopulateHistoryData(DapperContext context, ContentModel content, string tableName);
     }
 }

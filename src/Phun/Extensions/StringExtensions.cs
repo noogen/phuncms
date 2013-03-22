@@ -8,9 +8,7 @@
     /// String extension methods
     /// </summary>
     internal static class StringExtensions
-    {
-        private static Regex seoFriendlyRegEx = new Regex("[\\w]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
+    {      
         /// <summary>
         /// Gets the HTML body.
         /// </summary>

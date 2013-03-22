@@ -233,6 +233,8 @@
         {
             return this.Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
+        #endregion
+
 
         /// <summary>
         /// Histories this instance.
@@ -262,7 +264,58 @@
 
             return this.Json(this.ContentRepository.RetrieveHistory(model).OrderByDescending(o => o.CreateDate).ToList());
         }
-        #endregion
+
+        /// <summary>
+        /// Get the history the data.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>The history data content.</returns>
+        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.
+        /// or
+        /// 401;Content does not exists:  + path</exception>
+        [HttpPost]
+        public virtual ActionResult HistoryData(ContentModel model)
+        {
+            var result = new ContentModel()
+            {
+                Path = model.Path,
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url),
+                DataIdString = model.DataIdString,
+                CreateBy = model.CreateBy,
+                CreateDate = model.CreateDate
+            };
+
+            if (result.Path.EndsWith("/"))
+            {
+                throw new HttpException(500, "History can only be retrieve for file.");
+            }
+            else if (!this.ContentRepository.Exists(model))
+            {
+                throw new HttpException(401, "Content does not exists: " + model.Path);
+            }
+            else if (!model.DataId.HasValue || string.IsNullOrEmpty(model.DataIdString))
+            {
+                throw new HttpException(500, "DataIdString is required for path: " + model.Path);
+            }
+
+            this.ContentRepository.PopulateHistoryData(result, model.DataId.Value);
+
+            if (result.DataLength == null)
+            {
+                throw new HttpException(404, "PhunCms download path not found.");
+            }
+
+            return result.DataStream != null
+                       ? (ActionResult)
+                         this.File(
+                             result.DataStream,
+                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
+                             result.FileName)
+                       : this.File(
+                           result.Data,
+                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
+                           result.FileName);
+        }
 
         /// <summary>
         /// Download a file.
@@ -301,12 +354,16 @@
                 throw new HttpException(404, "PhunCms download path not found.");
             }
 
-            if (result.DataStream != null)
-            {
-                return this.File(result.DataStream, MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)), result.FileName);
-            }
-
-            return this.File(result.Data, MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)), result.FileName);
+            return result.DataStream != null
+                       ? (ActionResult)
+                         this.File(
+                             result.DataStream,
+                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
+                             result.FileName)
+                       : this.File(
+                           result.Data,
+                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
+                           result.FileName);
         }
 
         /// <summary>
@@ -382,7 +439,7 @@
             // return extra root path
             if (model.Path == "/")
             {
-                return this.Json(new DynaTreeViewModel("/") { children = myJsonResult, expand = true, isFolder = true, isLazy = false });
+                return this.Json(new DynaTreeViewModel("/") { children = myJsonResult, title = "/", key = "/", expand = true, isFolder = true, isLazy = false });
             }
 
             return this.Json(myJsonResult);

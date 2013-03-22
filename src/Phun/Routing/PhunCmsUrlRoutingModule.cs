@@ -15,20 +15,20 @@
     public class PhunCmsUrlRoutingModule : UrlRoutingModule
     {
         /// <summary>
-        /// Gets or sets the config.
-        /// </summary>
-        /// <value>
-        /// The config.
-        /// </value>
-        protected internal PhunCmsConfigurationSection Config { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PhunCmsUrlRoutingModule"/> class.
         /// </summary>
         public PhunCmsUrlRoutingModule()
         {
             this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
         }
+
+        /// <summary>
+        /// Gets or sets the config.
+        /// </summary>
+        /// <value>
+        /// The config.
+        /// </value>
+        protected internal PhunCmsConfigurationSection Config { get; set; }
 
         /// <summary>
         /// Matches the HTTP request to a route, retrieves the handler for that route, and sets the handler as the HTTP handler for the current request.

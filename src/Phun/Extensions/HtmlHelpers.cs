@@ -5,6 +5,7 @@
     using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
 
@@ -23,7 +24,7 @@
         /// <param name="html">The HTML helper.</param>
         /// <param name="contentName">Name of the content.</param>
         /// <returns>The content data as string.</returns>
-        public static string PhunRenderPartialContent(this HtmlHelper html, string contentName = "")
+        public static string PhunPartial(this HtmlHelper html, string contentName = "")
         {
             string result = string.Empty;
 
@@ -46,26 +47,28 @@
         }
 
         /// <summary>
-        /// Phuns the render partial for inline edit.
+        /// Render partial for inline edit.
         /// </summary>
         /// <param name="html">The HTML.</param>
         /// <param name="tagName">Name of the tag.</param>
         /// <param name="contentName">Name of the content.</param>
         /// <param name="htmlAttributes">The HTML attributes.</param>
-        public static MvcHtmlString PhunRenderPartialForInlineEdit(
+        /// <returns>Html string.</returns>
+        public static HtmlString PhunPartialEditable(
             this HtmlHelper html, string tagName, string contentName, object htmlAttributes)
         {
-            return PhunRenderPartialForInlineEdit(html, tagName, contentName, new RouteValueDictionary(htmlAttributes));
+            return PhunPartialEditable(html, tagName, contentName, new RouteValueDictionary(htmlAttributes));
         }
 
         /// <summary>
-        /// Renders a div box and content of the CMS.
+        /// Render partial for inline edit.
         /// </summary>
         /// <param name="html">The HTML helper.</param>
         /// <param name="tagName">Name of the tag.</param>
         /// <param name="contentName">Name of the content.</param>
         /// <param name="htmlAttributes">The HTML attributes.</param>
-        public static MvcHtmlString PhunRenderPartialForInlineEdit(this HtmlHelper html, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
+        /// <returns>Html string.</returns>
+        public static HtmlString PhunPartialEditable(this HtmlHelper html, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
         {
             var tagBuilder = new TagBuilder(tagName);
             tagBuilder.Attributes.Add("about", contentName);
@@ -73,9 +76,10 @@
             {
                 tagBuilder.MergeAttributes(htmlAttributes);
             }
-            var data = html.PhunRenderPartialContent(contentName);
+
+            var data = html.PhunPartial(contentName);
             tagBuilder.InnerHtml = string.Concat("<div property=\"content\">", data, "</div>");
-            return new MvcHtmlString(tagBuilder.ToString(TagRenderMode.Normal));
+            return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
         }
 
         /// <summary>
@@ -86,10 +90,10 @@
         /// <returns>
         /// Simple CMS resource url.
         /// </returns>
-        public static MvcHtmlString PhunResourceUrl(this HtmlHelper html, string path)
+        public static HtmlString PhunResourceUrl(this HtmlHelper html, string path)
         {
             var provider = new ResourcePathUtility();
-            return new MvcHtmlString(provider.GetResourcePath(path));
+            return new HtmlString(provider.GetResourcePath(path));
         }
 
         /// <summary>
@@ -105,10 +109,10 @@
         /// Simple cms resource bundles with default ckeditor.
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        public static MvcHtmlString PhunRenderBundles(this HtmlHelper html, bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
+        public static HtmlString PhunBundles(this HtmlHelper html, bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
         {
             var file = new ResourcePathUtility();
-            return new MvcHtmlString(file.PhunCmsRenderBundles(
+            return new HtmlString(file.PhunCmsRenderBundles(
                 includeJquery, includeJqueryui, includeBackbone, includeCkEditor, includeEditorInit));
         }
     }

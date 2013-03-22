@@ -74,6 +74,16 @@
         public abstract System.Linq.IQueryable<ContentModel> List(ContentModel content);
 
         /// <summary>
+        /// Populates the history data.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="historyDataId">The history data id.</param>
+        public virtual void PopulateHistoryData(ContentModel content, System.Guid historyDataId)
+        {
+            // default does nothing
+        }
+
+        /// <summary>
         /// Normalized the path.
         /// </summary>
         /// <param name="path">The path.</param>

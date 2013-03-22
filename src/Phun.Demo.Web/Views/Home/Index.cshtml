@@ -21,11 +21,11 @@
 }
 <h3 data-cmscontent="ContentTitle"></h3>
 <ol class="round">
-    @Html.PhunRenderPartialForInlineEdit("li", "ItemOne", new { @class = "one"})
-    @Html.PhunRenderPartialForInlineEdit("li", "ItemTwo", new { @class = "two"})
-    @Html.PhunRenderPartialForInlineEdit("li", "ItemThree", new { @class = "three"})
+    @Html.PhunPartialEditable("li", "ItemOne", new { @class = "one"})
+    @Html.PhunPartialEditable("li", "ItemTwo", new { @class = "two"})
+    @Html.PhunPartialEditable("li", "ItemThree", new { @class = "three"})
 </ol>
 @section scripts
 {
-    @Html.PhunRenderBundles()
+    @Html.PhunBundles()
 }
