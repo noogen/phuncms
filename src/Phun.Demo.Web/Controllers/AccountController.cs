@@ -23,6 +23,11 @@ namespace Phun.Demo.Web.Controllers
         public ActionResult LoginAsAdmin(string returnUrl)
         {
             FormsAuthentication.RedirectFromLoginPage("Phun Admin", false);
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                returnUrl = "/";
+            }
+
             return this.Redirect(returnUrl);
         }
 
