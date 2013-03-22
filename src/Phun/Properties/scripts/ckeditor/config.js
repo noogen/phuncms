@@ -8,33 +8,33 @@ CKEDITOR.editorConfig = function( config ) {
 	// config.language = 'fr';
     // config.uiColor = '#AADC6E';
     
-    // Toolbar configuration generated automatically by the editor based on config.toolbarGroups.
-    //config.toolbar = [
-    //    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Save', 'Preview', 'Print'] },
-    //    { name: 'clipboard', groups: ['tools', 'clipboard', 'undo'], items: ['Maximize', 'ShowBlocks', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', 'wordcount', '-', 'Undo', 'Redo'] },
-    //    { name: 'editing', groups: ['find', 'selection', 'spellchecker'], items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
-    //    { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-    //    { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
-    //    '/',
-    //    { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
-    //    { name: 'colors', items: ['TextColor', 'BGColor'] },
-    //    { name: 'basicstyles', groups: ['basicstyles', 'cleanup'], items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'] },
-    //    { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align', 'bidi'], items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
-    //];
+    // Toolbar configuration 
+    config.toolbar = [
+        { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Save', 'Preview', 'Print'] },
+        { name: 'clipboard', groups: ['tools', 'clipboard', 'undo'], items: ['Maximize', 'ShowBlocks', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', 'wordcount', '-', 'Undo', 'Redo'] },
+        { name: 'editing', groups: ['find', 'selection', 'spellchecker'], items: ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'] },
+        { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+        { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
+        '/',
+        { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+        { name: 'colors', items: ['TextColor', 'BGColor'] },
+        { name: 'basicstyles', groups: ['basicstyles', 'cleanup'], items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'] },
+        { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align', 'bidi'], items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
+    ];
 
-    //// Toolbar groups configuration.
-    //config.toolbarGroups = [
-    //    { name: 'document', groups: ['mode', 'document', 'doctools'] },
-    //    { name: 'clipboard', groups: ['tools', 'clipboard', 'undo'] },
-    //    { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
-    //    { name: 'links' },
-    //    { name: 'insert' },
-    //    '/',
-    //    { name: 'styles' },
-    //    { name: 'colors' },
-    //    { name: 'basicstyles', groups: ['basicstyles', 'cleanup', 'styles'] },
-    //    { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align'] }
-    //];
+    // Toolbar groups configuration.
+    config.toolbarGroups = [
+        { name: 'document', groups: ['mode', 'document', 'doctools'] },
+        { name: 'clipboard', groups: ['tools', 'clipboard', 'undo'] },
+        { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
+        { name: 'links' },
+        { name: 'insert' },
+        '/',
+        { name: 'styles' },
+        { name: 'colors' },
+        { name: 'basicstyles', groups: ['basicstyles', 'cleanup', 'styles'] },
+        { name: 'paragraph', groups: ['list', 'indent', 'blocks', 'align'] }
+    ];
     
     if (typeof(PhunCms) != "undefined") {
         config.filebrowserBrowseUrl = '/' + PhunCms.resourceRoute + '/filemanager.htm?contentPath=/' + PhunCms.contentRoute + '/';

@@ -20,10 +20,10 @@ namespace Phun.Demo.Web.Controllers
         // GET: /Account/LoginAsAdmin
 
         [AllowAnonymous]
-        public ActionResult LoginAsAdmin()
+        public ActionResult LoginAsAdmin(string returnUrl)
         {
             FormsAuthentication.RedirectFromLoginPage("Phun Admin", false);
-            return this.Redirect("/");
+            return this.Redirect(returnUrl);
         }
 
         //
@@ -44,7 +44,6 @@ namespace Phun.Demo.Web.Controllers
         public ActionResult LogOff()
         {
             FormsAuthentication.SignOut();
-            WebSecurity.Logout();
 
             return RedirectToAction("Index", "Home");
         }

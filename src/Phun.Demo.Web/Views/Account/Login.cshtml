@@ -8,7 +8,4 @@
     <h1>@ViewBag.Title.</h1>
 </hgroup>
 
-<a href="/Account/LoginAsAdmin">Click here to login as admin.</a>
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}
+<a href="/Account/LoginAsAdmin?returnUrl=@ViewBag.ReturnUrl">Click here to login as admin.</a>
