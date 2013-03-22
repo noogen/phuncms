@@ -126,6 +126,21 @@
         }
 
         /// <summary>
+        /// Retrieves the history.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="content">The content.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <returns>
+        /// The content history.
+        /// </returns>
+        public virtual IQueryable<ContentModel> RetrieveHistory(DapperContext context, ContentModel content, string tableName)
+        {
+            var result = context.Connection.Query<ContentModel>(string.Format("SELECT IdString AS DataIdString, Host, Path, DataLength, CreateDate, CreateBy FROM [{0}] WHERE Host = @Host and Path = @Path", tableName), content);
+            return result.AsQueryable();
+        }
+
+        /// <summary>
         /// Resolves the path.
         /// </summary>
         /// <param name="content">The content.</param>

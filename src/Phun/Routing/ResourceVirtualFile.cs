@@ -22,7 +22,7 @@
         /// <summary>
         /// The virtual file path, this is use for debugging purposes.
         /// </summary>
-        private string virtualFilePath;
+        private readonly string virtualFilePath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceVirtualFile" /> class.

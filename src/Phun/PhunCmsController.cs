@@ -97,7 +97,7 @@
         /// Retrieves this instance.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
+        /// <returns>The content.</returns>
         /// <exception cref="System.Web.HttpException">404;PhunCMS view content path not found.</exception>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here."),HttpGet, AllowAnonymous]
         public virtual ActionResult Retrieve(string path)
@@ -150,14 +150,7 @@
                 if (result.DataLength > 0)
                 {
                     result.SetDataFromStream();
-                    var dataString = System.Text.Encoding.UTF8.GetString(result.Data);
-                    var startIndex = dataString.IndexOf("<body>", StringComparison.OrdinalIgnoreCase);
-                    var endIndex = dataString.IndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                    if (startIndex > 0 && endIndex > 0)
-                    {
-                        startIndex = startIndex + 6;
-                        dataString = dataString.Substring(startIndex, endIndex - startIndex);
-                    }
+                    var dataString = System.Text.Encoding.UTF8.GetString(result.Data).GetHtmlBody();
 
                     resultString = resultString.Replace(
                         "%" + key + "%", dataString);
@@ -201,7 +194,7 @@
                 return this.Redirect(returnUrl);
             }
 
-            return this.Json(new { createdate = model.CreateDate, success = true });
+            return this.Json(new { createdate = model.ModifyDate, success = true });
         }
 
         /// <summary>
@@ -219,6 +212,13 @@
                                 Path = path,
                                 Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
                             };
+
+            var filePath = model.Path.Substring(model.ParentPath.Length);
+            if (filePath.StartsWith("_default", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new HttpException(500, "Unable to delete protected path.  Please try removing folder instead.");
+            }
+
             this.ContentRepository.Remove(model);
 
             return this.Json(new { createdate = model.CreateDate, success = true });
@@ -233,6 +233,35 @@
         {
             return this.Json(new { success = true }, JsonRequestBehavior.AllowGet);
         }
+
+        /// <summary>
+        /// Histories this instance.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        /// Path content history.
+        /// </returns>
+        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.</exception>
+        [HttpPost]
+        public virtual ActionResult History(string path)
+        {
+            var model = new ContentModel()
+            {
+                Path = path,
+                Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
+            };
+
+            if (model.Path.EndsWith("/"))
+            {
+                throw new HttpException(500, "History can only be retrieve for file.");
+            }
+            else if (!this.ContentRepository.Exists(model))
+            {
+                throw new HttpException(401, "Content does not exists: " + path);
+            }
+
+            return this.Json(this.ContentRepository.RetrieveHistory(model).OrderByDescending(o => o.CreateDate).ToList());
+        }
         #endregion
 
         /// <summary>
@@ -243,7 +272,7 @@
         /// The file content or 404.
         /// </returns>
         /// <exception cref="System.Web.HttpException">404;PhunCMS download path not found.</exception>
-        [AllowAnonymous]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here."),AllowAnonymous]
         public virtual ActionResult Download(string path)
         {
             var content = new ContentModel()
@@ -254,7 +283,6 @@
 
             if (content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
-
                 var folderName = content.Path.TrimStart('/').Replace("/", ".");
                 if (string.IsNullOrEmpty(folderName) || folderName == "/")
                 {
@@ -369,7 +397,7 @@
         [HttpGet]
         public virtual ActionResult FileManager()
         {
-            return this.Redirect("/" + Config.ResourceRouteNormalized + "/filemanager.htm?contentPath=" + this.Config.ContentRouteNormalized);
+            return this.Redirect("/" + this.Config.ResourceRouteNormalized + "/filemanager.htm?contentPath=" + this.Config.ContentRouteNormalized);
         }
 
         /// <summary>

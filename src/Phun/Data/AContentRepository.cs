@@ -90,9 +90,12 @@
                 result = result.Replace("*", string.Empty);
             }
 
+            // make sure that there is no illegal path
+            result = result.Replace("..", string.Empty).Replace("//", "/");
+
             if (path.Length < 1)
             {
-                throw new ArgumentException("Illegal path detected: " + path, "path");
+                throw new ArgumentException("Illegal path length detected: " + path, "path");
             }
 
             return result;

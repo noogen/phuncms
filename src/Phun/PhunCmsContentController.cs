@@ -45,14 +45,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the content path admin handler.
-        /// </summary>
-        /// <value>
-        /// The content path admin handler.
-        /// </value>
-        protected IContentPathPermissionHandler ContentPathPermissionHandler { get; set; }
-
-        /// <summary>
         /// Gets the config.
         /// </summary>
         /// <value>
@@ -64,12 +56,20 @@
         }
 
         /// <summary>
+        /// Gets or sets the content path admin handler.
+        /// </summary>
+        /// <value>
+        /// The content path admin handler.
+        /// </value>
+        protected IContentPathPermissionHandler ContentPathPermissionHandler { get; set; }
+
+        /// <summary>
         /// Special update and insert method for micro/path-based permission management.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="data">The data.</param>
         /// <returns>
-        /// Allow for updating of path.
+        /// Allow for updating of path or unauthorized exception.
         /// </returns>
         /// <exception cref="System.Web.HttpException">401;Request update to path ' + path + ' is unauthorized.</exception>
         [ValidateInput(false), AllowAnonymous]
@@ -95,7 +95,7 @@
         /// </summary>
         /// <param name="upload">The upload.</param>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
+        /// <returns>File manager or unauthorized exception.</returns>
         /// <exception cref="System.Web.HttpException">401;Request upload to path ' + path + ' is unauthorized.</exception>
         [AllowAnonymous]
         public virtual ActionResult Upload(HttpPostedFileBase upload, string path)

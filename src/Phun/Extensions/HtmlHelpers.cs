@@ -37,14 +37,7 @@
             if (content.DataLength != null)
             {
                 content.SetDataFromStream();
-                var dataString = System.Text.Encoding.UTF8.GetString(content.Data);
-                var startIndex = dataString.IndexOf("<body>", StringComparison.OrdinalIgnoreCase);
-                var endIndex = dataString.IndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                if (startIndex > 0 && endIndex > 0)
-                {
-                    startIndex = startIndex + 6;
-                    dataString = dataString.Substring(startIndex, endIndex - startIndex);
-                }
+                var dataString = System.Text.Encoding.UTF8.GetString(content.Data).GetHtmlBody();
 
                 result = dataString;
             }

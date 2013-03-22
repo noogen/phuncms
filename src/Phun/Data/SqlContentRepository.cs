@@ -224,7 +224,7 @@ this.TableName);
             content.Path = this.NormalizedPath(content.Path);
             var path = content.Path;
             var operString = "=";
-            if (content.Path.EndsWith("*"))
+            if (path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 operString = "LIKE";
                 path = path.TrimEnd('*').TrimEnd('/') + "%";
@@ -265,12 +265,28 @@ this.TableName);
         }
 
         /// <summary>
+        /// Histories of the specified content.
+        /// File repository does not have the ability store history.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>
+        /// Specific content change history.
+        /// </returns>
+        public override IQueryable<ContentModel> RetrieveHistory(ContentModel content)
+        {
+            using (var ctx = new DapperContext(this.ConnectionStringName))
+            {
+                return this.DataRepository.RetrieveHistory(ctx, content, this.TableName + "Data");
+            }
+        }
+
+        /// <summary>
         /// Ensures the schema.
         /// </summary>
         protected virtual void EnsureSchema()
         {
-            var phunDataSchema = string.Format(@"
-CREATE TABLE [{0}Data](
+            var phunDataSchema = string.Format(
+@"CREATE TABLE [{0}Data](
 	[IdString]    NVARCHAR(38) NOT NULL PRIMARY KEY,
 	[Host]        NVARCHAR(200) NOT NULL,
 	[Path]        NVARCHAR(250) NOT NULL,
@@ -284,7 +300,7 @@ CREATE INDEX [IX_{0}Data_Host] ON [{0}Data] ([Host])
 GO
 CREATE INDEX [IX_{0}Data_Path] ON [{0}Data] ([Path])
 ", 
-  this.TableName);
+this.TableName);
             using (var db = new DapperContext(this.ConnectionStringName))
             {
                 if (this.DataRepository is SqlDataRepository)
@@ -303,8 +319,9 @@ CREATE INDEX [IX_{0}Data_Path] ON [{0}Data] ([Path])
                             {
                                 db.Connection.Execute(sql);
                             }
-                            catch (Exception ex)
+                            catch
                             {
+                                // execute with image failed, try blob
                                 if (sql.IndexOf("IMAGE,", StringComparison.OrdinalIgnoreCase) > 0)
                                 {
                                     var sql2 = sql.Replace("IMAGE,", "BLOB,");
@@ -312,20 +329,22 @@ CREATE INDEX [IX_{0}Data_Path] ON [{0}Data] ([Path])
                                 }
                                 else
                                 {
-                                    throw ex;
+                                    // otherwise, rethrow exception
+                                    throw;
                                 }
                             }
                         }
                     }
                 }
 
-                var tableExists = db.Connection.Query(string.Format(@"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName)).Any();
-                if (!tableExists)
+                if (db.Connection.Query(string.Format(@"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName)).Any())
                 {
-                    foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        db.Connection.Execute(sql);
-                    }
+                    return;
+                }
+
+                foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    db.Connection.Execute(sql);
                 }
             }
         }

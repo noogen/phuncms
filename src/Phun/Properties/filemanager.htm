@@ -7,7 +7,8 @@
         <script src="scripts/jqueryui.js" type="text/javascript"></script>
         <script src="scripts/jquery.cookie.js" type="text/javascript"></script>
         <script src="scripts/jquery.dynatree.js" type="text/javascript"></script>
-
+        
+        <link rel="stylesheet" type="text/css" href="css/jquery_ui/jqueryui.css">
         <link rel="stylesheet" type="text/css" href="css/dynatree/ui.dynatree.css">
         <script type="text/javascript">
             var initialUrl = window.location.hash.replace("#", "").toLowerCase();
@@ -67,6 +68,30 @@
                 }
             }
 
+            function makeSlug(urlString, filter) {
+                // changes, e.g., "Petty theft" to "petty_theft"
+                // remove all these words from the string before urlifying
+                
+                var s = urlString;
+                
+                if (filter) {
+                    var removelist = ["a", "an", "as", "at", "before", "but", "by", "for", "from",
+                        "is", "in", "into", "like", "of", "off", "on", "onto", "per",
+                        "since", "than", "the", "this", "that", "to", "up", "via", "het", "de", "een", "en",
+                        "with"];
+                    
+                    var r = new RegExp('\\b(' + removelist.join('|') + ')\\b', 'gi');
+                    s = s.replace(r, '');
+                } 
+                
+                s = s.replace(/[^\/\-\w\s]/g, ''); // remove unneeded chars
+                s = s.replace(/^\s+|\s+$/g, ''); // trim leading/trailing spaces
+                s = s.replace(/[\-\s]+/g, '\-'); // convert spaces to hyphens
+                s = s.toLowerCase(); // convert to lowercase
+                
+                return s; // trim to first num_chars chars
+            }
+
             $(document).ready(function () {
                 
                 if (window.opener != null) {
@@ -120,6 +145,73 @@
                     }
                 });
 
+
+                function addPage(openEdit) {
+                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+
+                    var theName = $("#pageName").val();
+                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
+
+                    if (theName != "") {
+                        if (!node.data.isFolder) {
+                            node = node.getParent();
+                        }
+
+                        var newKey = (node.data.key + theName + "\/");
+                        if (tree.dynatree("getTree").getNodeByKey(newKey) != null) {
+                            alert('Page exists, please use edit instead.');
+                            return;
+                        }
+
+                        var newNode = node.addChild({ title: theName, key: newKey, isFolder: true, isLazy: true });
+                        $.ajax({
+                            type: "POST",
+                            url: contentPath + "/Create",
+                            data: { path: newKey + "_default", data: '<!DOCTYPE html><html><head><title>' + $("#pageName").val() + '</title></head><body></body>' },
+                            cache: false,
+                            success: function (data) {
+                                newNode.activate();
+                                if (openEdit) {
+                                    window.open(contentPath + "/Edit?path=" + node.data.key, '', '');
+                                }
+                            }
+                        });
+                    }
+                }
+                
+
+                var addAPage = $("#addAPage").dialog({
+                    modal: true,
+                    autoOpen: false,
+                    width: 500,
+                    buttons: {
+                        "Add and edit": function () {
+
+                            addPage(true);
+
+                            $(this).dialog("close");
+                        },
+
+                        "Add": function () {
+
+                            addPage(false);
+
+                            $(this).dialog("close");
+                        },
+
+                        // creates a button to cancel the dialog.
+                        "Cancel": function () {
+
+                            // Close the dialog
+                            $(this).dialog("close");
+
+                            // Clear any values that may of been entered.
+                            $("#pageName").val("");
+                        }
+                    }
+                });
+
+                
                 $(".new-page").click(function (e) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
@@ -128,26 +220,7 @@
                         return false;
                     }
 
-                    var the_name = window.prompt("Enter name of new page under current directory: ", "");
-
-                    if (the_name != null && the_name != "") {
-                        var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-                        if (!node.data.isFolder) {
-                            node = node.getParent();
-                        }
-                        
-                        var newKey = (node.data.key + the_name.replace(/\//gi, "").replace(/\\/gi, "") + "\/");
-                        var newNode = node.addChild({ title: the_name, key: newKey, isFolder: true, isLazy: true });
-                        $.ajax({
-                            type: "POST",
-                            url: contentPath + "/Create",
-                            data: { path: newKey + "_default", data: '<!DOCTYPE html><html><head><title>' + the_name + '</title></head><body></body>'  },
-                            cache: false,
-                            success: function (data) {
-                                newNode.activate();
-                            }
-                        });
-                    }
+                    addAPage.dialog('open');
                 });
 
                 $(".new-directory").click(function (e) {
@@ -158,14 +231,17 @@
                         return false;
                     }
 
-                    var the_name = window.prompt("Please note that directory does not exists on it's own.  You must upload file to persist.\r\nEnter name of new directory under current directory: ", "");
-
-                    if (the_name != null && the_name != "") {
+                    var theName = window.prompt("Enter name of new directory under current directory: ", "");
+                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
+                    
+                    if (theName != null && theName != "") {
                         if (!node.data.isFolder) {
                             node = node.getParent();
                         }
-                        var newKey = (node.data.key + the_name.replace(/\//gi, "").replace(/\\/gi, "") + "\/");
-                        node.addChild({ title: the_name, key: newKey, isFolder: true });
+                        
+                        var newKey = (node.data.key + theName + "\/");
+                        
+                        node.addChild({ title: theName, key: newKey, isFolder: true });
                     }
                 });
 
@@ -279,6 +355,10 @@
                 <input type="button" class="new-page" value="New Page"/> <input type="button" class="new-directory" value="New Directory"/> <input type="button" class="delete" value="Delete"/> <input type="button" class="edit" value="Edit"/> <input type="button" class="download" value="Download"/> <input type="button" class="select" value="Select" style="display:none"/>
             </div>
             <div id="tree"></div> 
+        </div>
+        <div id="addAPage" title="Add a page" style="text-align: left">
+            <p>Please enter a new page name.  The name you entered will automatically be converted to a url friendly name.</p>
+            <div><label for="pageName">Name:</label> <input type="text" id="pageName" name="pageName"></div>
         </div>
     </body>
 </html>

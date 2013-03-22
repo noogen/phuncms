@@ -135,9 +135,9 @@
             {
                 System.IO.File.Delete(path);
             }
-            else if (path.EndsWith("*", StringComparison.OrdinalIgnoreCase))
+            else if (path.EndsWith("\\", StringComparison.OrdinalIgnoreCase))
             {
-                this.Empty(path.Replace("*", string.Empty));
+                this.Empty(path);
             }
         }
 
@@ -220,16 +220,15 @@
                 content.Host = this.defaultHost;
             }
 
+            var path = this.NormalizedPath(content.Path);
+
             // add: 'basePath\host\contentPath'
-            var result = string.Concat(this.basePath, "\\", content.Host, "\\", content.Path.Trim('/').Replace("/", "\\"));
+            var result = string.Concat(this.basePath, "\\", content.Host, "\\", path.Trim('/').Replace("/", "\\"));
 
-            // make sure that there is no illegal path
-            result = result.Replace("..", string.Empty).Replace("\\\\", "\\").TrimEnd('\\');
-
-            // result full path must not be more than 3 characters
+            // result full path must be more than 3 characters
             if (result.Length <= 3)
             {
-                throw new ArgumentException("Illegal path detected: " + content.Path, "path");
+                throw new ArgumentException("Illegal path length detected: " + content.Path, "path");
             }
 
             if (isFolder)
