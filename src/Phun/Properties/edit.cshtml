@@ -25,7 +25,7 @@
             }
         </style> 
 
-        @Html.PhunRenderBundles(true, true, true, true, false)
+        @Html.PhunBundles(true, true, true, true, false)
     </head>
     <body>
         <header>
@@ -36,7 +36,7 @@
                 <input type="hidden" name="returnUrl" value="@this.Request.Url.PathAndQuery"/>
                 <input type="hidden" name="path" value="@Request.QueryString["path"]"/> 
 		        <textarea cols="80" id="editor1" name="data" rows="50">
-			        @Html.PhunRenderPartialContent(this.Request.QueryString["path"])
+			        @Html.PhunPartial(this.Request.QueryString["path"])
 		        </textarea>
 	            <script type="text/javascript">
 		            CKEDITOR.replace( 'editor1', {
