@@ -24,16 +24,16 @@ quick start
  - Content get server-side rendered when using HtmlHelper.
 
 ```c#
-@Html.PhunRenderPartialContent("LeftHeader") 
+@Html.PhunPartial("LeftHeader") 
 ```
 or
 
 ```c#
-@Html.PhunRenderPartialForInlineEdit("h2", "LeftHeader", new { @class= "one" })
+@Html.PhunPartialEditable("h2", "LeftHeader", new { @class= "one" })
 
 @section scripts
 {
-    @Html.PhunRenderBundles()
+    @Html.PhunBundles()
 }
 ```
 
