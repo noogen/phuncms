@@ -61,6 +61,9 @@
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Noesis.Javascript">
       <HintPath>..\lib\Noesis.Javascript.dll</HintPath>
     </Reference>
@@ -135,9 +138,15 @@
     <Compile Include="Data\SqlContentRepository.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Templating\IFileSystem.cs" />
+    <Compile Include="Templating\IHttpContext.cs" />
     <Compile Include="Templating\IPath.cs" />
+    <Compile Include="Templating\ITemplateHandler.cs" />
+    <Compile Include="Templating\PhunCache.cs" />
     <Compile Include="Templating\PhunFileSystem.cs" />
+    <Compile Include="Templating\PhunHttpContext.cs" />
     <Compile Include="Templating\PhunPath.cs" />
+    <Compile Include="Templating\PhunRequest.cs" />
+    <Compile Include="Templating\TemplateHandler.cs" />
     <EmbeddedResource Include="Properties\scripts\vash.js" />
     <None Include="msvcp100.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

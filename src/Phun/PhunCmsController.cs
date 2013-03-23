@@ -15,6 +15,7 @@
     using Phun.Data;
     using Phun.Extensions;
     using Phun.Routing;
+    using Phun.Templating;
 
     /// <summary>
     /// Default controller.
@@ -121,6 +122,14 @@
             }
 
             content.SetDataFromStream();
+
+
+            var templateHandler = new TemplateHandler();
+
+            if (templateHandler.CanRender(model))
+            {
+                return this.Content(templateHandler.Render(model, this));
+            }
 
             var resultString = System.Text.Encoding.UTF8.GetString(content.Data);
             var toLookup = new Dictionary<string, ContentModel>();
@@ -392,14 +401,26 @@
             if (!path.EndsWith("_default"))
             {
                 path = path + "/_default";
+
+                // check for vash
+                var newModel = new ContentModel()
+                                   {
+                                       Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url),
+                                       Path = path + ".vash"
+                                   };
+                
+                if (this.ContentRepository.Exists(newModel))
+                {
+                    path += ".vash";
+                }
             }
 
             // when content is view as a page, attempt to auto load resources
             var result = this.Retrieve(path) as ContentResult;
             var file = new ResourcePathUtility();
-            if (result != null && result.Content.IndexOf("</head>", StringComparison.OrdinalIgnoreCase) > 0)
+            if (result != null && result.Content.IndexOf("</title>", StringComparison.OrdinalIgnoreCase) > 0)
             {
-                result.Content = result.Content.Replace("</head>", file.PhunCmsRenderBundles() + "</head>");
+                result.Content = result.Content.Replace("</title>", file.PhunCmsRenderBundles() + "</title>");
             }
 
             return result;
