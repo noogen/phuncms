@@ -40,13 +40,12 @@
                 return null;
             }
 
-            model.SetDataFromStream();
-            var dataString = HttpUtility.JavaScriptStringEncode(System.Text.Encoding.UTF8.GetString(model.Data));
-
             using (var ctx = new JavascriptContext())
             {
                 var util = new ResourcePathUtility();
                 var file = new ResourceVirtualFile(util.GetResourcePath("/scripts/vash.js"));
+                var context = new PhunHttpContext(controller);
+                context.File = model.Path;
                 
                 // set application start
                 // set api object
@@ -54,12 +53,12 @@
                 ctx.SetParameter("phunapi", new PhunHttpContext(controller));
                 using (var stream = file.Open())
                 {
-                    var data = "module = { exports: {}, require: phunapi.require}; require = module.require; " + System.Text.Encoding.UTF8.GetString(stream.ReadAll());
+                    var data = "module = { exports: {}, require: phunapi.require}; require = module.require;" + System.Text.Encoding.UTF8.GetString(stream.ReadAll());
                     ctx.Run(data);
                 }
 
                 // finally execute the script
-                return (string)ctx.Run("vash = module.exports; vash.compile('" + dataString + "')();");
+                return (string)ctx.Run("vash = module.exports; vash.renderFile(phunapi.File, {});");
             }
         }
     }

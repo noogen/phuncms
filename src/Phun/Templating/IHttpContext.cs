@@ -45,6 +45,14 @@
         /// The tenant host.
         /// </value>
         string TenantHost { get; }
+
+        /// <summary>
+        /// Gets or sets the file.
+        /// </summary>
+        /// <value>
+        /// The file.
+        /// </value>
+        string File { get; set; }
     }
 
     /// <summary>

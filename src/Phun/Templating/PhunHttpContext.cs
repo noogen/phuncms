@@ -65,6 +65,14 @@
         public IPrincipal user { get; set; }
 
         /// <summary>
+        /// Gets or sets the file.
+        /// </summary>
+        /// <value>
+        /// The file.
+        /// </value>
+        public string File { get; set; }
+
+        /// <summary>
         /// Requires the specified name.
         /// </summary>
         /// <param name="name">The name.</param>
