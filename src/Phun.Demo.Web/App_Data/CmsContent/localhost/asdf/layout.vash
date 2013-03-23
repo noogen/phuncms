@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>@model.title</title>
+</head>
+<body>
+<p>@html.block('content')</p>
+</body>
+</html>

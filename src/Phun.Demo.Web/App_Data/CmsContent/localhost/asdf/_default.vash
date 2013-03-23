@@ -1,0 +1,12 @@
+@{
+model.title = 'this is fun';
+}
+
+@html.extend('/asdf/layout.vash', function(){
+
+	@html.block('content', function(){
+		<h1 class="name">Welcome to @model.title</h1>
+		<p>Thanks for looking at Vash!</p>
+	})
+
+})
