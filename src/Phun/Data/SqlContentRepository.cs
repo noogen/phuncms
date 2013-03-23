@@ -87,16 +87,16 @@
             {
                 return string.Format(
 @"CREATE TABLE {0}(
-	Host         NVARCHAR(200) NOT NULL,
-	Path         NVARCHAR(250) NOT NULL,
-    ParentPath   NVARCHAR(250) NOT NULL,
-	CreateDate   DATETIME NULL,
-	CreateBy     NVARCHAR(100) NULL,
-	ModifyDate   DATETIME NULL,
-	ModifyBy     NVARCHAR(100) NULL,
-    DataLength   BIGINT NULL, 
-	DataIdString NVARCHAR(38) NULL,
-	CONSTRAINT UC_{0} UNIQUE (Host, Path)
+    Host         varchar(200) NOT NULL,
+    Path         varchar(250) NOT NULL,
+    ParentPath   varchar(250) NOT NULL,
+    CreateDate   timestamp,
+    CreateBy     varchar(100),
+    ModifyDate   timestamp,
+    ModifyBy     varchar(100),
+    DataLength   bigint, 
+    DataIdString varchar(38),
+    CONSTRAINT UC_{0} UNIQUE (Host, Path)
 )
 GO
 CREATE INDEX IX_{0}_Host ON {0} (Host)
@@ -124,13 +124,13 @@ this.TableName);
             content.Path = this.NormalizedPath(content.Path);
             var sqlCommand =
                 string.Format(
-                    "SELECT TOP 1 CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength FROM {0} WHERE Host = @Host AND Path = @Path",
+                    "SELECT CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength FROM {0} WHERE Host = @Host AND Path = @Path",
                     this.TableName);
 
             using (var db = new DapperContext(this.ConnectionStringName))
             {
                 var result =
-                    db.Connection.Query<ContentModel>(sqlCommand, new { Path = content.Path, Host = content.Host })
+                    db.Query<ContentModel>(sqlCommand, new { Host = content.Host, Path = content.Path })
                       .FirstOrDefault();
 
                 if (result != null)
@@ -165,9 +165,9 @@ this.TableName);
 
             using (var db = new DapperContext(this.ConnectionStringName))
             {
-                return db.Connection.Query(
+                return db.Query<string>(
                                   string.Format(
-                                      "SELECT TOP 1 Host FROM {0} WHERE Host = @Host AND Path = @Path",
+                                      "SELECT Host FROM {0} WHERE Host = @Host AND Path = @Path",
                                       this.TableName),
                                   new { Host = content.Host, Path = content.Path }).Any();
             }
@@ -238,7 +238,7 @@ this.TableName);
 
             using (var db = new DapperContext(this.ConnectionStringName))
             {
-                db.Connection.Execute(
+                db.Execute(
                     string.Format(
                         "DELETE FROM {0} WHERE Host = @Host AND (Path {1} @Path)", this.TableName, operString),
                     new { Path = path, Host = content.Host });
@@ -262,7 +262,7 @@ this.TableName);
             using (var db = new DapperContext(this.ConnectionStringName))
             {
                 return
-                    db.Connection.Query<ContentModel>(
+                    db.Query<ContentModel>(
                         string.Format(
                             @"SELECT Path, CreateDate, CreateBy, ModifyDate, ModifyBy FROM {0} WHERE Host = @Host AND ParentPath = @ParentPath ORDER BY Path",
                             this.TableName),
@@ -313,13 +313,13 @@ this.TableName);
         {
             var phunDataSchema = string.Format(
 @"CREATE TABLE {0}Data(
-	IdString    NVARCHAR(38) NOT NULL PRIMARY KEY,
-	Host        NVARCHAR(200) NOT NULL,
-	Path        NVARCHAR(250) NOT NULL,
-	Data        IMAGE,
-	DataLength  BIGINT NULL,
-	CreateDate  DATETIME NULL,
-	CreateBy    NVARCHAR(50) NULL
+    IdString    varchar(38) NOT NULL PRIMARY KEY,
+    Host        varchar(200) NOT NULL,
+    Path        varchar(250) NOT NULL,
+    Data        bytea,
+    DataLength  bigint,
+    CreateDate  timestamp,
+    CreateBy    varchar(50)
 )
 GO
 CREATE INDEX IX_{0}Data_Host ON {0}Data (Host)
@@ -332,45 +332,28 @@ this.TableName);
                 if (this.DataRepository is SqlDataRepository)
                 {
                     var dataTableExists =
-                        db.Connection.Query(
+                        db.Query<string>(
                             string.Format(
-                                @"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}Data'",
-                                this.TableName)).Any();
+                                @"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}Data'",
+                                this.TableName), null).Any();
                     if (!dataTableExists)
                     {
                         foreach (var sql in
                             phunDataSchema.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            try
-                            {
-                                db.Connection.Execute(sql);
-                            }
-                            catch
-                            {
-                                // execute with image failed, try blob
-                                if (sql.IndexOf("IMAGE,", StringComparison.OrdinalIgnoreCase) > 0)
-                                {
-                                    var sql2 = sql.Replace("IMAGE,", "BLOB,");
-                                    db.Connection.Execute(sql2);
-                                }
-                                else
-                                {
-                                    // otherwise, rethrow exception
-                                    throw;
-                                }
-                            }
+                            db.Execute(sql);
                         }
                     }
                 }
 
-                if (db.Connection.Query(string.Format(@"SELECT top 1 TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName)).Any())
+                if (db.Query<string>(string.Format(@"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", this.TableName), null).Any())
                 {
                     return;
                 }
 
                 foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    db.Connection.Execute(sql);
+                    db.Execute(sql);
                 }
             }
         }
@@ -394,13 +377,13 @@ this.TableName);
             var sqlCommand = string.Format(
 @"UPDATE {0} SET ModifyDate = @ModifyDate, ModifyBy = @ModifyBy, DataIdString = @DataIdString, DataLength = @DataLength WHERE Host = @Host AND Path = @Path",
        this.TableName);
-            db.Connection.Execute(sqlCommand, content);
+            db.Execute(sqlCommand, content);
 
             sqlCommand =
                 string.Format(
-                    "INSERT INTO {0} (Host, Path, ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT TOP 1 1 FROM {0} WHERE Host = @Host AND Path = @Path)",
+                    "INSERT INTO {0} (Host, Path, ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT 1 FROM {0} WHERE Host = @Host AND Path = @Path)",
                     this.TableName);
-            db.Connection.Execute(sqlCommand, content);
+            db.Execute(sqlCommand, content);
         }
     }
 }

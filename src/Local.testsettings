@@ -2,6 +2,7 @@
 <TestSettings name="Local" id="02c422c0-7b9e-4dba-9a57-576c7a04228f" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>These are default test settings for a local test run.</Description>
   <Deployment>
+    <DeploymentItem filename="packages\Npgsql.2.0.12.1\lib\net40\" />
     <DeploymentItem filename="Phun.Tests\TestDeployment\" />
   </Deployment>
   <Execution>
