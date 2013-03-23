@@ -117,7 +117,7 @@
                 return false;
             }
 
-            var currentDate = System.IO.File.GetLastAccessTime(Assembly.GetExecutingAssembly().Location);
+            var currentDate = System.IO.File.GetCreationTime(Assembly.GetExecutingAssembly().Location);
             context.Response.Cache.SetLastModified(currentDate);
             context.Response.Cache.SetCacheability(HttpCacheability.Public);
  
