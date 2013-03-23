@@ -50,15 +50,16 @@
                 // set application start
                 // set api object
                 // set require method
-                ctx.SetParameter("phunapi", new PhunHttpContext(controller));
+                ctx.SetParameter("phunapi", context);
                 using (var stream = file.Open())
                 {
-                    var data = "module = { exports: {}, require: phunapi.require}; require = module.require;" + System.Text.Encoding.UTF8.GetString(stream.ReadAll());
+                    var data = "module = { exports: {}, require: phunapi.require }; require = phunapi.require;" + System.Text.Encoding.UTF8.GetString(stream.ReadAll());
                     ctx.Run(data);
                 }
 
                 // finally execute the script
-                return (string)ctx.Run("vash = module.exports; vash.renderFile(phunapi.File, {});");
+                ctx.Run(@"vash = module.exports;  var result = ''; vash.renderFile(phunapi.File, { model : {} }, function(err, html) { result = html });");
+                return (string)ctx.GetParameter("result");
             }
         }
     }

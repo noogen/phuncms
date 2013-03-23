@@ -418,9 +418,9 @@
             // when content is view as a page, attempt to auto load resources
             var result = this.Retrieve(path) as ContentResult;
             var file = new ResourcePathUtility();
-            if (result != null && result.Content.IndexOf("</title>", StringComparison.OrdinalIgnoreCase) > 0)
+            if (result != null && result.Content.IndexOf("<title>", StringComparison.OrdinalIgnoreCase) > 0)
             {
-                result.Content = result.Content.Replace("</title>", file.PhunCmsRenderBundles() + "</title>");
+                result.Content = result.Content.Replace("<title>", file.PhunCmsRenderBundles() + "<title>");
             }
 
             return result;
