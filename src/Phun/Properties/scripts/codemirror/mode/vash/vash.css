@@ -1,0 +1,5 @@
+.cm-vash {background-color: rgb(236, 242, 245)}
+.cm-vash-tag {background-color: yellow;}
+.cm-vash-comment {background-color: green;}
+.cm-vash-keyword {color: blue; background-color: rgb(236, 242, 245)}
+.cm-vash-string {color: rgb(163,21,21); background-color: rgb(236, 242, 245)}

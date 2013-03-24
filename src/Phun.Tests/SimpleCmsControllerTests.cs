@@ -176,7 +176,7 @@
             var controller = new PhunCmsContentController();
 
             // Act
-            var result = controller.Edit("~/blah") as ViewResult;
+            var result = controller.Edit("~/blah") as RedirectResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -300,37 +300,6 @@
 
             var data = result.Data as DynaTreeViewModel;
             Assert.IsNotNull(data);
-        }
-
-        /// <summary>
-        /// Tests the page display method return bundle resources.
-        /// </summary>
-        [TestMethod]
-        public void TestPageDisplayMethodReturnBundleResources()
-        {
-            // Arrange
-            var controller = new PhunCmsContentController();
-            var repo = new Mock<IContentRepository>();
-            var contentConfig = new Mock<MapRouteConfiguration>();
-            var mockRequest = new Mock<HttpRequestBase>();
-            var context = new Mock<HttpContextBase>();
-
-            mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
-            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            repo.Setup(rp => rp.Retrieve(It.IsAny<ContentModel>(), true)).Returns(new ContentModel() { Data = System.Text.Encoding.UTF8.GetBytes("<html><head></head></html>"), DataLength = 1});
-            contentConfig.Setup(cf => cf.ContentRepository).Returns(repo.Object);
-            contentConfig.Setup(cf => cf.DomainLevel).Returns(2);
-            mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
-            controller.MyContentConfig = contentConfig.Object;
-            controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
-
-            // Act
-            var result = controller.Page() as ContentResult;
-
-            // Assert
-            repo.VerifyAll();
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Content.Contains(@"<script type=""text/javascript"" src=""/PhunCms/scripts/jquery.js""></script>"));
         }
 
         /// <summary>

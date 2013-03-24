@@ -408,7 +408,7 @@
                         text/css css CSSL
                         text/directory vcf vct gcrd
                         text/enriched
-                        text/html html htm
+                        text/html html htm vash
                         text/htmlh
                         text/mathml mml
                         text/plain txt asc

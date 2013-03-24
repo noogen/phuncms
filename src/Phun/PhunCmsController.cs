@@ -222,10 +222,9 @@
                                 Host = this.GetCurrentHost(this.ContentConfig, this.Request.Url)
                             };
 
-            var filePath = model.Path.Substring(model.ParentPath.Length);
-            if (filePath.StartsWith("_default", StringComparison.OrdinalIgnoreCase))
+            if (model.Path.Equals("/", StringComparison.OrdinalIgnoreCase))
             {
-                throw new HttpException(500, "Unable to delete protected path.  Please try removing folder instead.");
+                throw new HttpException(500, "Unable to delete protected path '/'.");
             }
 
             this.ContentRepository.Remove(model);
@@ -363,6 +362,16 @@
                 throw new HttpException(404, "PhunCms download path not found.");
             }
 
+            if (result.Path.EndsWith(".vash", StringComparison.OrdinalIgnoreCase))
+            {
+                if (result.DataStream != null)
+                {
+                    result.Data = result.DataStream.ReadAll();
+                }
+
+                return this.Content(System.Text.Encoding.UTF8.GetString(result.Data));
+            }
+
             return result.DataStream != null
                        ? (ActionResult)
                          this.File(
@@ -436,9 +445,7 @@
         [HttpGet]
         public virtual ActionResult Edit(string path)
         {
-            var resourceProvider = new ResourcePathUtility();
-            
-            return this.View(resourceProvider.GetResourcePath("edit.cshtml"));
+            return this.Redirect("/" + this.Config.ResourceRouteNormalized + "/edit.htm?contentPath=" + this.Config.ContentRouteNormalized + "&path=" + path );
         }
 
         /// <summary>
