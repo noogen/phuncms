@@ -2,7 +2,7 @@ CodeMirror.defineMode("vash", function (config, parserConfig) {
 
     //config settings
     var scriptStartRegex = parserConfig.scriptStartRegex || /^@[{\(_\$a-zA-Z]/i,
-        scriptEndRegex = parserConfig.scriptEndRegex || /^[\}\)]/i;
+        scriptEndRegex = parserConfig.scriptEndRegex || /^[\}\)\<]/i;
     
     //scriptEndRegex = parserConfig.scriptEndRegex || /^[\}\)\;]$/i;
 
