@@ -147,6 +147,9 @@
     <Compile Include="Templating\PhunPath.cs" />
     <Compile Include="Templating\PhunRequest.cs" />
     <Compile Include="Templating\TemplateHandler.cs" />
+    <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\clike.js" />
+    <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\index.html" />
+    <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\scala.html" />
     <EmbeddedResource Include="Properties\scripts\codemirror\addon\dialog\dialog.css" />
     <EmbeddedResource Include="Properties\scripts\codemirror\addon\dialog\dialog.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\addon\display\placeholder.js" />

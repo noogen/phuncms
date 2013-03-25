@@ -1,63 +1,72 @@
 CodeMirror.defineMode("vash", function (config, parserConfig) {
 
-    var regexVashKeywords = /^[html\.]*(?:abstract|append|as|base|bool|block|break|byte|case|catch|char|checked|class|const|continue|DateTime|decimal|default|delegate|do|double|dynamic|else|enum|escape|event|explicit|extend|extern|false|finally|fixed|float|for|foreach|goto|helper|if|implicit|in|include|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|prepend|private|protected|public|raw|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|var|virtual|void|volatile|while)$/im;
+    //config settings
+    var scriptStartRegex = parserConfig.scriptStartRegex || /^@[{\(_\$a-zA-Z]/i,
+        scriptEndRegex = parserConfig.scriptEndRegex || /^[\}\)]/i;
+    
+    //scriptEndRegex = parserConfig.scriptEndRegex || /^[\}\)\;]$/i;
 
-    var vashOverlay = {
+    //inner modes
+    var scriptingMode, htmlMixedMode;
 
+    //tokenizer when in html mode
+    function htmlDispatch(stream, state) {
+        if (stream.match(scriptStartRegex, false)) {
+            state.token = scriptingDispatch;
+            return scriptingMode.token(stream, state.scriptState);
+        }
+        else
+            return htmlMixedMode.token(stream, state.htmlState);
+    }
+
+    //tokenizer when in scripting mode
+    function scriptingDispatch(stream, state) {
+        if (stream.match(scriptEndRegex, false)) {
+            state.token = htmlDispatch;
+            return htmlMixedMode.token(stream, state.htmlState);
+        }
+        else
+            return scriptingMode.token(stream, state.scriptState);
+    }
+
+
+    return {
         startState: function () {
-            return { inVashBlock: false };
+            scriptingMode = scriptingMode || CodeMirror.getMode(config, parserConfig.scriptingModeSpec);
+            htmlMixedMode = htmlMixedMode || CodeMirror.getMode(config, "htmlmixed");
+            return {
+                token: parserConfig.startOpen ? scriptingDispatch : htmlDispatch,
+                htmlState: CodeMirror.startState(htmlMixedMode),
+                scriptState: CodeMirror.startState(scriptingMode)
+            };
         },
 
         token: function (stream, state) {
-			var ch = stream.next();
-			
-			// text mode
-			if (ch == "@") {
-				if (stream.peek() != "@") { // handle @@ escaping
-					state.inVashBlock = true;
-					return "vash-tag";
-				}
-			} else if (state.inVashBlock) {
-				while (!stream.eol()) {
-					ch = stream.peek();
-					if (/[\.a-zA-Z]/.test(ch)) {
-						if (/[\.a-zA-Z]/.test(stream.current())) {
-							stream.eatWhile(/[\.a-zA-Z]/);
-							if (regexVashKeywords.test(stream.current())) {
-								return "vash-keyword";
-							}
-						}
-						return "vash";
-					}
-					else if (/\s/.test(ch))
-					{
-						return "vash";
-					}
-					ch = stream.next();
-				}
-				
-				// for now online support keyword in the same line
-				state.inVashBlock = false;
-				return "vash"
-			}
-			
-			while (stream.next() != null && !stream.match("@", false)) {}
-			return;
+            return state.token(stream, state);
         },
 
         indent: function (state, textAfter) {
-            var context = state.context;
-            if (context && context.noIndent) return 0;
-            if (alignCDATA && /<!\[CDATA\[/.test(textAfter)) return 0;
-            if (context && /^<\//.test(textAfter))
-                context = context.prev;
-            while (context && !context.startOfLine)
-                context = context.prev;
-            if (context) return context.indent + indentUnit;
-            else return 0;
+            if (state.token == htmlDispatch)
+                return htmlMixedMode.indent(state.htmlState, textAfter);
+            else if (scriptingMode.indent)
+                return scriptingMode.indent(state.scriptState, textAfter);
         },
 
-        electricChars: "/"
+        copyState: function (state) {
+            return {
+                token: state.token,
+                htmlState: CodeMirror.copyState(htmlMixedMode, state.htmlState),
+                scriptState: CodeMirror.copyState(scriptingMode, state.scriptState)
+            };
+        },
+
+        electricChars: "/{}:",
+
+        innerMode: function (state) {
+            if (state.token == scriptingDispatch) return { state: state.scriptState, mode: scriptingMode };
+            else return { state: state.htmlState, mode: htmlMixedMode };
+        }
     };
-	return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), vashOverlay);
-});
+}, "htmlmixed");
+
+CodeMirror.defineMIME("application/x-razor", { name: "vash", scriptingModeSpec: "text/x-razor" });
