@@ -55,7 +55,7 @@
 		            cache: false,
 		            data: null,
 		            success: function (data) {
-		                editorHolder.html(data);
+		                data += '';
 		                $(".bar").hide();
 		                $(".content").show();
 		                if (filePath.indexOf(".vash") > 0) {
@@ -69,19 +69,18 @@
 		                        tabMode: "shift",
 		                        extraKeys: { "Ctrl-Space": "autocomplete" }
 		                    });
+
+		                    editor.setValue(data);
 		                }
 		                else {
-		                    CKEDITOR.replace('code', {
-		                        fullPage: false,
+		                    var editor = CKEDITOR.replace(editorHolder[0], {
+		                        fullPage: data.toLowerCase().indexOf('<html>') > -1,
 		                        extraPlugins: 'wysiwygarea,wordcount,codemirror',
 		                        height: '600px',
-		                        entities: false,
-		                        basicEntities: false,
-		                        entities_greek: false,
-		                        entities_latin: false,
-		                        autoParagraph: false,
 		                        enterMode: CKEDITOR.ENTER_BR
 		                    });
+
+		                    editor.setData(data);
 		                }
 		            }
 		        });
