@@ -445,7 +445,10 @@
         [HttpGet]
         public virtual ActionResult Edit(string path)
         {
-            return this.Redirect("/" + this.Config.ResourceRouteNormalized + "/edit.htm?contentPath=" + this.Config.ContentRouteNormalized + "&path=" + path );
+            var url = "/" + this.Config.ResourceRouteNormalized + "/edit.htm?contentPath="
+                      + this.Config.ContentRouteNormalized + "&path=" + path
+                      + "&_=" + DateTime.Now.Ticks.ToString();
+            return this.Redirect(url);
         }
 
         /// <summary>
@@ -482,7 +485,9 @@
         [HttpGet]
         public virtual ActionResult FileManager()
         {
-            return this.Redirect("/" + this.Config.ResourceRouteNormalized + "/filemanager.htm?contentPath=" + this.Config.ContentRouteNormalized);
+            var url = "/" + this.Config.ResourceRouteNormalized + "/filemanager.htm?contentPath=" + this.Config.ContentRouteNormalized
+                      + "&_=" + DateTime.Now.Ticks.ToString();
+            return this.Redirect(url);
         }
 
         /// <summary>

@@ -112,7 +112,9 @@
         /// <returns>To to set 304 response.</returns>
         public bool TrySet304(HttpContextBase context)
         {
-            if (this.Config.DisableResourceCache || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js"))
+            if (this.Config.DisableResourceCache
+                || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js")
+                || context.Request.QueryString.Count > 0)
             {
                 return false;
             }
