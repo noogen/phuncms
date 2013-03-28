@@ -33,33 +33,54 @@
         /// <param name="model">The model.</param>
         /// <param name="controller">The controller.</param>
         /// <returns></returns>
-        public string Render(Data.ContentModel model, PhunCmsController controller)
+        public void Render(Data.ContentModel model, HttpContextBase httpContext)
         {
             if (model.DataLength <= 0)
             {
-                return null;
+                return;
             }
 
             using (var ctx = new JavascriptContext())
             {
                 var util = new ResourcePathUtility();
                 var file = new ResourceVirtualFile(util.GetResourcePath("/scripts/vash.js"));
-                var context = new PhunHttpContext(controller);
-                context.File = model.Path;
+                var context = new PhunApi(httpContext);
+                context.FileModel = model;
                 
                 // set application start
                 // set api object
                 // set require method
-                ctx.SetParameter("phunapi", context);
+                ctx.SetParameter("httpcontext", context); 
+                ctx.SetParameter("filepath", model.Path);
+                ctx.Run(@"
+phun = { api: httpcontext };
+module = { exports: {}, require: phun.api.require }; 
+require = phun.api.require;
+");
+                
                 using (var stream = file.Open())
-                {
-                    var data = "module = { exports: {}, require: phunapi.require }; require = phunapi.require;" + System.Text.Encoding.UTF8.GetString(stream.ReadAll());
+                {                  
+                    var data = System.Text.Encoding.UTF8.GetString(stream.ReadAll());
                     ctx.Run(data);
                 }
 
+                // register all the api objects
+                foreach (var api in Bootstrapper.ApiList)
+                {
+                    ctx.SetParameter(api.Key.ToLowerInvariant(), Activator.CreateInstance(api.Value));
+                }
+
                 // finally execute the script
-                ctx.Run(@"vash = module.exports;  var result = ''; vash.renderFile(phunapi.File, { model : {} }, function(err, html) { result = html });");
-                return (string)ctx.GetParameter("result");
+                ctx.Run(@"vash = module.exports; 
+vash.renderFile(
+    filepath, 
+    { model : {} }, 
+    function(err, html) {  
+        phun.api.response.write(html.split('')); 
+    }
+);");
+                httpContext.Response.Flush();
+                httpContext.Response.End();
             }
         }
     }

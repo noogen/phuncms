@@ -10,12 +10,12 @@
         private readonly HttpRequestBase request;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PhunRequest"/> class.
+        /// Initializes a new instance of the <see cref="PhunRequest" /> class.
         /// </summary>
-        /// <param name="request">The request.</param>
-        public PhunRequest(HttpRequestBase request)
+        /// <param name="context">The context.</param>
+        public PhunRequest(HttpContextBase context)
         {
-            this.request = request;
+            this.request = context.Request;
             this.isLocal = this.request.IsLocal;
             this.url = this.request.Url;
         }

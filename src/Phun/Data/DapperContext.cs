@@ -99,6 +99,7 @@
                     charType = "nvarchar";
                 }
             }
+
             this.Connection.Open();
         }
 

@@ -5,6 +5,8 @@
     using System.IO.Compression;
     using System.Linq;
 
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
     /// <summary>
     /// Provide common use methods for content repository
     /// </summary>
@@ -142,5 +144,35 @@
                 }
             }
         } // end getfolderto
+
+        /// <summary>
+        /// Resolves the local path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>A valid base path.</returns>
+        protected string ResolveLocalPath(string path)
+        {
+            // relative path either start with ~ or not contain colon such, i.e. not c:\
+            if (path.Contains(":"))
+            {
+                if (path.StartsWith("localstorage:", StringComparison.OrdinalIgnoreCase))
+                {
+                    path = path.Replace("localstorage:", string.Empty).TrimStart('/', '\\');
+                    path = RoleEnvironment.GetLocalResource(path).RootPath;
+                }
+            }
+            else
+            {
+                path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+            }
+
+            // create directory if not exists
+            if (!System.IO.Directory.Exists(path))
+            {
+                System.IO.Directory.CreateDirectory(path);
+            }
+
+            return path;
+        }
     }
 }

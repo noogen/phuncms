@@ -27,14 +27,9 @@
         public static string PhunPartial(this HtmlHelper html, string contentName = "")
         {
             string result = string.Empty;
+            var contentConnector = new ContentConnector();
 
-            var controller = new PhunCmsContentController();
-            var content = new ContentModel()
-            {
-                Path = contentName.Contains("/") ? contentName : html.ViewContext.RequestContext.HttpContext.Request.Path + "/" + contentName,
-                Host = controller.GetCurrentHost(controller.ContentConfig, html.ViewContext.RequestContext.HttpContext.Request.Url)
-            };
-            controller.ContentRepository.Retrieve(content, true);
+            var content = contentConnector.Retrieve("/page" + (contentName.Contains("/") ? contentName : html.ViewContext.RequestContext.HttpContext.Request.Path + "/" + contentName), html.ViewContext.RequestContext.HttpContext.Request.Url);
             if (content.DataLength != null)
             {
                 content.SetDataFromStream();

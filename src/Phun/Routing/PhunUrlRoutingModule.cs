@@ -12,14 +12,14 @@
     /// <summary>
     /// Url routing modules
     /// </summary>
-    public class PhunCmsUrlRoutingModule : UrlRoutingModule
+    public class PhunUrlRoutingModule : UrlRoutingModule
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PhunCmsUrlRoutingModule"/> class.
+        /// Initializes a new instance of the <see cref="PhunUrlRoutingModule"/> class.
         /// </summary>
-        public PhunCmsUrlRoutingModule()
+        public PhunUrlRoutingModule()
         {
-            this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            this.Config = Bootstrapper.Config;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@
         /// <value>
         /// The config.
         /// </value>
-        protected internal PhunCmsConfigurationSection Config { get; set; }
+        protected internal ICmsConfiguration Config { get; set; }
 
         /// <summary>
         /// Matches the HTTP request to a route, retrieves the handler for that route, and sets the handler as the HTTP handler for the current request.

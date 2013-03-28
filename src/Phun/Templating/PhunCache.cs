@@ -1,14 +1,18 @@
 ﻿namespace Phun.Templating
 {
+    using System.Web;
+
+    using Phun.Routing;
+
     /// <summary>
     /// The phun cache.
     /// </summary>
     public class PhunCache : ICache
     {
         /// <summary>
-        /// The controller
+        /// The HTTP context
         /// </summary>
-        private readonly PhunCmsController controller;
+        private readonly HttpContextBase httpContext;
 
         /// <summary>
         /// The tenant host
@@ -16,13 +20,13 @@
         private readonly string tenantHost;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PhunCache"/> class.
+        /// Initializes a new instance of the <see cref="PhunCache" /> class.
         /// </summary>
-        /// <param name="controller">The controller.</param>
-        public PhunCache(PhunCmsController controller)
+        /// <param name="context">The context.</param>
+        public PhunCache(HttpContextBase context)
         {
-            this.controller = controller;
-            this.tenantHost = this.controller.GetCurrentHost(this.controller.ContentConfig, this.controller.Request.Url);
+            this.httpContext = context;
+            this.tenantHost = new ResourcePathUtility().GetTenantHost(context.Request.Url);
         }
 
         /// <summary>
@@ -33,7 +37,7 @@
         public object get(string key)
         {
             string myKey = string.Format("PhunCache${0}${1}", this.tenantHost, key);
-            return this.controller.HttpContext.Cache.Get(myKey);
+            return this.httpContext.Cache.Get(myKey);
         }
 
         /// <summary>
@@ -44,7 +48,7 @@
         public void set(string key, object value)
         {
             string myKey = string.Format("PhunCache${0}${1}", this.tenantHost, key);
-            this.controller.HttpContext.Cache[myKey] = value;
+            this.httpContext.Cache[myKey] = value;
         }
     }
 }

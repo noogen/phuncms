@@ -325,7 +325,9 @@
       this.options.saveButton.hide();
 
       this.options.saveButton.click(function () {
-        widget.element.midgardStorage('saveRemoteAll');
+          window.setTimeout(function() {
+              widget.element.midgardStorage('saveRemoteAll');
+          }, 200);
       });
 
       this.element.on('midgardeditablechanged midgardstorageloaded', function () {
@@ -1422,9 +1424,8 @@
         widget.options.activated();
       });
       this.editor.on('blur', function () {
-        // tomn - add here to make sure all data get captured
+        widget.options.activated();
         widget.options.changed(widget.editor.getData());
-        widget.options.activated(); 
       });
       this.editor.on('key', function () {
         widget.options.changed(widget.editor.getData());

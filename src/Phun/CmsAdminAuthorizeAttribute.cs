@@ -6,6 +6,7 @@
     using System.Web.Mvc;
 
     using Phun.Configuration;
+    using Phun.Routing;
 
     /// <summary>
     /// Allow for authorizing of content edit.
@@ -13,12 +14,17 @@
     public class CmsAdminAuthorizeAttribute : AuthorizeAttribute
     {
         /// <summary>
+        /// The util.
+        /// </summary>
+        private static readonly ResourcePathUtility util = new ResourcePathUtility();
+
+        /// <summary>
         /// Called when a process requests authorization.
         /// </summary>
         /// <param name="filterContext">The filter context, which encapsulates information for using <see cref="T:System.Web.Mvc.AuthorizeAttribute" />.</param>
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
-            var config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            var config = Bootstrapper.Config;
             this.PopulateRolesFromConfiguration(config, filterContext);
             base.OnAuthorization(filterContext);
         }
@@ -28,14 +34,12 @@
         /// </summary>
         /// <param name="config">The config.</param>
         /// <param name="filterContext">The filter context.</param>
-        protected internal virtual void PopulateRolesFromConfiguration(PhunCmsConfigurationSection config, AuthorizationContext filterContext)
+        protected internal virtual void PopulateRolesFromConfiguration(ICmsConfiguration config, AuthorizationContext filterContext)
         {
             this.Roles = config.AdminRoles;
-            if (config.HostAuthorizations.Count > 0)
+            if (config.HostAuthorizations.Any())
             {
-                var controller = new PhunCmsContentController();
-                var host = controller.GetCurrentHost(
-                    controller.ContentConfig, filterContext.HttpContext.Request.Url);
+                var host = util.GetTenantHost(filterContext.HttpContext.Request.Url);
                 var found = config.HostAuthorizations.FirstOrDefault(cfg => string.Compare(host, cfg.Key, StringComparison.OrdinalIgnoreCase) == 0);
                 if (found != null)
                 {

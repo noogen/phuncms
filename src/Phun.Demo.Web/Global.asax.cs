@@ -23,7 +23,7 @@ namespace Phun.Demo.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
-            PhunCmsBootstrapper.Initialize();
+            Phun.Bootstrapper.Initialize();
         }
     }
 }

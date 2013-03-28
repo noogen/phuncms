@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Web;
 
     using Phun.Extensions;
 
@@ -32,19 +33,8 @@
             {
                 // normalize the path
                 var myValue = (value + string.Empty).Replace("\\", "/").Replace("//", "/").TrimStart('/');
-                var isFolder = myValue.EndsWith("/", StringComparison.OrdinalIgnoreCase);
-
-                this.path = "/" + myValue;
-                if (isFolder)
-                {
-                    this.path = this.path.ToSeoName();
-                }
-                else
-                {
-                    var parentPath = this.ParentPath.ToSeoName();
-                    var fileName = this.FileName;
-                    this.path = string.Concat(parentPath, fileName);
-                }
+                
+                this.path = string.Concat('/', myValue);
             }
         }
 
@@ -108,7 +98,7 @@
 
                 if (this.Path.TrimEnd('/').LastIndexOf('/') > 0)
                 {
-                    result = this.Path.Substring(0, this.Path.TrimEnd('/').LastIndexOf('/')) + "/"; 
+                    result = VirtualPathUtility.GetDirectory(this.Path); 
                 }
                 
                 return result;
@@ -123,7 +113,7 @@
         {
             get
             {
-                return this.Path.Substring(this.path.LastIndexOf('/') + 1);
+                return VirtualPathUtility.GetFileName(this.Path);
             }
         }
 
@@ -137,7 +127,7 @@
         {
             get
             {
-                return this.Path.IndexOf('.') > 0 ? this.Path.Substring(this.Path.IndexOf('.')).Trim('.') : string.Empty;
+                return VirtualPathUtility.GetExtension(this.Path);
             }
         }
 
@@ -209,7 +199,10 @@
         {
             if (this.DataStream != null)
             {
-                this.Data = this.DataStream.ReadAll();
+                var dataStream = this.DataStream;
+                this.Data = dataStream.ReadAll();
+                this.DataStream = null;
+                dataStream.Dispose();
             }
         }
     }

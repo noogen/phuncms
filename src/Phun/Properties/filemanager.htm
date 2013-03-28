@@ -131,7 +131,7 @@
                         $.ajax({
                             type: "POST",
                             url: contentPath + "/Create",
-                            data: { path: newKey + "_default", data: '<!DOCTYPE html><html><head><title>' + $("#pageName").val() + '</title></head><body></body>' },
+                            data: { path: newKey + "_default.vash", data: '<!DOCTYPE html><html><head><title>' + $("#pageName").val() + '</title></head><body></body>' },
                             cache: false,
                             success: function (data) {
                                 newNode.activate();
@@ -177,10 +177,11 @@
 
                 
                 $(".new-page").click(function (e) {
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+                    var location = window.location.hash.replace("#", "");
+                    var node = tree.dynatree("getTree").getNodeByKey(location);
 
-                    if (window.location.hash == "#" || node == null) {
-                        alert("Please select a folder.");
+                    if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
+                        alert("Please select a folder under page.");
                         return false;
                     }
 

@@ -12,12 +12,12 @@
     /// <summary>
     /// For handling mvc phuncms 404 routes.
     /// </summary>
-    public class PhunCmsMvcRouteHandler : MvcRouteHandler
+    public class PhunMvcRouteHandler : MvcRouteHandler
     {
         /// <summary>
         /// The controller exists
         /// </summary>
-        private static readonly Dictionary<string, bool> controllerExists = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, bool> ControllerFoundCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The content controller name
@@ -42,33 +42,33 @@
             var controllerName = requestContext.RouteData.Values["controller"] + string.Empty;
             var controllerBuilder = this.ControllerBuilder ?? ControllerBuilder.Current;
             var controllerFactory = controllerBuilder.GetControllerFactory();
-            if (!string.IsNullOrEmpty(controllerName) && !controllerExists.ContainsKey(controllerName))
+            if (!string.IsNullOrEmpty(controllerName) && !ControllerFoundCache.ContainsKey(controllerName))
             {
                 try
                 {
                     var controller = controllerFactory.CreateController(requestContext, controllerName);
-                    if (!controllerExists.ContainsKey(controllerName))
+                    if (!ControllerFoundCache.ContainsKey(controllerName))
                     {
-                        controllerExists.Add(controllerName, controller != null);
+                        ControllerFoundCache.Add(controllerName, controller != null);
                     }
                 }
                 catch
                 {
                     // controller does not exists
-                    if (!controllerExists.ContainsKey(controllerName))
+                    if (!ControllerFoundCache.ContainsKey(controllerName))
                     {
-                        controllerExists.Add(controllerName, false);
+                        ControllerFoundCache.Add(controllerName, false);
                     }
                 }
             }
 
             // if request controller or route is not in the list, assuming mvc convention of {controller} parameter
-            if (!controllerExists.ContainsKey(controllerName) || (controllerExists.ContainsKey(controllerName) && !controllerExists[controllerName]))
+            if (!ControllerFoundCache.ContainsKey(controllerName) || (ControllerFoundCache.ContainsKey(controllerName) && !ControllerFoundCache[controllerName]))
             {
                 // attempt to get content controller info
                 if (string.IsNullOrEmpty(contentControllerName))
                 {
-                    var config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+                    var config = Bootstrapper.Config;
                     var routeController = config.ContentRouteNormalized + "/";
 
                     var route =

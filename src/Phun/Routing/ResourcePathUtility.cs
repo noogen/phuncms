@@ -1,5 +1,7 @@
 ﻿namespace Phun.Routing
 {
+    using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
@@ -70,7 +72,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// </summary>
         public ResourcePathUtility()
         {
-            this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            this.Config = Bootstrapper.Config;
         }
 
         /// <summary>
@@ -79,7 +81,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// <value>
         /// The config.
         /// </value>
-        protected internal PhunCmsConfigurationSection Config { get; set; }
+        protected internal ICmsConfiguration Config { get; set; }
 
         /// <summary>
         /// Renders the simple CMS bundles.
@@ -128,6 +130,34 @@ window.PhunCms = (function (PhunCms, $, undefined) [
             }
 
             return files.ToString();
+        }
+
+        /// <summary>
+        /// Gets the current host.
+        /// </summary>
+        /// <param name="url">The URL.</param>
+        /// <returns>
+        /// The current host.
+        /// </returns>
+        public virtual string GetTenantHost(Uri url)
+        {
+            var config = Bootstrapper.Config;
+            Uri requestUrl = url;
+            var currentHost = (requestUrl.Host + string.Empty).Trim().ToLowerInvariant().Replace("www.", string.Empty);
+
+            var splitHostName = currentHost.Split('.');
+            if (config.DomainLevel > 1 && splitHostName.Length > 1)
+            {
+                var names = new List<string>(splitHostName);
+                while (names.Count > config.DomainLevel)
+                {
+                    names.RemoveAt(0);
+                }
+
+                currentHost = string.Join(".", names);
+            }
+
+            return currentHost;
         }
 
         /// <summary>

@@ -4,18 +4,17 @@
     using System.Collections.Generic;
     using System.Security.Claims;
     using System.Security.Principal;
+    using System.Web;
     using System.Web.Mvc;
 
-    /// <summary>
-    /// The phun http context.
-    /// </summary>
-    public class PhunHttpContext : IHttpContext
-    {
-        /// <summary>
-        /// The controller
-        /// </summary>
-        private readonly PhunCmsController controller;
+    using Phun.Data;
+    using Phun.Routing;
 
+    /// <summary>
+    /// The phun api.
+    /// </summary>
+    public class PhunApi : IPhunApi
+    {
         /// <summary>
         /// The require types
         /// </summary>
@@ -27,17 +26,18 @@
         private readonly string tenantHost;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PhunHttpContext" /> class.
+        /// Initializes a new instance of the <see cref="PhunApi" /> class.
         /// </summary>
-        /// <param name="controller">The controller.</param>
-        public PhunHttpContext(PhunCmsController controller)
+        /// <param name="httpContext">The HTTP context.</param>
+        public PhunApi(HttpContextBase httpContext)
         {
-            this.controller = controller;
-            this.tenantHost = this.controller.GetCurrentHost(this.controller.ContentConfig, this.controller.Request.Url);
+            this.tenantHost = new ResourcePathUtility().GetTenantHost(httpContext.Request.Url);
+            this.request = new PhunRequest(httpContext);
+            this.response = new PhunResponse(httpContext);
 
-            this.request = new PhunRequest(this.controller.Request);
-            this.user = this.controller.User;
-            this.cache = new PhunCache(this.controller);
+            this.user = httpContext.User;
+            this.cache = new PhunCache(httpContext);
+            this.trace = new Trace();
         }
 
         /// <summary>
@@ -47,6 +47,14 @@
         /// The request.
         /// </value>
         public IRequest request { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response.
+        /// </summary>
+        /// <value>
+        /// The response.
+        /// </value>
+        public IResponse response { get; set; }
 
         /// <summary>
         /// Gets or sets the cache.
@@ -65,24 +73,34 @@
         public IPrincipal user { get; set; }
 
         /// <summary>
-        /// Gets or sets the file.
+        /// Gets or sets the model.
         /// </summary>
         /// <value>
-        /// The file.
+        /// The model.
         /// </value>
-        public string File { get; set; }
+        public ContentModel FileModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the trace.
+        /// </summary>
+        /// <value>
+        /// The trace.
+        /// </value>
+        public ITrace trace { get; set; }
 
         /// <summary>
         /// Requires the specified name.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <returns>Component to require.</returns>
+        /// <returns>
+        /// Component to require.
+        /// </returns>
         public object require(string name)
         {
             switch (name.ToLowerInvariant())
             {
                 case "fs":
-                    return new PhunFileSystem(this.controller);
+                    return new PhunFileSystem(this);
                 case "path":
                     return new PhunPath();
                 default:

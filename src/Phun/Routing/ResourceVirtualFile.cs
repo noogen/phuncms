@@ -31,7 +31,7 @@
         public ResourceVirtualFile(string virtualPath)
             : base(virtualPath)
         {
-            this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            this.Config = Bootstrapper.Config;
             this.resourcePath = this.TranslateToResourcePath(virtualPath);
             this.virtualFilePath = virtualPath;
         }
@@ -42,7 +42,7 @@
         /// <value>
         /// The config.
         /// </value>
-        protected internal PhunCmsConfigurationSection Config { get; set; }
+        protected internal ICmsConfiguration Config { get; set; }
 
         /// <summary>
         /// When overridden in a derived class, returns a read-only stream to the virtual resource.

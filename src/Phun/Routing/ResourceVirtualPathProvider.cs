@@ -21,7 +21,7 @@
         /// </summary>
         public ResourceVirtualPathProvider()
         {
-            this.Config = ConfigurationManager.GetSection("phuncms") as PhunCmsConfigurationSection;
+            this.Config = Bootstrapper.Config;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@
         /// <value>
         /// The config.
         /// </value>
-        protected internal PhunCmsConfigurationSection Config { get; set; }
+        protected internal ICmsConfiguration Config { get; set; }
 
         /// <summary>
         /// Files the exists.

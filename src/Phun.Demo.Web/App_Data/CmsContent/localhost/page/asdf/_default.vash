@@ -1,0 +1,16 @@
+@{
+model.title = 'PhunCMS template demo';
+}
+
+@html.extend('layout', function(){
+
+@html.block('content', function(){
+    <h1 class="name">Welcome [@phun.api.user.Identity.Name] to @model.title.</h1>
+    <p>
+        Thanks for looking at <a href="https://github.com/kirbysayshi/vash">Vash</a>!
+    </p>
+    <p>Vash supports approximately 98% (this is a highly scientific estimate) of the actual Razor syntax, all the things you actually use.</p>
+    })
+
+})
+

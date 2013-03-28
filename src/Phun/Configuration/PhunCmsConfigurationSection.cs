@@ -1,12 +1,13 @@
 ﻿namespace Phun.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
 
     /// <summary>
     /// For reading configuration from web.config.
     /// </summary>
-    public class PhunCmsConfigurationSection : ConfigurationSection
+    public class PhunCmsConfigurationSection : ConfigurationSection, ICmsConfiguration
     {
         /// <summary>
         /// Gets or sets the admin roles.
@@ -71,7 +72,7 @@
               AddItemName = "add",
               ClearItemsName = "clear",
               RemoveItemName = "remove")]
-        public HostAuthorizationCollection HostAuthorizations
+        public HostAuthorizationCollection HostAuthorizationCollection
         {
             get { return (HostAuthorizationCollection)this["hostAuthorization"]; }
             set { this["hostAuthorization"] = value; }
@@ -88,21 +89,48 @@
               AddItemName = "add",
               ClearItemsName = "clear",
               RemoveItemName = "remove")]
-        public MapRouteCollection ContentMaps
+        public MapRouteCollection ContentMapCollection
         {
             get { return (MapRouteCollection)this["contentMap"]; }
             set { this["contentMap"] = value; }
         }
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement" /> object is read-only.
+        /// Gets or sets the content map.
         /// </summary>
-        /// <returns>
-        /// true if the <see cref="T:System.Configuration.ConfigurationElement" /> object is read-only; otherwise, false.
-        /// </returns>
-        public override bool IsReadOnly()
+        /// <value>
+        /// The content map.
+        /// </value>
+        public ICollection<IHostAuthorizationConfiguration> HostAuthorizations
         {
-            return false;
+            get
+            {
+                return this.HostAuthorizationCollection as ICollection<IHostAuthorizationConfiguration>;
+            }
+
+            set
+            {
+                this.HostAuthorizationCollection = value as HostAuthorizationCollection;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the other contents.
+        /// </summary>
+        /// <value>
+        /// The other contents.
+        /// </value>
+        public ICollection<IMapRouteConfiguration> ContentMaps
+        {
+            get
+            {
+                return this.ContentMapCollection as ICollection<IMapRouteConfiguration>;
+            }
+
+            set
+            {
+                this.ContentMapCollection = value as MapRouteCollection;
+            }
         }
 
         /// <summary>
@@ -121,6 +149,19 @@
         }
 
         /// <summary>
+        /// Gets or sets the domain level.
+        /// </summary>
+        /// <value>
+        /// The domain level.
+        /// </value>
+        [ConfigurationProperty("domainLevel", IsRequired = false, DefaultValue = 1)]
+        public virtual int DomainLevel
+        {
+            get { return (int)this["domainLevel"]; }
+            set { this["domainLevel"] = value; }
+        }
+
+        /// <summary>
         /// Gets the route stripped of all invalid characters.
         /// </summary>
         /// <value>
@@ -133,6 +174,17 @@
                 var result = (this.ContentRoute + string.Empty).Replace("~", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty);
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement" /> object is read-only.
+        /// </summary>
+        /// <returns>
+        /// true if the <see cref="T:System.Configuration.ConfigurationElement" /> object is read-only; otherwise, false.
+        /// </returns>
+        public override bool IsReadOnly()
+        {
+            return false;
         }
 
         /// <summary>

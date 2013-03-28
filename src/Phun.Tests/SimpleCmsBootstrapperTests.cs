@@ -29,7 +29,7 @@
             var notExpectedLength = RouteTable.Routes.Count;
 
             // Act
-            PhunCmsBootstrapper.Initialize(false, false);
+            Bootstrapper.Initialize(false, false);
 
             // Assert
             Assert.IsInstanceOfType(((Route)expected).RouteHandler, typeof(MvcRouteHandler));
@@ -52,10 +52,10 @@
             var notExpectedLength = RouteTable.Routes.Count;
 
             // Act
-            PhunCmsBootstrapper.Initialize(true, false);
+            Bootstrapper.Initialize(true, false);
 
             // Assert
-            Assert.IsInstanceOfType(((Route)expected).RouteHandler, typeof(PhunCmsMvcRouteHandler));
+            Assert.IsInstanceOfType(((Route)expected).RouteHandler, typeof(MvcRouteHandler));
             Assert.AreNotEqual(notExpectedLength, RouteTable.Routes.Count);
         }
     }

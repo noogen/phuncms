@@ -1,5 +1,7 @@
 ﻿namespace Phun.Templating
 {
+    using System.Web;
+
     using Phun.Data;
 
     /// <summary>
@@ -20,8 +22,7 @@
         /// Executes the specified model.
         /// </summary>
         /// <param name="model">The model.</param>
-        /// <param name="controller">The controller.</param>
-        /// <returns>The rendered string.</returns>
-        string Render(ContentModel model, PhunCmsController controller);
+        /// <param name="httpContext">The HTTP context.</param>
+        void Render(ContentModel model, HttpContextBase httpContext);
     }
 }

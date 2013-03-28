@@ -1,11 +1,12 @@
 ﻿namespace Phun.Configuration
 {
+    using System.Collections.Generic;
     using System.Configuration;
 
     /// <summary>
-    /// Host authorization configuration element.
+    /// Host authorization config.
     /// </summary>
-    public class HostAuthorizationConfiguration : ConfigurationElement, IHostAuthorizationConfiguration
+    public interface IHostAuthorizationConfiguration
     {
         /// <summary>
         /// Gets or sets the key or host name.
@@ -14,7 +15,7 @@
         /// The key or host name.
         /// </value>
         [ConfigurationProperty("key", IsRequired = true)]
-        public virtual string Key { get; set; }
+        string Key { get; set; }
 
         /// <summary>
         /// Gets or sets the allow roles.
@@ -23,6 +24,6 @@
         /// The allow roles.
         /// </value>
         [ConfigurationProperty("value", IsRequired = false)]
-        public virtual string Value { get; set; }
+        string Value { get; set; }
     }
 }

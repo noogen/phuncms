@@ -2,6 +2,8 @@
 {
     using System;
     using System.Web.Mvc;
+    using System.Collections;
+    using System.Collections.Generic;
 
     using Phun.Configuration;
 
@@ -47,7 +49,7 @@
             authContext.Setup(ac => ac.HttpContext.Request.Url).Returns(new Uri("http://localhost/BogusRoute"));
             var config = new PhunCmsConfigurationSection() { AdminRoles = "test,test2" };
             var expectedElement = new HostAuthorizationConfiguration() { Key = "localhost", Value = expected };
-            config.HostAuthorizations = new HostAuthorizationCollection();
+            config.HostAuthorizations = (new HostAuthorizationCollection()) as ICollection<IHostAuthorizationConfiguration>;
             config.HostAuthorizations.Add(expectedElement);
  
             // Act

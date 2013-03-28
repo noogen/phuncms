@@ -1,7 +1,10 @@
 ﻿namespace Phun.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
+    using System.Reflection;
     using System.Web.Mvc;
 
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -11,8 +14,13 @@
     /// <summary>
     /// Route mapping configuration.
     /// </summary>
-    public class MapRouteConfiguration : ConfigurationElement
+    public class MapRouteConfiguration : ConfigurationElement, IMapRouteConfiguration
     {
+        /// <summary>
+        /// The static reflection
+        /// </summary>
+        private static readonly Dictionary<Type, ConstructorInfo> staticReflection = new Dictionary<Type, ConstructorInfo>();
+
         /// <summary>
         /// Gets or sets the route.
         /// </summary>
@@ -32,24 +40,11 @@
         /// <value>
         /// The controller.
         /// </value>
-        [ConfigurationProperty("controller", IsRequired = false, DefaultValue = "PhunCmsContent")]
+        [ConfigurationProperty("controller", IsRequired = false, DefaultValue = "CmsContent")]
         public virtual string Controller
         {
             get { return (string)this["controller"]; }
             set { this["controller"] = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the domain level.
-        /// </summary>
-        /// <value>
-        /// The domain level.
-        /// </value>
-        [ConfigurationProperty("domainLevel", IsRequired = false, DefaultValue = 1)]
-        public virtual int DomainLevel
-        {
-            get { return (int)this["domainLevel"]; }
-            set { this["domainLevel"] = value; }
         }
 
         /// <summary>
@@ -118,38 +113,55 @@
 
                 if ((this.RepositoryType + string.Empty).Trim().Equals("sql", StringComparison.OrdinalIgnoreCase))
                 {
-                    string basePath = (this.RepositoryCache + string.Empty).Replace("~", string.Empty).Trim('/').Replace("/", "\\");
-                    if (!string.IsNullOrEmpty(basePath))
-                    {
-                        basePath = this.ResolveLocalPath(basePath);
-                    }
-
-                    var dataRepo = DependencyResolver.Current != null ? DependencyResolver.Current.GetService<ISqlDataRepository>() : null;
-                    if (dataRepo == null)
-                    {
-                        dataRepo = new SqlDataRepository();
-                    }
-
-                    var repo = new SqlContentRepository(dataRepo, this.RepositorySource, this.RepositoryTable, basePath);
-                    result = repo;
+                    result = new SqlContentRepository(this);
                 }
                 else if ((this.RepositoryType + string.Empty).Trim().Equals("file", StringComparison.OrdinalIgnoreCase))
                 {
-                    string basePath = this.RepositorySource.Replace("~", string.Empty).Trim('/').Replace("/", "\\");
-                    basePath = this.ResolveLocalPath(basePath);
-                    var repo = new FileContentRepository(basePath);
-                    result = repo;
+                    result = new FileContentRepository(this);
                 }
                 else if ((this.RepositoryType + string.Empty).Trim().Equals("ioc", StringComparison.OrdinalIgnoreCase))
                 {
                     result = DependencyResolver.Current != null ? DependencyResolver.Current.GetService<IContentRepository>() : null;
                 }
-                else
+                else if (!string.IsNullOrEmpty(this.RepositoryType))
                 {
                     var type = Type.GetType(this.RepositoryType);
                     if (type != null)
                     {
-                        result = Activator.CreateInstance(type) as IContentRepository;
+                        // attempt to locate default constructor
+                        ConstructorInfo defaultConstructor = null;
+
+                        if (!staticReflection.TryGetValue(type, out defaultConstructor))
+                        {
+                            foreach (var ctor in type.GetConstructors().Where(c => c.IsPublic))
+                            {
+                                var parameterTypes = ctor.GetParameters();
+                                if (parameterTypes.Length > 1)
+                                {
+                                    continue;
+                                }
+                                else if (parameterTypes.Length == 0)
+                                {
+                                    defaultConstructor = ctor;
+                                }
+
+                                if (parameterTypes[0].ParameterType == typeof(IMapRouteConfiguration))
+                                {
+                                    defaultConstructor = ctor;
+                                    break;
+                                }
+                            }
+
+                            if (defaultConstructor == null)
+                            {
+                                throw new ApplicationException(
+                                    this.RepositoryType + " is invalid PhunCms repository configuration.");
+                            }
+
+                            staticReflection.Add(type, defaultConstructor);
+                        }
+
+                        result = (defaultConstructor.GetParameters().Length > 0 ? Activator.CreateInstance(type, this) : Activator.CreateInstance(type)) as IContentRepository;
                     }
                 }
 
@@ -160,36 +172,6 @@
 
                 return result;
             }
-        }
-
-        /// <summary>
-        /// Resolves the local path.
-        /// </summary>
-        /// <param name="basePath">The path.</param>
-        /// <returns>A valid base path.</returns>
-        private string ResolveLocalPath(string basePath)
-        {
-            // relative path either start with ~ or not contain colon such, i.e. not c:\
-            if (basePath.Contains(":"))
-            {
-                if (basePath.StartsWith("localstorage:", StringComparison.OrdinalIgnoreCase))
-                {
-                    basePath = basePath.Replace("localstorage:", string.Empty).TrimStart('/', '\\');
-                    basePath = RoleEnvironment.GetLocalResource(basePath).RootPath;
-                }
-            }
-            else
-            {
-                basePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePath);
-            }
-
-            // create directory if not exists
-            if (!System.IO.Directory.Exists(basePath))
-            {
-                System.IO.Directory.CreateDirectory(basePath);
-            }
-
-            return basePath;
         }
 
         /// <summary>

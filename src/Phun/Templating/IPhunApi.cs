@@ -5,7 +5,7 @@
     /// <summary>
     /// Provide a http context for the scripting template.
     /// </summary>
-    public interface IHttpContext
+    public interface IPhunApi
     {
         /// <summary>
         /// Gets or sets the request.
@@ -14,6 +14,14 @@
         /// The request.
         /// </value>
         IRequest request { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response.
+        /// </summary>
+        /// <value>
+        /// The response.
+        /// </value>
+        IResponse response { get; set; }
 
         /// <summary>
         /// Gets or sets the cache.
@@ -30,6 +38,14 @@
         /// The user.
         /// </value>
         IPrincipal user { get; set; }
+
+        /// <summary>
+        /// Gets or sets the trace.
+        /// </summary>
+        /// <value>
+        /// The trace.
+        /// </value>
+        ITrace trace { get; set; }
 
         /// <summary>
         /// Requires the specified name.
@@ -52,7 +68,7 @@
         /// <value>
         /// The file.
         /// </value>
-        string File { get; set; }
+        Phun.Data.ContentModel FileModel { get; set; }
     }
 
     /// <summary>

@@ -1,11 +1,12 @@
 ﻿namespace Phun.Configuration
 {
+    using System.Collections.Generic;
     using System.Configuration;
 
     /// <summary>
     /// Host authorization collection.
     /// </summary>
-    public class HostAuthorizationCollection : AConfigurationElementCollection<HostAuthorizationConfiguration>
+    public class HostAuthorizationCollection : AConfigurationElementCollection<HostAuthorizationConfiguration>, ICollection<IHostAuthorizationConfiguration>
     {
         /// <summary>
         /// Gets the name of the element.
@@ -28,6 +29,61 @@
         protected override object GetElementKey(ConfigurationElement element)
         {
             return ((HostAuthorizationConfiguration)element).Key;
+        }
+
+        /// <summary>
+        /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// </summary>
+        /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+        public void Add(IHostAuthorizationConfiguration item)
+        {
+            base.Add(item as HostAuthorizationConfiguration);
+        }
+
+        /// <summary>
+        /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
+        /// </summary>
+        /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+        /// <returns>
+        /// true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.
+        /// </returns>
+        public bool Contains(IHostAuthorizationConfiguration item)
+        {
+            return base.Contains(item as HostAuthorizationConfiguration);
+        }
+
+        /// <summary>
+        /// Copies to.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        /// <param name="arrayIndex">Index of the array.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void CopyTo(IHostAuthorizationConfiguration[] array, int arrayIndex)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// </summary>
+        /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+        /// <returns>
+        /// true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// </returns>
+        public bool Remove(IHostAuthorizationConfiguration item)
+        {
+            return base.Remove(item as HostAuthorizationConfiguration);
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+        /// </returns>
+        public new IEnumerator<IHostAuthorizationConfiguration> GetEnumerator()
+        {
+            return base.GetEnumerator();
         }
     }
 }

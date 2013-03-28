@@ -5,7 +5,7 @@
   <phuncms resourceRoute="PhunCms" contentRoute="CmsContent">
     <contentMap>
       <add route="CmsContent" repositoryType="file" repositorySource="App_Data\CmsContent" />
-      <!--<add route="CmsContent" repositoryType="sql" repositorySource="DefaultConnection" repositoryStorage="CmsContent" />   -->
+      <!--<add route="CmsContent" repositoryType="sql" repositorySource="DefaultConnection" repositoryTable="CmsContent" />   -->
     </contentMap>
   </phuncms>
   <system.webServer>

@@ -9,8 +9,11 @@
     using System.IO.Compression;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Web.Mvc;
 
     using Dapper;
+
+    using Phun.Configuration;
 
     /// <summary>
     /// IContentRepository implementation for SQL store.
@@ -20,22 +23,22 @@
         /// <summary>
         /// The cache path
         /// </summary>
-        protected readonly string CachePath;
+        protected string CachePath;
 
         /// <summary>
         /// The data repository
         /// </summary>
-        protected readonly ISqlDataRepository DataRepository;
+        protected ISqlDataRepository DataRepository;
 
         /// <summary>
         /// The connection string name
         /// </summary>
-        protected readonly string ConnectionStringName;
+        protected string ConnectionStringName;
 
         /// <summary>
         /// The table name
         /// </summary>
-        protected readonly string TableName;
+        protected string TableName;
 
         /// <summary>
         /// The ensured schema
@@ -45,7 +48,7 @@
         /// <summary>
         /// The illegal character replace
         /// </summary>
-        private static Regex illegalTableNameReplace = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        private static readonly Regex illegalTableNameReplace = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlContentRepository" /> class.
@@ -57,22 +60,25 @@
         /// <exception cref="System.ArgumentException">Connection does not exist.</exception>
         public SqlContentRepository(ISqlDataRepository dataRepo, string connectionStringName, string tableName, string cachePath)
         {
-            var cstring = ConfigurationManager.ConnectionStrings[connectionStringName];
-            if (cstring == null)
+            this.Initialize(dataRepo, connectionStringName, tableName, cachePath);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlContentRepository"/> class.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        public SqlContentRepository(IMapRouteConfiguration config)
+        {
+            string basePath = (config.RepositoryCache + string.Empty).Replace("~", string.Empty).Trim('/').Replace("/", "\\");
+            if (!string.IsNullOrEmpty(basePath))
             {
-                throw new ArgumentException("Connection does not exist: " + connectionStringName);
+                basePath = this.ResolveLocalPath(basePath);
             }
 
-            this.ConnectionStringName = connectionStringName;
-            this.TableName = illegalTableNameReplace.Replace(tableName ?? "CmsContent", string.Empty);
-            this.CachePath = cachePath;
-            this.DataRepository = dataRepo;
+            var dataRepo = (DependencyResolver.Current != null ? DependencyResolver.Current.GetService<ISqlDataRepository>() : null)
+                           ?? new SqlDataRepository();
 
-            if (!schemaExists)
-            {
-                schemaExists = true;
-                this.EnsureSchema();
-            }
+            this.Initialize(dataRepo, config.RepositorySource, config.RepositoryTable, basePath);
         }
 
         /// <summary>
@@ -384,6 +390,34 @@ this.TableName);
                     "INSERT INTO {0} (Host, Path, ParentPath, CreateDate, CreateBy, ModifyDate, ModifyBy, DataIdString, DataLength) SELECT @Host, @Path, @ParentPath, @CreateDate, @CreateBy, @ModifyDate, @ModifyBy, @DataIdString, @DataLength WHERE NOT EXISTS (SELECT 1 FROM {0} WHERE Host = @Host AND Path = @Path)",
                     this.TableName);
             db.Execute(sqlCommand, content);
+        }
+
+        /// <summary>
+        /// Initializes the specified data repo.
+        /// </summary>
+        /// <param name="dataRepo">The data repo.</param>
+        /// <param name="connectionStringName">Name of the connection string.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="cachePath">The cache path.</param>
+        /// <exception cref="System.ArgumentException">Connection does not exist:  + connectionStringName</exception>
+        private void Initialize(ISqlDataRepository dataRepo, string connectionStringName, string tableName, string cachePath)
+        {
+            var cstring = ConfigurationManager.ConnectionStrings[connectionStringName];
+            if (cstring == null)
+            {
+                throw new ArgumentException("Connection does not exist: " + connectionStringName);
+            }
+
+            this.ConnectionStringName = connectionStringName;
+            this.TableName = illegalTableNameReplace.Replace(tableName ?? "CmsContent", string.Empty);
+            this.CachePath = cachePath;
+            this.DataRepository = dataRepo;
+
+            if (!schemaExists)
+            {
+                schemaExists = true;
+                this.EnsureSchema();
+            }
         }
     }
 }

@@ -24,7 +24,7 @@
         // set the path and content
         var myModel = {
             Data: model.get("content"),
-            Path: path
+            Path: "/page/" + path.replace(/^(\/)+/, '')
         };
 
         // serialize data to send
@@ -98,6 +98,8 @@
                 if (path.indexOf('/') === -1) {
                     path = window.location.pathname + "/" + path;
                 }
+                
+                path = "/page/" + path.replace(/^(\/)+/, '');
                 
                 var url = "/" + PhunCms.contentRoute + "/Retrieve/?path=" + path;
                 

@@ -7,6 +7,10 @@
     using System.IO.Compression;
     using System.Linq;
 
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
+    using Phun.Configuration;
+
     /// <summary>
     /// IContentRepository implementation for file store.
     /// Strategy:
@@ -35,17 +39,23 @@
         /// <exception cref="System.ArgumentException">basePath is required.;basePath</exception>
         public FileContentRepository(string basePath)
         {
-            if (string.IsNullOrEmpty(basePath))
-            {
-                throw new ArgumentException("basePath is required.", "basePath");
-            }
+            this.Initialize(basePath);
+        }
 
-            if (!System.IO.Directory.Exists(basePath))
-            {
-                throw new ArgumentException("Please check PhunCms content repository configuration.  Path does not exists: " + basePath, "basePath");
-            }
-
-            this.basePath = basePath;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileContentRepository"/> class.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <exception cref="System.ArgumentException">
+        /// basePath is required.;basePath
+        /// or
+        /// Please check PhunCms content repository configuration.  Path does not exists:  + basePath;basePath
+        /// </exception>
+        public FileContentRepository(IMapRouteConfiguration config)
+        {
+            string path = config.RepositorySource.Replace("~", string.Empty).Trim('/').Replace("/", "\\");
+            path = this.ResolveLocalPath(path);
+            this.Initialize(path);
         }
 
         /// <summary>
@@ -61,15 +71,15 @@
             var file = this.ResolvePath(content);
             if (File.Exists(file))
             {
-                if (includeData)
-                {
-                    content.Data = System.IO.File.ReadAllBytes(file);
-                    content.DataLength = content.Data.Length;
-                }
-
                 var fi = new FileInfo(file);
                 content.ModifyDate = fi.LastWriteTime;
                 content.CreateDate = fi.CreationTime;
+
+                if (includeData)
+                {
+                    content.DataStream = System.IO.File.OpenRead(file);
+                    content.DataLength = fi.Length;
+                }
             }
 
             return content;
@@ -98,7 +108,7 @@
             var path = Path.GetDirectoryName(pathAndName);
             var isValidChildOfBasePath =
                 System.IO.Path.GetFullPath(path)
-                      .StartsWith(System.IO.Path.GetFullPath(basePath), StringComparison.OrdinalIgnoreCase);
+                      .StartsWith(System.IO.Path.GetFullPath(this.basePath), StringComparison.OrdinalIgnoreCase);
 
             if (!isValidChildOfBasePath)
             {
@@ -247,6 +257,28 @@
         {
             var directory = new DirectoryInfo(path);
             directory.Delete(true);
+        }
+
+        /// <summary>
+        /// Initializes the specified base path.
+        /// </summary>
+        /// <param name="path">The base path.</param>
+        /// <exception cref="System.ArgumentException">basePath is required.;basePath
+        /// or
+        /// Please check PhunCms content repository configuration.  Path does not exists:  + basePath;basePath</exception>
+        private void Initialize(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException("basePath is required.", "path");
+            }
+
+            if (!System.IO.Directory.Exists(path))
+            {
+                throw new ArgumentException("Please check PhunCms content repository configuration.  Path does not exists: " + path, "path");
+            }
+
+            this.basePath = path;
         }
     }
 }
