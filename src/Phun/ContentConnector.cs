@@ -73,14 +73,6 @@
         public ICmsConfiguration Config { get; set; }
 
         /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        public HttpContextBase HttpContext { get; set; }
-
-        /// <summary>
         /// Create the file.
         /// </summary>
         /// <param name="path">The path.</param>

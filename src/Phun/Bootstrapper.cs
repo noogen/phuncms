@@ -23,6 +23,11 @@
         /// The API list
         /// </summary>
         internal static IDictionary<string, Type> ApiList = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The API scripts
+        /// </summary>
+        internal static IDictionary<string, string> ApiScripts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
  
         /// <summary>
         /// Gets the config.
@@ -45,11 +50,15 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="objectType">Type of the object.</param>
-        public static void RegisterTemplateApi(string name, Type objectType)
+        public static void RegisterRequireModule(string name, Type objectType)
         {
             if (!ApiList.ContainsKey(name))
             {
                 ApiList.Add(name, objectType);
+            }
+            else
+            {
+                ApiList[name] = objectType;
             }
         }
 
@@ -58,10 +67,28 @@
         /// </summary>
         /// <typeparam name="T">API object type to register.</typeparam>
         /// <param name="name">The name.</param>
-        public static void RegisterTemplateApi<T>(string name)
+        public static void RegisterRequireModule<T>(string name)
         {
-              RegisterTemplateApi(name, typeof(T));
+            RegisterRequireModule(name, typeof(T));
         }
+
+        /// <summary>
+        /// Registers additional JavaScript to load.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="script">The script.</param>
+        public static void RegisterApiScript(string name, string script)
+        {
+            if (ApiScripts.ContainsKey(name))
+            {
+                ApiScripts.Add(name, script);
+            }
+            else
+            {
+                ApiScripts[name] = script;
+            }
+        }
+
 
         /// <summary>
         /// Initializes this instance using web.config.

@@ -16,14 +16,19 @@
     public class PhunApi : IPhunApi
     {
         /// <summary>
-        /// The require types
-        /// </summary>
-        private static readonly Dictionary<string, Type> requireTypes = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
         /// The tenant host
         /// </summary>
         private readonly string tenantHost;
+
+        /// <summary>
+        /// The phun path
+        /// </summary>
+        private readonly IPath phunPath;
+
+        /// <summary>
+        /// The phun file system
+        /// </summary>
+        private readonly IFileSystem phunFileSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PhunApi" /> class.
@@ -34,6 +39,8 @@
             this.tenantHost = new ResourcePathUtility().GetTenantHost(httpContext.Request.Url);
             this.request = new PhunRequest(httpContext);
             this.response = new PhunResponse(httpContext);
+            this.phunFileSystem = new PhunFileSystem(this, httpContext);
+            this.phunPath = new PhunPath();
 
             this.user = httpContext.User;
             this.cache = new PhunCache(httpContext);
@@ -100,16 +107,16 @@
             switch (name.ToLowerInvariant())
             {
                 case "fs":
-                    return new PhunFileSystem(this);
+                    return this.phunFileSystem;
                 case "path":
-                    return new PhunPath();
+                    return this.phunPath;
                 default:
-                    break;
-            }
+                    if (Bootstrapper.ApiList.ContainsKey(name))
+                    {
+                        return Activator.CreateInstance(Bootstrapper.ApiList[name]);
+                    }
 
-            if (requireTypes.ContainsKey(name))
-            {
-                return Activator.CreateInstance(requireTypes[name]);
+                    break;
             }
 
             return null;
@@ -127,6 +134,76 @@
             {
                 return this.tenantHost;
             }
+        }
+
+        /// <summary>
+        /// Partials the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>
+        /// Render partial without going through the view engine.
+        /// </returns>
+        public string partial(string name)
+        {
+            return Phun.Extensions.HtmlHelpers.PhunPartial(name, this.request.url);
+        }
+
+        /// <summary>
+        /// Partialeditables the specified name.
+        /// </summary>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="attributes">The attributes.</param>
+        /// <returns>
+        /// Render editable partial without going through the view engine.
+        /// </returns>
+        public string partialeditable(string tagName, string contentName, object attributes)
+        {
+            return Phun.Extensions.HtmlHelpers.PhunPartialEditable(this.request.url, tagName, contentName, attributes).ToString();
+        }
+
+        /// <summary>
+        /// Bundleses this instance.
+        /// </summary>
+        /// <returns>Javascript bundles.</returns>
+        public string bundles()
+        {   
+            var provider = new ResourcePathUtility();
+            return provider.PhunCmsRenderBundles();
+        }
+
+        /// <summary>
+        /// URLs the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        /// return resource url.
+        /// </returns>
+        public string resourceurl(string path)
+        {
+            var provider = new ResourcePathUtility();
+            return provider.GetResourcePath(path);
+        }
+
+        /// <summary>
+        /// Contenturls the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>Get the content url.</returns>
+        public string contenturl(string path)
+        {
+            var provider = new ResourcePathUtility();
+            return string.Format("/{0}/download/page/{1}", provider.Config.ContentRouteNormalized, path).Replace("//", "/");
+        }
+
+        /// <summary>
+        /// Exceptions the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <exception cref="System.ApplicationException">PhunCMS script exception:  + message</exception>
+        public void exception(string message)
+        {
+            throw new ApplicationException("PhunCMS script exception: " + message);
         }
     }
 }

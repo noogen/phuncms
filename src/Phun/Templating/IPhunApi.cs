@@ -63,12 +63,56 @@
         string TenantHost { get; }
 
         /// <summary>
+        /// Partials the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>Render partial without going through the view engine.</returns>
+        string partial(string name);
+
+        /// <summary>
+        /// Partialeditables the specified name.
+        /// </summary>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="attributes">The attributes.</param>
+        /// <returns>
+        /// Render editable partial without going through the view engine.
+        /// </returns>
+        string partialeditable(string tagName, string contentName, object attributes);
+
+        /// <summary>
+        /// Bundleses the specified include jquery.
+        /// </summary>
+        /// <returns>CK editor partial edit bundles</returns>
+        string bundles();
+
+        /// <summary>
+        /// URLs the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>return resource url.</returns>
+        string resourceurl(string path);
+
+        /// <summary>
+        /// Contenturls the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        string contenturl(string path);
+
+        /// <summary>
         /// Gets or sets the file.
         /// </summary>
         /// <value>
         /// The file.
         /// </value>
         Phun.Data.ContentModel FileModel { get; set; }
+
+        /// <summary>
+        /// Exceptions the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void exception(string message);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿namespace Phun.Templating
 {
     using System;
+    using System.Text;
     using System.Web;
 
     using Newtonsoft.Json;
@@ -15,6 +16,8 @@
     /// </summary>
     public class TemplateHandler : ITemplateHandler
     {
+        private static string vashjsString;
+
         /// <summary>
         /// Determines whether this instance can render the specified model.
         /// </summary>
@@ -43,42 +46,75 @@
             using (var ctx = new JavascriptContext())
             {
                 var util = new ResourcePathUtility();
-                var file = new ResourceVirtualFile(util.GetResourcePath("/scripts/vash.js"));
+
+                // caching vashjs
+                if (vashjsString == null)
+                {
+                    var file = new ResourceVirtualFile(util.GetResourcePath("/scripts/vash.js"));
+
+                    // load vash.js
+                    using (var stream = file.Open())
+                    {
+                        vashjsString = System.Text.Encoding.UTF8.GetString(stream.ReadAll());
+                    }
+                }
+
                 var context = new PhunApi(httpContext);
                 context.FileModel = model;
                 
                 // set application start
                 // set api object
                 // set require method
-                ctx.SetParameter("httpcontext", context); 
-                ctx.SetParameter("filepath", model.Path);
-                ctx.Run(@"
-phun = { api: httpcontext };
-module = { exports: {}, require: phun.api.require }; 
+                ctx.SetParameter("__httpcontext__", context); 
+                ctx.Run(@"phun = { api: __httpcontext__ }; module = { exports: {}, require: phun.api.require }; 
 require = phun.api.require;
+console = { 
+    log: function() {
+// do not log anything for now
+/*
+        for(var i = 0; i < arguments.length; i++) {
+            phun.api.trace.log('' + arguments[i]);
+        }
+*/
+    }
+};
 ");
-                
-                using (var stream = file.Open())
-                {                  
-                    var data = System.Text.Encoding.UTF8.GetString(stream.ReadAll());
-                    ctx.Run(data);
-                }
-
-                // register all the api objects
-                foreach (var api in Bootstrapper.ApiList)
+                ctx.Run(vashjsString + Environment.NewLine + 
+@"vash = module.exports;
+var vashHtmlReportError = vash.helpers.constructor.reportError;
+vashHtmlExceptionMessage = '';
+vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {
+    try {
+        vashHtmlReportError(e, lineno, chr, orig, lb);
+    }
+    catch(ee) {
+       vashHtmlExceptionMessage = e.stack;
+    }
+};
+");
+                // load api scripts
+                foreach (var script in Bootstrapper.ApiScripts.Values)
                 {
-                    ctx.SetParameter(api.Key.ToLowerInvariant(), Activator.CreateInstance(api.Value));
+                    ctx.Run(script);
                 }
 
                 // finally execute the script
-                ctx.Run(@"vash = module.exports; 
-vash.renderFile(
-    filepath, 
-    { model : {} }, 
-    function(err, html) {  
-        phun.api.response.write(html.split('')); 
-    }
-);");
+                ctx.Run(
+@"try {
+    vash.renderFile(
+        phun.api.FileModel.Path, 
+        { model : {} }, 
+        function(err, html) {  
+            phun.api.response.write(html.split('')); 
+        }
+    );
+    
+    // let above handle the exception.
+} catch(ee) {
+    throw new Error(ee + '\r\n' + vashHtmlExceptionMessage);
+}
+");
+
                 httpContext.Response.Flush();
                 httpContext.Response.End();
             }

@@ -109,7 +109,6 @@
                     }
                 });
 
-
                 function addPage(openEdit) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
@@ -135,6 +134,38 @@
                             cache: false,
                             success: function (data) {
                                 newNode.activate();
+                                if (openEdit) {
+                                    window.open(contentPath + "/Edit?path=" + newKey, '', '');
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                function addFile(fileName, openEdit) {
+                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
+
+                    var theName = fileName;
+                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
+
+                    if (theName != "") {
+                        if (!node.data.isFolder) {
+                            node = node.getParent();
+                        }
+
+                        var newKey = (node.data.key + theName);
+                        if (tree.dynatree("getTree").getNodeByKey(newKey) != null) {
+                            alert('File exists, please use edit instead.');
+                            return;
+                        }
+
+                        var newNode = node.addChild({ title: theName, key: newKey, isFolder: false, isLazy: false });
+                        $.ajax({
+                            type: "POST",
+                            url: contentPath + "/Create",
+                            data: { path: newKey, data: 'TODO: Please replace me with content.' },
+                            cache: false,
+                            success: function (data) {
                                 if (openEdit) {
                                     window.open(contentPath + "/Edit?path=" + newKey, '', '');
                                 }
@@ -175,7 +206,6 @@
                     }
                 });
 
-                
                 $(".new-page").click(function (e) {
                     var location = window.location.hash.replace("#", "");
                     var node = tree.dynatree("getTree").getNodeByKey(location);
@@ -188,7 +218,21 @@
                     addAPage.dialog('open');
                 });
 
-                $(".new-directory").click(function (e) {
+                $(".new-partial").click(function (e) {
+                    var location = window.location.hash.replace("#", "");
+                    var node = tree.dynatree("getTree").getNodeByKey(location);
+
+                    if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
+                        alert("Please select a folder under page.");
+                        return false;
+                    }
+
+                    var fileName = prompt("Enter a file name:");
+                    if (fileName && fileName != '') {
+                        addFile(fileName, true);
+                    }
+                });
+                $(".new-folder").click(function (e) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
                     if (window.location.hash == "#" || node == null) {
@@ -196,7 +240,7 @@
                         return false;
                     }
 
-                    var theName = window.prompt("Enter name of new directory under current directory: ", "");
+                    var theName = window.prompt("Enter name of new folder under current folder: ", "");
                     theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
                     
                     if (theName != null && theName != "") {
@@ -287,22 +331,6 @@
                     ckEditorCallback(node.data.key);
                     return true;
                 });
-                
-                $(".open").click(function (e) {
-                    if (window.location.hash == "#") {
-                        alert("Please select a folder.");
-                        return false;
-                    }
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    if (!node.data.isFolder) {
-                        alert("Please select a folder.");
-                        return false;
-                    }
-
-                    window.open(node.data.key, '', '');
-                    return true;
-                });
             });
 
         </script>
@@ -326,7 +354,7 @@
         </header>
         <div class="content">
             <div class="action_menu">
-                <span style="font-weight: bold"> Actions: </span><input type="button" class="open" title="Open selected directory" value="Open"/>  <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="edit" title="edit selected" value="Edit"/><input type="button" class="new-directory" value="New Directory"/> <input type="button" class="new-page" value="New Page"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
+                <span style="font-weight: bold"> Actions: </span> <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="edit" title="edit selected" value="Edit"/><input type="button" class="new-folder" value="New Folder"/> <input type="button" class="new-partial" value="New Partial"/> <input type="button" class="new-page" value="New Page"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
                 <hr/>
                 <table>
                     <tbody>

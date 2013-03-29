@@ -24,18 +24,38 @@
         /// <param name="html">The HTML helper.</param>
         /// <param name="contentName">Name of the content.</param>
         /// <returns>The content data as string.</returns>
-        public static string PhunPartial(this HtmlHelper html, string contentName = "")
+        public static string PhunPartial(this HtmlHelper html, string contentName)
         {
-            string result = string.Empty;
-            var contentConnector = new ContentConnector();
+            return PhunPartial(contentName, html.ViewContext.HttpContext.Request.Url);
+        }
 
-            var content = contentConnector.Retrieve("/page" + (contentName.Contains("/") ? contentName : html.ViewContext.RequestContext.HttpContext.Request.Path + "/" + contentName), html.ViewContext.RequestContext.HttpContext.Request.Url);
+        /// <summary>
+        /// Render the partial content name.
+        /// </summary>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="url">The URL.</param>
+        /// <returns>Partial content.</returns>
+        /// <exception cref="System.ArgumentException">contentName is required.</exception>
+        public static string PhunPartial(string contentName, Uri url)
+        {
+            if (string.IsNullOrEmpty(contentName))
+            {
+                throw new ArgumentException("contentName is required.");
+            }
+
+            var result = string.Empty;
+            var contentConnector = new ContentConnector();
+            var content = new ContentModel()
+            {
+                Path = contentConnector.ApplyPathConvention(
+                          "/page" + (contentName.Contains("/") ? contentName : url.AbsolutePath + "/" + contentName)),
+                Host = contentConnector.GetTenantHost(url)
+            };
+            contentConnector.ContentRepository.Retrieve(content, true);
             if (content.DataLength != null)
             {
                 content.SetDataFromStream();
-                var dataString = System.Text.Encoding.UTF8.GetString(content.Data).GetHtmlBody();
-
-                result = dataString;
+                result = System.Text.Encoding.UTF8.GetString(content.Data).GetHtmlBody();
             }
 
             return result;
@@ -65,6 +85,33 @@
         /// <returns>Html string.</returns>
         public static HtmlString PhunPartialEditable(this HtmlHelper html, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
         {
+            return PhunPartialEditable(html.ViewContext.HttpContext.Request.Url, tagName, contentName, htmlAttributes);
+        }
+
+        /// <summary>
+        /// Render partial for inline edit.
+        /// </summary>
+        /// <param name="url">The URL.</param>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="htmlAttributes">The HTML attributes.</param>
+        /// <returns>Editable partial.</returns>
+        public static HtmlString PhunPartialEditable(
+            Uri url, string tagName, string contentName, object htmlAttributes)
+        {
+            return PhunPartialEditable(url, tagName, contentName, new RouteValueDictionary(htmlAttributes));
+        }
+
+        /// <summary>
+        /// Render partial for inline edit.
+        /// </summary>
+        /// <param name="url">The URL.</param>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="htmlAttributes">The HTML attributes.</param>
+        /// <returns>Editable partial.</returns>
+        public static HtmlString PhunPartialEditable(Uri url, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
+        {
             var tagBuilder = new TagBuilder(tagName);
             tagBuilder.Attributes.Add("about", contentName);
             if (htmlAttributes != null)
@@ -72,7 +119,7 @@
                 tagBuilder.MergeAttributes(htmlAttributes);
             }
 
-            var data = html.PhunPartial(contentName);
+            var data = PhunPartial(contentName, url);
             tagBuilder.InnerHtml = string.Concat("<div property=\"content\">", data, "</div>");
             return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
         }

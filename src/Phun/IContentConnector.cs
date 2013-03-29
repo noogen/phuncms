@@ -143,13 +143,5 @@
         /// <param name="path">The path.</param>
         /// <returns>Normalized path.</returns>
         string ApplyPathConvention(string path);
-
-        /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        HttpContextBase HttpContext { get; set; }
     }
 }
