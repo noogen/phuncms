@@ -17,6 +17,11 @@
         private string path = string.Empty;
 
         /// <summary>
+        /// The stream
+        /// </summary>
+        private Stream stream;
+
+        /// <summary>
         /// Gets or sets the path.
         /// </summary>
         /// <value>
@@ -176,7 +181,27 @@
         /// <value>
         /// The data stream.
         /// </value>
-        public Stream DataStream { get; set; }
+        public Stream DataStream
+        {
+            get
+            {
+                return stream;
+            }
+
+            set
+            {
+                stream = value;
+
+                if (stream != null)
+                {
+                    DataLength = stream.Length;
+                    if (stream.Length < 10000000)
+                    {
+                        this.SetDataFromStream();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -195,7 +220,8 @@
         /// <summary>
         /// Sets the data from stream.
         /// </summary>
-        public void SetDataFromStream()
+        /// <returns>The content model.</returns>
+        public ContentModel SetDataFromStream()
         {
             if (this.DataStream != null)
             {
@@ -204,6 +230,8 @@
                 this.DataStream = null;
                 dataStream.Dispose();
             }
+
+            return this;
         }
     }
 }

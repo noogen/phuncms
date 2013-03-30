@@ -11,7 +11,7 @@
     /// Unit tests for Bootstrapper.
     /// </summary>
     [TestClass]
-    public class PhunCmsBootstrapperTests
+    public class BootstrapperTests
     {
         /// <summary>
         /// Tests the boot strapper does not inject simple CMS MVC route handler.

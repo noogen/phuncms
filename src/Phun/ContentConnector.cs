@@ -46,7 +46,7 @@
         /// <value>
         /// The path utility.
         /// </value>
-        protected ResourcePathUtility PathUtility { get; set; }
+        protected internal ResourcePathUtility PathUtility { get; set; }
 
         /// <summary>
         /// Gets or sets the content config.
@@ -116,10 +116,8 @@
             if (content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 var localFilePath = this.ContentRepository.GetFolder(content);
-                var fi = new FileInfo(localFilePath);
-
-                content.DataStream = fi.OpenRead();
-                content.DataLength = fi.Length;
+                
+                content.DataStream = new System.IO.FileStream(localFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 content.Path += ".zip";
                 return content;
             }

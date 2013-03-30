@@ -112,16 +112,17 @@
         /// <returns>Editable partial.</returns>
         public static HtmlString PhunPartialEditable(Uri url, string tagName, string contentName, IDictionary<string, object> htmlAttributes)
         {
-            var tagBuilder = new TagBuilder(tagName);
-            tagBuilder.Attributes.Add("about", contentName);
-            if (htmlAttributes != null)
+            var sb = new StringBuilder();
+            sb.AppendFormat("<{0} about=\"{1}\"", tagName, contentName);
+            foreach (var key in htmlAttributes.Keys)
             {
-                tagBuilder.MergeAttributes(htmlAttributes);
+                sb.AppendFormat("{0}=\"{1}\"", key, htmlAttributes[key]);
             }
-
+            sb.Append(">");
             var data = PhunPartial(contentName, url);
-            tagBuilder.InnerHtml = string.Concat("<div property=\"content\">", data, "</div>");
-            return new HtmlString(tagBuilder.ToString(TagRenderMode.Normal));
+            sb.Append(string.Concat("<div property=\"content\">", data, "</div>"));
+            sb.AppendFormat("</{0}>", tagName);
+            return new HtmlString(sb.ToString());
         }
 
         /// <summary>

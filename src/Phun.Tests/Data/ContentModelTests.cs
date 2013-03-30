@@ -78,7 +78,7 @@
         {
             // Arrange
             var model = new ContentModel();
-            var expected = "txt";
+            var expected = ".txt";
 
             // Act
             model.Path = "/test/one/two/three.txt";

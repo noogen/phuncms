@@ -141,7 +141,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// </returns>
         public virtual string GetTenantHost(Uri url)
         {
-            var config = Bootstrapper.Config;
+            var config = this.Config ?? Bootstrapper.Config;
             Uri requestUrl = url;
             var currentHost = (requestUrl.Host + string.Empty).Trim().ToLowerInvariant().Replace("www.", string.Empty);
 

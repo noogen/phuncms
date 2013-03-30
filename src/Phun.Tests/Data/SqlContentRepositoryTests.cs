@@ -1,8 +1,10 @@
 ﻿namespace Phun.Tests.Data
 {
     using System;
+    using System.Configuration;
     using System.Linq;
 
+    using Phun.Configuration;
     using Phun.Data;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +23,8 @@
         public static void MyTestInitialize(TestContext testContext)
         {
             // Arrange
+            Bootstrapper.Config = ConfigurationManager.GetSection("phuncms") as ICmsConfiguration;
+
             var repo =
                 new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);
 

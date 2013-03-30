@@ -77,8 +77,7 @@
 
                 if (includeData)
                 {
-                    content.DataStream = System.IO.File.OpenRead(file);
-                    content.DataLength = fi.Length;
+                    content.DataStream = new System.IO.FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 }
             }
 

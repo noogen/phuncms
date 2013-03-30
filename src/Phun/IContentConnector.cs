@@ -67,7 +67,8 @@
         /// The content.
         /// </returns>
         /// <exception cref="System.Web.HttpException">404;PhunCMS view content path not found.</exception>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here."), HttpGet, AllowAnonymous]
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+        [HttpGet, AllowAnonymous]
         ContentModel Retrieve(string path, Uri uri);
 
         /// <summary>

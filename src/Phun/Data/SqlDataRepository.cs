@@ -32,8 +32,8 @@
                 var localPath = this.ResolvePath(content, cachePath);
 
                 // return a stream
-                content.DataStream = System.IO.File.OpenRead(localPath);
-                content.Data = null;
+                content.DataStream = new System.IO.FileStream(
+                    localPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             }
 
             return content;
@@ -110,7 +110,8 @@
                                          content.Data ?? content.DataStream.ReadAll(),
                                  };
 
-            newContent.DataLength = content.Data != null ? content.Data.Length : 0;
+            newContent.DataLength = newContent.Data.Length;
+            content.DataLength = newContent.DataLength;
             newContent.ModifyDate = DateTime.UtcNow;
             if (!newContent.CreateDate.HasValue || newContent.CreateDate.Value == DateTime.MinValue)
             {

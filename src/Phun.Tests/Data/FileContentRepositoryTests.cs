@@ -45,7 +45,7 @@
 
             // Assert
             Assert.IsNotNull(result.Data);
-            Assert.IsTrue(result.Data.Length > 0);
+            Assert.IsTrue(result.DataLength > 0);
         }
 
         /// <summary>
@@ -71,8 +71,8 @@
             var result2 = repo.Retrieve(new ContentModel() { Host = "localhost", Path = "/test/test/article-title" });
 
             // Assert
-            Assert.IsNotNull(result.Data);
-            Assert.IsNotNull(result2.Data);
+            Assert.IsNotNull(result.SetDataFromStream().Data);
+            Assert.IsNotNull(result2.SetDataFromStream().Data);
             Assert.AreNotEqual(result.Data, result2.Data);
         }
 

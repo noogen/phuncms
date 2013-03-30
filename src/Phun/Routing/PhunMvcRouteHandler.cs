@@ -33,6 +33,14 @@
         internal ControllerBuilder ControllerBuilder { get; set; }
 
         /// <summary>
+        /// Gets or sets the config.
+        /// </summary>
+        /// <value>
+        /// The config.
+        /// </value>
+        internal ICmsConfiguration Config { get; set; }
+
+        /// <summary>
         /// Returns the HTTP handler by using the specified HTTP context.
         /// </summary>
         /// <param name="requestContext">The request context.</param>
@@ -68,7 +76,7 @@
                 // attempt to get content controller info
                 if (string.IsNullOrEmpty(contentControllerName))
                 {
-                    var config = Bootstrapper.Config;
+                    var config = this.Config ?? Bootstrapper.Config;
                     var routeController = config.ContentRouteNormalized + "/";
 
                     var route =

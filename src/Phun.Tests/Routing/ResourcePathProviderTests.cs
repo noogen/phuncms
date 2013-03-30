@@ -23,7 +23,7 @@
             // Arrange
             var rvp = new ResourceVirtualPathProvider();
             rvp.Config = new PhunCmsConfigurationSection() { ResourceRoute = "BogusRoute" };
-
+            
             // Act
             var result = rvp.GetFile("~/BogusRoute/blah");
 

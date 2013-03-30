@@ -15,11 +15,6 @@
     public class ResourceVirtualFile : VirtualFile
     {
         /// <summary>
-        /// The resource path
-        /// </summary>
-        private readonly string resourcePath;
-
-        /// <summary>
         /// The virtual file path, this is use for debugging purposes.
         /// </summary>
         private readonly string virtualFilePath;
@@ -32,7 +27,6 @@
             : base(virtualPath)
         {
             this.Config = Bootstrapper.Config;
-            this.resourcePath = this.TranslateToResourcePath(virtualPath);
             this.virtualFilePath = virtualPath;
         }
 
@@ -52,9 +46,10 @@
         /// </returns>
         public override System.IO.Stream Open()
         {
+            var resourcePath = this.TranslateToResourcePath(this.virtualFilePath);
             var util = new ResourcePathUtility();
-            var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Concat("Phun.Properties.", this.resourcePath));
-            if (this.resourcePath.EndsWith("scripts.phuncms.config.js", StringComparison.OrdinalIgnoreCase))
+            var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Concat("Phun.Properties.", resourcePath));
+            if (resourcePath.EndsWith("scripts.phuncms.config.js", StringComparison.OrdinalIgnoreCase))
             {
                 var fileString =
                     string.Format(ResourcePathUtility.ScriptsphuncmsConfigJs, this.Config.ResourceRouteNormalized, this.Config.ContentRouteNormalized)
@@ -68,7 +63,7 @@
                 // try to get resource in all lowered case
                 result = Assembly.GetExecutingAssembly()
                         .GetManifestResourceStream(
-                            string.Concat("Phun.Properties.", this.resourcePath.ToLowerInvariant()));
+                            string.Concat("Phun.Properties.", resourcePath.ToLowerInvariant()));
             }
 
             if (result == null)

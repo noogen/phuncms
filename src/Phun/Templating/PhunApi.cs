@@ -5,7 +5,6 @@
     using System.Security.Claims;
     using System.Security.Principal;
     using System.Web;
-    using System.Web.Mvc;
 
     using Phun.Data;
     using Phun.Routing;
