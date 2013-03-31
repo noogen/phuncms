@@ -175,9 +175,11 @@
     <Compile Include="Data\IContentRepository.cs" />
     <Compile Include="Data\SqlContentRepository.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Templating\ICache.cs" />
     <Compile Include="Templating\IFileSystem.cs" />
     <Compile Include="Templating\IPhunApi.cs" />
     <Compile Include="Templating\IPath.cs" />
+    <Compile Include="Templating\IRequest.cs" />
     <Compile Include="Templating\IResponse.cs" />
     <Compile Include="Templating\ITemplateHandler.cs" />
     <Compile Include="Templating\ITrace.cs" />
@@ -189,6 +191,7 @@
     <Compile Include="Templating\PhunResponse.cs" />
     <Compile Include="Templating\TemplateHandler.cs" />
     <Compile Include="Templating\Trace.cs" />
+    <EmbeddedResource Include="Properties\filebrowser.htm" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\clike.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\index.html" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\scala.html" />

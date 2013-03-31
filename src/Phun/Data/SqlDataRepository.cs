@@ -51,7 +51,7 @@
             if (!string.IsNullOrEmpty(content.DataIdString))
             {
                 var data =
-                    context.Connection.Query<ContentModel>(
+                    context.Query<ContentModel>(
                         string.Format("SELECT Data, DataLength FROM {0} WHERE IdString = @DataIdString", tableName), content).FirstOrDefault();
 
                 if (data != null)
@@ -94,7 +94,8 @@
         /// <param name="content">The content.</param>
         /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
-        public virtual void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath)
+        /// <param name="keepHistory">if set to <c>true</c> [keep history].</param>
+        public virtual void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath, bool keepHistory)
         {
             var newDataId = Guid.NewGuid();
             var newContent = new ContentModel()
@@ -118,7 +119,13 @@
                 newContent.CreateDate = DateTime.UtcNow;
             }
 
-            context.Connection.Execute(
+            if (!keepHistory)
+            {
+                context.Execute(
+                    string.Format("DELETE FROM {0} WHERE Host = @Host AND Path = @Path", tableName), newContent);
+            }
+
+            context.Execute(
                     string.Format("INSERT INTO {0} (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, @CreateDate, @CreateBy)", tableName), newContent);
             content.Data = newContent.Data;
             content.DataLength = newContent.DataLength;
@@ -137,7 +144,7 @@
         /// </returns>
         public virtual IQueryable<ContentModel> RetrieveHistory(DapperContext context, ContentModel content, string tableName)
         {
-            var result = context.Connection.Query<ContentModel>(string.Format("SELECT IdString AS DataIdString, Host, Path, DataLength, CreateDate, CreateBy FROM {0} WHERE Host = @Host and Path = @Path", tableName), content);
+            var result = context.Query<ContentModel>(string.Format("SELECT IdString AS DataIdString, Host, Path, DataLength, CreateDate, CreateBy FROM {0} WHERE Host = @Host and Path = @Path", tableName), content);
             return result.AsQueryable();
         }
 
@@ -155,7 +162,7 @@
             }
 
             var data =
-                context.Connection.Query<ContentModel>(
+                context.Query<ContentModel>(
                     string.Format("SELECT Data, DataLength FROM {0} WHERE IdString = @DataIdString AND Host = @Host AND Path = @Path", tableName),
                     content).FirstOrDefault();
 

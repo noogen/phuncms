@@ -6,8 +6,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using System.Web;
+    using System.Web.Routing;
 
     using Phun.Configuration;
+    using Phun.Data;
+    using Phun.Extensions;
 
     /// <summary>
     /// CMS resource path utility.
@@ -73,6 +76,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         public ResourcePathUtility()
         {
             this.Config = Bootstrapper.Config;
+            this.ContentConfig = Bootstrapper.ContentConfig;
         }
 
         /// <summary>
@@ -81,7 +85,15 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// <value>
         /// The config.
         /// </value>
-        protected internal ICmsConfiguration Config { get; set; }
+        protected internal virtual ICmsConfiguration Config { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content config.
+        /// </summary>
+        /// <value>
+        /// The content config.
+        /// </value>
+        protected internal virtual IMapRouteConfiguration ContentConfig { get; set; }
 
         /// <summary>
         /// Renders the simple CMS bundles.
@@ -95,7 +107,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// Simple cms resource bundles with default ckeditor.
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        public string PhunCmsRenderBundles(bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
+        public virtual string PhunCmsRenderBundles(bool includeJquery = true, bool includeJqueryui = true, bool includeBackbone = true, bool includeCkEditor = true, bool includeEditorInit = true)
         {
             // this code is in here because it needs to be dynamic base on resource and content route
             var files = new StringBuilder(string.Format("<link rel=\"stylesheet\" href=\"/{0}/css/create_ui/css/create-ui.css\"/><link rel=\"stylesheet\" href=\"/{0}/css/midgard_notifications/midgardnotif.css\"/><link rel=\"stylesheet\" href=\"/{0}/css/font_awesome/css/font-awesome.css\"/>", this.Config.ResourceRouteNormalized));
@@ -168,6 +180,92 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         protected internal virtual string GetResourcePath(string resource)
         {
             return string.Format("/{0}/{1}", this.Config.ResourceRouteNormalized, resource.Trim('/'));
+        }
+
+        /// <summary>
+        /// Phuns the partial.
+        /// </summary>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="url">The URL.</param>
+        /// <returns>
+        /// Partial content.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">contentName is required.</exception>
+        protected internal virtual string PhunPartial(string contentName, Uri url)
+        {
+            if (string.IsNullOrEmpty(contentName))
+            {
+                throw new ArgumentException("contentName is required.");
+            }
+
+            var result = string.Empty;
+            var config = this.ContentConfig ?? Bootstrapper.ContentConfig;
+            var content = new ContentModel()
+            {
+                Path = this.Normalize(
+                          "/page" + (contentName.Contains("/") ? contentName : url.AbsolutePath + "/" + contentName)),
+                Host = this.GetTenantHost(url)
+            };
+
+            config.ContentRepository.Retrieve(content, true);
+            if (content.DataLength != null)
+            {
+                content.SetDataFromStream();
+                result = System.Text.Encoding.UTF8.GetString(content.Data).GetHtmlBody();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Applies the path convention.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The normalized path.</returns>
+        public virtual string Normalize(string path)
+        {
+            // make sure path has all valid forward slash
+            var myValue = string.Concat('/', (path + string.Empty).Replace("\\", "/").Replace("//", "/").TrimStart('/'));
+
+            // if path is a folder, then normalize or slug the entire path
+            if (myValue.EndsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                return myValue.ToSeoName();
+            }
+
+            // if it is a file, normalized the directory name only
+            var parentPath = VirtualPathUtility.GetDirectory(myValue).ToSeoName();
+            var fileName = VirtualPathUtility.GetFileName(myValue);
+
+            return string.Concat(parentPath, fileName).TrimStart('~');
+        }
+
+        /// <summary>
+        /// Phuns the partial editable.
+        /// </summary>
+        /// <param name="url">The URL.</param>
+        /// <param name="tagName">Name of the tag.</param>
+        /// <param name="contentName">Name of the content.</param>
+        /// <param name="htmlAttributes">The HTML attributes.</param>
+        /// <returns>Partial editable.</returns>
+        public virtual string PhunPartialEditable(Uri url, string tagName, string contentName, object htmlAttributes)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("<{0} about=\"{1}\"", tagName, contentName);
+            if (htmlAttributes != null)
+            {
+                var myAttributes = new RouteValueDictionary(htmlAttributes);
+                foreach (var key in myAttributes.Keys)
+                {
+                    sb.AppendFormat("{0}=\"{1}\"", key, myAttributes[key]);
+                }
+            }
+
+            sb.Append(">");
+            var data = this.PhunPartial(contentName, url);
+            sb.Append(string.Concat("<div property=\"content\">", data, "</div>"));
+            sb.AppendFormat("</{0}>", tagName);
+            return sb.ToString();
         }
     }
 }

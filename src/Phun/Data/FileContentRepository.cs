@@ -174,6 +174,10 @@
             if (content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 var directory = new DirectoryInfo(path);
+                if (!directory.Exists)
+                {
+                    return result.AsQueryable();
+                }
 
                 // build directory result
                 foreach (var dir in directory.GetDirectories())

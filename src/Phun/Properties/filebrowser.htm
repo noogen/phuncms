@@ -12,6 +12,7 @@
         <link rel="stylesheet" type="text/css" href="css/jquery_ui/jqueryui.css">
         <link rel="stylesheet" type="text/css" href="css/dynatree/ui.dynatree.css">
         <script type="text/javascript">
+            var rootPath = "/content";
             var initialUrl = window.location.hash.replace("#", "").toLowerCase();
             var initialUrlParts = initialUrl.split('/');
             var initialUrlLoading = "/";
@@ -79,7 +80,7 @@
                     initAjax: {
                         type: "POST",
                         url: contentPath + "/FileManagerDynatree",
-                        data: { path: '/' },
+                        data: { path: rootPath + '/', isRootPath: true },
                         cache: false
                     },
                     onActivate: function (node) {
@@ -207,21 +208,12 @@
                     }
                 });
 
-                function ensurePageNode() {
-                    var pageNode = tree.dynatree("getTree").getNodeByKey("/page/");
-                    if (pageNode == null) {
-                        var rootNode = tree.dynatree("getTree").getNodeByKey("/");
-                        rootNode.addChild({ title: "page", key: "/page/", isFolder: true });
-                    }
-                }
-                
                 $(".new-page").click(function (e) {
                     var location = window.location.hash.replace("#", "");
                     var node = tree.dynatree("getTree").getNodeByKey(location);
 
                     if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
-                        ensurePageNode();
-                        alert("Please select a folder under page folder.");
+                        alert("Please select a folder under page.");
                         return false;
                     }
 
@@ -231,10 +223,9 @@
                 $(".new-partial").click(function (e) {
                     var location = window.location.hash.replace("#", "");
                     var node = tree.dynatree("getTree").getNodeByKey(location);
-                    
+
                     if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
-                        ensurePageNode();
-                        alert("Please select a folder under page folder.");
+                        alert("Please select a folder under page.");
                         return false;
                     }
 
@@ -243,7 +234,6 @@
                         addFile(fileName, true);
                     }
                 });
-                
                 $(".new-folder").click(function (e) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
@@ -362,17 +352,17 @@
     </head>
     <body>
         <header>
-            <h1><a href="/">Phun Cms File Manager</a></h1>
+            <h1><a href="/">Phun Cms File Browser</a></h1>
         </header>
         <div class="content">
             <div class="action_menu">
-                <span style="font-weight: bold"> Actions: </span> <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="edit" title="edit selected" value="Edit"/><input type="button" class="new-folder" value="New Folder"/> <input type="button" class="new-partial" value="New Partial"/> <input type="button" class="new-page" value="New Page"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
+                <span style="font-weight: bold"> Actions: </span> <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="new-folder" value="New Folder"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
                 <hr/>
                 <table>
                     <tbody>
                         <tr>
                             <td><span style="font-weight: bold">Upload: </span><span class="path" style="padding-right: 20px;">/</span> </td>
-                            <td><form method="post" enctype="multipart/form-data" data-action="FileManager"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
+                            <td><form method="post" enctype="multipart/form-data" data-action="FileBrowser"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
                         </tr>
                     </tbody>
                 </table>

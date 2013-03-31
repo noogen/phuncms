@@ -20,6 +20,14 @@
         private readonly string virtualFilePath;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceVirtualFile"/> class.
+        /// </summary>
+        protected internal ResourceVirtualFile()
+            : base("/UnitTestOnly")
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ResourceVirtualFile" /> class.
         /// </summary>
         /// <param name="virtualPath">The virtual path to the resource represented by this instance.</param>
@@ -79,7 +87,7 @@
         /// Writes the file.
         /// </summary>
         /// <param name="context">The context.</param>
-        public void WriteFile(HttpContextBase context)
+        public virtual void WriteFile(HttpContextBase context)
         {
             var response = context.Response;
             var stream = this.Open();
@@ -105,7 +113,7 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns>To to set 304 response.</returns>
-        public bool TrySet304(HttpContextBase context)
+        public virtual bool TrySet304(HttpContextBase context)
         {
             if (this.Config.DisableResourceCache
                 || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js")

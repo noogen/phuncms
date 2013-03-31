@@ -60,7 +60,7 @@
         /// <value>
         /// The tenant host.
         /// </value>
-        string TenantHost { get; }
+        string tenantHost { get; }
 
         /// <summary>
         /// Partials the specified name.
@@ -78,7 +78,7 @@
         /// <returns>
         /// Render editable partial without going through the view engine.
         /// </returns>
-        string partialeditable(string tagName, string contentName, object attributes);
+        string partialEditable(string tagName, string contentName, object attributes);
 
         /// <summary>
         /// Bundleses the specified include jquery.
@@ -91,14 +91,14 @@
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>return resource url.</returns>
-        string resourceurl(string path);
+        string resourceUrl(string path);
 
         /// <summary>
         /// Contenturls the specified path.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        string contenturl(string path);
+        string contentUrl(string path);
 
         /// <summary>
         /// Gets or sets the file.
@@ -107,67 +107,5 @@
         /// The file.
         /// </value>
         Phun.Data.ContentModel FileModel { get; set; }
-
-        /// <summary>
-        /// Exceptions the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        void exception(string message);
-    }
-
-    /// <summary>
-    /// Cache object.
-    /// </summary>
-    public interface ICache
-    {
-        /// <summary>
-        /// Gets the specified key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
-        object get(string key);
-
-        /// <summary>
-        /// Sets the specified key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value.</param>
-        void set(string key, object value);
-    }
-
-    /// <summary>
-    /// Request object.
-    /// </summary>
-    public interface IRequest
-    {
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="bool" /> is isLocal.
-        /// </summary>
-        /// <value>
-        /// return <c>true</c> if isLocal; otherwise, <c>false</c>.
-        /// </value>
-        bool isLocal { get; set; }
-
-        /// <summary>
-        /// Gets the URL.
-        /// </summary>
-        /// <value>
-        /// The URL.
-        /// </value>
-        System.Uri url { get; set; }
-
-        /// <summary>
-        /// Sets the cookie.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>The cookie value.</returns>
-        string getCookie(string name);
-
-        /// <summary>
-        /// Gets the header.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>The header value.</returns>
-        string getHeader(string name);
-    }
+    }      
 }

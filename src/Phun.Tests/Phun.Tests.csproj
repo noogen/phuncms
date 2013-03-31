@@ -164,6 +164,7 @@
   <ItemGroup>
     <Compile Include="CmsAdminAuthorizeAttributeTests.cs" />
     <Compile Include="Configuration\MapRouteConfigurationTests.cs" />
+    <Compile Include="ContentConnectorTests.cs" />
     <Compile Include="Data\ContentModelTests.cs" />
     <Compile Include="Data\FileContentRepositoryTests.cs" />
     <Compile Include="Data\SqlContentRepositoryTests.cs" />
@@ -176,6 +177,13 @@
     <Compile Include="BootstrapperTests.cs" />
     <Compile Include="CmsContentControllerTests.cs" />
     <Compile Include="Routing\PhunMvcRouteHandlerTests.cs" />
+    <Compile Include="Templating\PhunApiTests.cs" />
+    <Compile Include="Templating\PhunCacheTests.cs" />
+    <Compile Include="Templating\PhunFileSystemTests.cs" />
+    <Compile Include="Templating\PhunRequestTests.cs" />
+    <Compile Include="Templating\PhunResponseTests.cs" />
+    <Compile Include="Templating\TemplateHandlerTests.cs" />
+    <Compile Include="Templating\TraceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

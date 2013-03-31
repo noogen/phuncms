@@ -17,28 +17,41 @@
         /// <summary>
         /// The tenant host
         /// </summary>
-        private readonly string tenantHost;
+        protected internal string host;
 
         /// <summary>
         /// The phun path
         /// </summary>
-        private readonly IPath phunPath;
+        protected internal IPath phunPath;
 
         /// <summary>
         /// The phun file system
         /// </summary>
-        private readonly IFileSystem phunFileSystem;
+        protected internal IFileSystem phunFileSystem;
+
+        /// <summary>
+        /// The connector
+        /// </summary>
+        protected internal IContentConnector connector;
+
+        /// <summary>
+        /// The utility
+        /// </summary>
+        protected internal ResourcePathUtility utility;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PhunApi" /> class.
         /// </summary>
         /// <param name="httpContext">The HTTP context.</param>
-        public PhunApi(HttpContextBase httpContext)
+        /// <param name="connector">The connector.</param>
+        public PhunApi(HttpContextBase httpContext, IContentConnector connector)
         {
-            this.tenantHost = new ResourcePathUtility().GetTenantHost(httpContext.Request.Url);
+            this.utility = new ResourcePathUtility();
+            this.connector = connector;
+            this.host = this.utility.GetTenantHost(httpContext.Request.Url);
             this.request = new PhunRequest(httpContext);
             this.response = new PhunResponse(httpContext);
-            this.phunFileSystem = new PhunFileSystem(this, httpContext);
+            this.phunFileSystem = new PhunFileSystem(this, connector, httpContext);
             this.phunPath = new PhunPath();
 
             this.user = httpContext.User;
@@ -127,11 +140,11 @@
         /// <value>
         /// The tenant host.
         /// </value>
-        public string TenantHost
+        public string tenantHost
         {
             get
             {
-                return this.tenantHost;
+                return this.host;
             }
         }
 
@@ -144,7 +157,7 @@
         /// </returns>
         public string partial(string name)
         {
-            return Phun.Extensions.HtmlHelpers.PhunPartial(name, this.request.url);
+            return this.utility.PhunPartial(name, this.request.url);
         }
 
         /// <summary>
@@ -156,9 +169,9 @@
         /// <returns>
         /// Render editable partial without going through the view engine.
         /// </returns>
-        public string partialeditable(string tagName, string contentName, object attributes)
+        public string partialEditable(string tagName, string contentName, object attributes)
         {
-            return Phun.Extensions.HtmlHelpers.PhunPartialEditable(this.request.url, tagName, contentName, attributes).ToString();
+            return this.utility.PhunPartialEditable(this.request.url, tagName, contentName, attributes);
         }
 
         /// <summary>
@@ -167,8 +180,7 @@
         /// <returns>Javascript bundles.</returns>
         public string bundles()
         {   
-            var provider = new ResourcePathUtility();
-            return provider.PhunCmsRenderBundles();
+            return this.utility.PhunCmsRenderBundles();
         }
 
         /// <summary>
@@ -178,10 +190,9 @@
         /// <returns>
         /// return resource url.
         /// </returns>
-        public string resourceurl(string path)
+        public string resourceUrl(string path)
         {
-            var provider = new ResourcePathUtility();
-            return provider.GetResourcePath(path);
+            return this.utility.GetResourcePath(path);
         }
 
         /// <summary>
@@ -189,20 +200,9 @@
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>Get the content url.</returns>
-        public string contenturl(string path)
+        public string contentUrl(string path)
         {
-            var provider = new ResourcePathUtility();
-            return string.Format("/{0}/download/page/{1}", provider.Config.ContentRouteNormalized, path).Replace("//", "/");
-        }
-
-        /// <summary>
-        /// Exceptions the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <exception cref="System.ApplicationException">PhunCMS script exception:  + message</exception>
-        public void exception(string message)
-        {
-            throw new ApplicationException("PhunCMS script exception: " + message);
+            return string.Format("/{0}/download/page/{1}", this.utility.Config.ContentRouteNormalized, path).Replace("//", "/");
         }
     }
 }

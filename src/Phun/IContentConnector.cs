@@ -49,16 +49,6 @@
         ContentModel Create(string path, string data, Uri uri);
 
         /// <summary>
-        /// Create the file.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="uri">The URI.</param>
-        /// <returns>Content model result.</returns>
-        /// <exception cref="System.Web.HttpException">500;Cannot create or overwrite an existing content of path:  + path</exception>
-        ContentModel CreateOrUpdate(string path, byte[] data, Uri uri);
-
-        /// <summary>
         /// Retrieves this instance.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -79,6 +69,15 @@
         /// <param name="uri">The URI.</param>
         /// <returns>Content model result.</returns>
         ContentModel CreateOrUpdate(string path, string data, Uri uri);
+
+        /// <summary>
+        /// Creates the or update.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="data">The data.</param>
+        /// <returns>Content model result.</returns>
+        ContentModel CreateOrUpdate(string path, Uri uri, byte[] data);
 
         /// <summary>
         /// Deletes the specified model.
@@ -143,6 +142,6 @@
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>Normalized path.</returns>
-        string ApplyPathConvention(string path);
+        string Normalize(string path);
     }
 }

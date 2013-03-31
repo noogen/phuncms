@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Configuration;
 
+    using Phun.Routing;
+
     /// <summary>
     /// CMS Configuration
     /// </summary>
@@ -98,5 +100,39 @@
         ///   <c>true</c> if [is content route] [the specified path]; otherwise, <c>false</c>.
         /// </returns>
         bool IsContentRoute(string path);
+
+        /// <summary>
+        /// Gets or sets the cache in seconds.
+        /// </summary>
+        /// <value>
+        /// The cache in seconds.
+        /// </value>                
+        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 2)]
+        int CacheDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file manager.
+        /// </summary>
+        /// <value>
+        /// The file manager.
+        /// </value>
+        [ConfigurationProperty("fileManager", IsRequired = false, DefaultValue = "/[resourceroute]/filemanager.htm")]
+        string FileManager { get; set; }
+
+        /// <summary>
+        /// The file editor
+        /// </summary>
+        /// <value>
+        /// The file editor.
+        /// </value>
+        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/edit.htm")]
+        string FileEditor { get; set; }
+
+        /// <summary>
+        /// Gets the resource file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The resource virtual file.</returns>
+        ResourceVirtualFile GetResourceFile(string path);
     }
 }

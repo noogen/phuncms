@@ -35,9 +35,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="CmsController"/> class.
         /// </summary>
-        protected CmsController()
+        protected CmsController() : this(new ContentConnector())
         {
-            this.ContentConnector = new ContentConnector();
         }
 
         /// <summary>
@@ -77,6 +76,24 @@
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         [HttpGet, AllowAnonymous]
         public virtual ActionResult Retrieve(string path)
+        {
+            if ((path + string.Empty).EndsWith(".vash", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new HttpException(404, "Path not found: " + path);
+            }
+
+            return this.RetrieveSecure(path);
+        }
+
+        /// <summary>
+        /// Retrieves the secure.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        /// Content.
+        /// </returns>
+        [HttpGet]
+        public virtual ActionResult RetrieveSecure(string path)
         {
             var result = this.ContentConnector.Retrieve(path, this.Request.Url);
 
@@ -201,10 +218,12 @@
         public virtual ActionResult Edit(string path)
         {
             var url = string.Format(
-                "/{0}/edit.htm?contentPath={1}&path={2}&_={3}",
-                    this.ContentConnector.Config.ResourceRouteNormalized,
-                    this.ContentConnector.Config.ContentRouteNormalized,
-                    this.ContentConnector.ApplyPathConvention(path),
+                "{0}?contentPath={1}&path={2}&_={3}",
+                this.ContentConnector.Config.FileEditor.ToLowerInvariant()
+                    .Replace("[resourceroute]", this.ContentConnector.Config.ResourceRouteNormalized)
+                    .Replace("[contentroute]", this.ContentConnector.Config.ContentRouteNormalized),
+                this.ContentConnector.Config.ContentRouteNormalized,
+                    this.ContentConnector.Normalize(path),
                     DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture));
             return this.Redirect(url);
         }
@@ -213,32 +232,39 @@
         /// Lists the DYNATREE.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>DYNATREE result.</returns>
-        public virtual ActionResult FileManagerDynatree(string path)
+        /// <param name="isRootPath">if set to <c>true</c> [is root path].</param>
+        /// <returns>
+        /// DYNATREE result.
+        /// </returns>
+        public virtual ActionResult FileManagerDynatree(string path, bool? isRootPath)
         {
-            path = this.ContentConnector.ApplyPathConvention(path);
+            path = this.ContentConnector.Normalize(path);
             var myJsonResult = this.ContentConnector.List(path, this.Request.Url).Select(item => new DynaTreeViewModel(item.Path)).ToList();
 
             // return extra root path
-            return (string.IsNullOrEmpty(path) || path == "/") 
-                    ? this.Json(new DynaTreeViewModel("/") { children = myJsonResult, title = "/", key = "/", expand = true, isFolder = true, isLazy = false }) 
+            return (string.IsNullOrEmpty(path) || path == "/" || (isRootPath.HasValue && isRootPath.Value))
+                    ? this.Json(new DynaTreeViewModel(path) { children = myJsonResult, title = path, key = path, expand = true, isFolder = true, isLazy = false }) 
                     : this.Json(myJsonResult);
         }
 
         /// <summary>
         /// Files the browser.
         /// </summary>
+        /// <param name="hashPath">The hash path.</param>
         /// <returns>
         /// View result that display a file browser.
         /// </returns>
         [HttpGet]
-        public virtual ActionResult FileManager()
+        public virtual ActionResult FileManager(string hashPath)
         {
             var url = string.Format(
-                "/{0}/filemanager.htm?contentPath={1}&_={2}",
-                this.ContentConnector.Config.ResourceRouteNormalized,
+                "{0}?contentPath={1}&_={2}#{3}",
+                this.ContentConnector.Config.FileManager.ToLowerInvariant()
+                    .Replace("[resourceroute]", this.ContentConnector.Config.ResourceRouteNormalized)
+                    .Replace("[contentroute]", this.ContentConnector.Config.ContentRouteNormalized),
                 this.ContentConnector.Config.ContentRouteNormalized,
-                DateTime.Now.Ticks);
+                DateTime.Now.Ticks,
+                hashPath);
 
             return this.Redirect(url);
         }
@@ -254,9 +280,41 @@
         [HttpPost]
         public virtual ActionResult FileManager(HttpPostedFileBase upload, string path)
         {
+            return this.FileManager(this.Upload(upload, path));
+        }
+
+        /// <summary>
+        /// Files the browser.
+        /// </summary>
+        /// <param name="upload">The upload.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>Result for file upload.</returns>
+        [HttpPost]
+        public virtual ActionResult FileBrowser(HttpPostedFileBase upload, string path)
+        {
+            var hashPath = this.FileManager(this.Upload(upload, path));
+
+            var url = string.Format(
+                "/{0}/filebrowser.htm?contentPath={1}&_={2}#{3}",
+                this.ContentConnector.Config.ResourceRouteNormalized,
+                this.ContentConnector.Config.ContentRouteNormalized,
+                DateTime.Now.Ticks,
+                hashPath);
+
+            return this.Redirect(url);
+        }
+
+        /// <summary>
+        /// Uploads the specified upload.
+        /// </summary>
+        /// <param name="upload">The upload.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>Parent path.</returns>
+        protected virtual string Upload(HttpPostedFileBase upload, string path)
+        {
             var contentModel = new ContentModel()
             {
-                Path = this.ContentConnector.ApplyPathConvention(path),
+                Path = this.ContentConnector.Normalize(path),
                 CreateBy = this.User.Identity.Name,
                 ModifyBy = this.User.Identity.Name
             };
@@ -271,9 +329,9 @@
             var fileName = (upload.FileName + string.Empty).Replace("\\", "/").Replace("//", "/");
             contentModel.Path = string.Concat(contentModel.Path, "/", fileName.IndexOf('/') >= 0 ? System.IO.Path.GetFileName(upload.FileName) : upload.FileName);
 
-            this.ContentConnector.CreateOrUpdate(contentModel.Path, upload.InputStream.ReadAll(), this.Request.Url);
+            this.ContentConnector.CreateOrUpdate(contentModel.Path, this.Request.Url, upload.InputStream.ReadAll());
 
-            return this.FileManager();
+            return contentModel.ParentPath;
         }
     }
 }

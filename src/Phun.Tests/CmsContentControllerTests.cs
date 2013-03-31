@@ -17,6 +17,8 @@
 
     using Moq;
 
+    using Phun.Routing;
+
     /// <summary>
     /// Unit tests for Simple Cms Controller / Content Controller
     /// </summary>
@@ -49,43 +51,10 @@
             var controller = new CmsContentController();
 
             // Act
-            var result = controller.FileManager() as RedirectResult;
+            var result = controller.FileManager(string.Empty) as RedirectResult;
 
             // Assert
             Assert.IsNotNull(result);
         }
-
-        /// <summary>
-        /// Tests the file browser DYNATREE of root path return A single result.
-        /// </summary>
-        [TestMethod]
-        public void TestFileManagerDynatreeOfRootPathReturnASingleResult()
-        {
-            // Arrange
-            var controller = new CmsContentController();
-            var repo = new Mock<IContentConnector>();
-            var mockRequest = new Mock<HttpRequestBase>();
-            var context = new Mock<HttpContextBase>();
-            var fakeResult = new List<ContentModel>();
-            fakeResult.Add(new ContentModel() { Path = "/ab" });
-            fakeResult.Add(new ContentModel() { Path = "/cd" });
-
-            mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/blah"));
-            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            repo.Setup(rp => rp.List(It.IsAny<string>(), It.IsAny<Uri>())).Returns(fakeResult.AsQueryable());
-            controller.ContentConnector = repo.Object;
-            controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
-
-            // Act
-            var result = controller.FileManagerDynatree("/") as JsonResult;
-
-            // Assert
-            repo.VerifyAll();
-            Assert.IsNotNull(result);
-
-            var data = result.Data as DynaTreeViewModel;
-            Assert.IsNotNull(data);
-        }
-
     }
 }

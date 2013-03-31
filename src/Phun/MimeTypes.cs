@@ -10,6 +10,7 @@
     /// </summary>
     public static class MimeTypes
     {
+        #region "Mime Data"
         /// <summary>
         /// The mime type data
         /// </summary>
@@ -517,6 +518,8 @@
                         application/vnd.openxmlformats-officedocument.presentationml.slideshow ppsx
                         application/vnd.ms-powerpoint.addin.macroEnabled.12 ppam";
 
+        #endregion
+
         /// <summary>
         /// The list
         /// </summary>
@@ -526,20 +529,6 @@
         /// The regular expression.
         /// </summary>
         private static readonly Regex MimeTypeDataRegEx = new Regex("\r\n|\r|\n", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-        /// <summary>
-        /// Gets the list.
-        /// </summary>
-        /// <value>
-        /// The list.
-        /// </value>
-        public static Dictionary<string, string> List
-        {
-            get
-            {
-                return MimeTypeList;
-            }
-        }
 
         /// <summary>
         /// Initializes static members of the <see cref="MimeTypes"/> class. 
@@ -559,6 +548,20 @@
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the list.
+        /// </summary>
+        /// <value>
+        /// The list.
+        /// </value>
+        public static Dictionary<string, string> List
+        {
+            get
+            {
+                return MimeTypeList;
             }
         }
 

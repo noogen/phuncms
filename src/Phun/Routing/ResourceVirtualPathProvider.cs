@@ -55,8 +55,7 @@
         {
             if (this.IsEmbeddedResourcePath(virtualPath))
             {
-                var file = new ResourceVirtualFile(virtualPath);
-                file.Config = this.Config;
+                var file = this.Config.GetResourceFile(virtualPath);
                 if ((System.Web.HttpContext.Current != null) && file.TrySet304(new HttpContextWrapper(System.Web.HttpContext.Current)))
                 {
                     System.Web.HttpContext.Current.Response.End();

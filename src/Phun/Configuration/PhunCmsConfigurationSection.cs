@@ -4,11 +4,53 @@
     using System.Collections.Generic;
     using System.Configuration;
 
+    using Phun.Routing;
+
     /// <summary>
     /// For reading configuration from web.config.
     /// </summary>
     public class PhunCmsConfigurationSection : ConfigurationSection, ICmsConfiguration
     {
+        /// <summary>
+        /// Gets or sets the duration of the cache.
+        /// </summary>
+        /// <value>
+        /// The duration of the cache.
+        /// </value>
+        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 2)]
+        public int CacheDuration
+        {
+            get { return (int)this["cacheDuration"]; }
+            set { this["cacheDuration"] = value; }
+        }
+
+
+          /// <summary>
+        /// Gets or sets the file manager.
+        /// </summary>
+        /// <value>
+        /// The file manager.
+        /// </value>
+        [ConfigurationProperty("fileManager", IsRequired = false, DefaultValue = "/[resourceroute]/filemanager.htm")]
+        public string FileManager
+        {
+            get { return (string)this["fileManager"]; }
+            set { this["fileManager"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the file editor.
+        /// </summary>
+        /// <value>
+        /// The file editor.
+        /// </value>
+        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/edit.htm")]
+        public string FileEditor
+        {
+            get { return (string)this["fileEditor"]; }
+            set { this["fileEditor"] = value; }
+        }
+
         /// <summary>
         /// Gets or sets the admin roles.
         /// </summary>
@@ -217,6 +259,19 @@
                            .Replace("~", string.Empty)
                            .StartsWith(
                                string.Concat("/", this.ContentRouteNormalized, "/"), StringComparison.OrdinalIgnoreCase);
+        }
+
+
+        /// <summary>
+        /// Gets the resource file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        /// The resource virtual file.
+        /// </returns>
+        public Routing.ResourceVirtualFile GetResourceFile(string path)
+        {
+            return new ResourceVirtualFile(path);
         }
     }
 }

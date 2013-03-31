@@ -51,6 +51,11 @@
         private static readonly Regex illegalTableNameReplace = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
+        /// The history file extensions
+        /// </summary>
+        private static Regex historyFileExtensions;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SqlContentRepository" /> class.
         /// </summary>
         /// <param name="dataRepo">The data repo.</param>
@@ -77,6 +82,11 @@
 
             var dataRepo = (DependencyResolver.Current != null ? DependencyResolver.Current.GetService<ISqlDataRepository>() : null)
                            ?? new SqlDataRepository();
+
+            if (historyFileExtensions == null && !string.IsNullOrEmpty(config.HistoryFileExtension))
+            {
+                historyFileExtensions = new Regex(config.HistoryFileExtension, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+            }
 
             this.Initialize(dataRepo, config.RepositorySource, config.RepositoryTable, basePath);
         }
@@ -196,7 +206,15 @@ this.TableName);
                 {
                     content.DataLength = content.DataLength ?? content.Data.Length;
 
-                    this.DataRepository.SaveData(db, content, this.TableName + "Data", this.CachePath);
+                    // determine if history should be kept for this path
+                    var keepHistory = historyFileExtensions != null;
+                    if (keepHistory)
+                    {
+                        var fileExtension = (content.FileExtension + string.Empty).Trim().Replace(".", string.Empty);
+                        keepHistory = (fileExtension.Length > 1) && historyFileExtensions.IsMatch(fileExtension);
+                    }
+
+                    this.DataRepository.SaveData(db, content, this.TableName + "Data", this.CachePath, keepHistory);
                 }
                 else
                 {
@@ -297,8 +315,11 @@ this.TableName);
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="historyDataId">The history data id.</param>
+        /// <returns>
+        /// The history data content.
+        /// </returns>
         /// <exception cref="System.ArgumentException">PopulateHistoryData historyDataId is required.;historyDataId</exception>
-        public override void PopulateHistoryData(ContentModel content, Guid historyDataId)
+        public override ContentModel PopulateHistoryData(ContentModel content, Guid historyDataId)
         {
             if (historyDataId.Equals(Guid.Empty))
             {
@@ -310,6 +331,8 @@ this.TableName);
             {
                 this.DataRepository.PopulateHistoryData(ctx, content, this.TableName + "Data");
             }
+
+            return content;
         }
 
         /// <summary>

@@ -95,7 +95,7 @@
         /// Gets the name of the folder.
         /// </summary>
         /// <returns>Folder name derived by path.</returns>
-        public string ParentPath
+        public virtual string ParentPath
         {
             get
             {

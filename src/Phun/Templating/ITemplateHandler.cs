@@ -22,7 +22,8 @@
         /// Executes the specified model.
         /// </summary>
         /// <param name="model">The model.</param>
+        /// <param name="connector">The connector.</param>
         /// <param name="httpContext">The HTTP context.</param>
-        void Render(ContentModel model, HttpContextBase httpContext);
+        void Render(ContentModel model, IContentConnector connector, HttpContextBase httpContext);
     }
 }

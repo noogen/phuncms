@@ -33,10 +33,10 @@
         /// Gets the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <returns>The cached object.</returns>
         public object get(string key)
         {
-            string myKey = string.Format("PhunCache${0}${1}", this.tenantHost, key);
+            string myKey = string.Format("__PhunUserCache__${0}${1}", this.tenantHost, key);
             return this.httpContext.Cache.Get(myKey);
         }
 
@@ -47,7 +47,7 @@
         /// <param name="value">The value.</param>
         public void set(string key, object value)
         {
-            string myKey = string.Format("PhunCache${0}${1}", this.tenantHost, key);
+            string myKey = string.Format("__PhunUserCache__${0}${1}", this.tenantHost, key);
             this.httpContext.Cache[myKey] = value;
         }
     }

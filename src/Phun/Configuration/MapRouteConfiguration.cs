@@ -100,6 +100,19 @@
         }
 
         /// <summary>
+        /// Gets or sets the history file extension.
+        /// </summary>
+        /// <value>
+        /// The history file extension.
+        /// </value>
+        [ConfigurationProperty("historyFileExtension", IsRequired = false, DefaultValue = "")]
+        public virtual string HistoryFileExtension
+        {
+            get { return (string)this["historyFileExtension"]; }
+            set { this["historyFileExtension"] = value; }
+        }
+
+        /// <summary>
         /// Gets the content repository.
         /// </summary>
         /// <value>

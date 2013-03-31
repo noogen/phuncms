@@ -35,7 +35,8 @@
         /// <param name="content">The content.</param>
         /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
-        void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath);
+        /// <param name="keepHistory">if set to <c>true</c> [keep history].</param>
+        void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath, bool keepHistory);
 
         /// <summary>
         /// Retrieves the history.

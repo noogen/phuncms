@@ -1,5 +1,7 @@
 ﻿namespace Phun.Templating
 {
+    using System.IO;
+    using System.Text;
     using System.Web;
 
     /// <summary>
@@ -46,7 +48,7 @@
         public string getCookie(string name)
         {
             var cookie = this.request.Cookies.Get(name);
-            return cookie != null ? cookie.Value : null;
+            return cookie != null ? cookie.Value : string.Empty;
         }
 
         /// <summary>
@@ -58,7 +60,55 @@
         /// </returns>
         public string getHeader(string name)
         {
-            return this.request.Headers.Get(name);
+            return this.request.Headers.Get(name) + string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the query.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>
+        /// The query string value.
+        /// </returns>
+        public string getQuery(string name)
+        {
+            return this.request.QueryString.Get(name) + string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the form value.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>
+        /// Form value.
+        /// </returns>
+        public string getForm(string name)
+        {
+            return this.request.Form.Get(name) + string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the content.
+        /// </summary>
+        /// <returns>
+        /// The string content of post or put.
+        /// </returns>
+        public string getContent()
+        {
+            string documentContents = string.Empty;
+            if (this.request.InputStream != null)
+            {
+                using (var receiveStream = this.request.InputStream)
+                {
+                    receiveStream.Seek(0, SeekOrigin.Begin);
+                    using (var readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        documentContents = readStream.ReadToEnd();
+                    }
+                }
+            }
+
+            return documentContents;
         }
     }
 }

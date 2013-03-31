@@ -67,6 +67,7 @@
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="historyDataId">The history data id.</param>
-        void PopulateHistoryData(ContentModel content, System.Guid historyDataId);
+        /// <returns>The history data content model.</returns>
+        ContentModel PopulateHistoryData(ContentModel content, System.Guid historyDataId);
     }
 }

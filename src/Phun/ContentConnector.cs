@@ -36,17 +36,10 @@
         {
             this.Config = Bootstrapper.Config;
             this.ContentConfig = Bootstrapper.ContentConfig;
-            this.ContentRepository = this.ContentConfig.ContentRepository;
+            this.ContentRepository = (this.ContentConfig != null) ? this.ContentConfig.ContentRepository : null;
             this.PathUtility = new ResourcePathUtility();
+            this.TemplateHandler = new TemplateHandler();
         }
-
-        /// <summary>
-        /// Gets or sets the path utility.
-        /// </summary>
-        /// <value>
-        /// The path utility.
-        /// </value>
-        protected internal ResourcePathUtility PathUtility { get; set; }
 
         /// <summary>
         /// Gets or sets the content config.
@@ -73,6 +66,22 @@
         public ICmsConfiguration Config { get; set; }
 
         /// <summary>
+        /// Gets or sets the path utility.
+        /// </summary>
+        /// <value>
+        /// The path utility.
+        /// </value>
+        protected internal ResourcePathUtility PathUtility { get; set; }
+
+        /// <summary>
+        /// Gets or sets the template handler.
+        /// </summary>
+        /// <value>
+        /// The template handler.
+        /// </value>
+        protected internal ITemplateHandler TemplateHandler { get; set; }
+
+        /// <summary>
         /// Create the file.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -84,15 +93,13 @@
         {
             var model = new ContentModel()
                             {
-                                Path = this.ApplyPathConvention(path),
-                                Data = System.Text.Encoding.UTF8.GetBytes(data),
-                                CreateBy = System.Threading.Thread.CurrentPrincipal.Identity.Name,
-                                ModifyBy = System.Threading.Thread.CurrentPrincipal.Identity.Name
+                                Path = this.Normalize(path),
+                                Host = this.GetTenantHost(uri)
                             };
 
             if (this.ContentRepository.Exists(model))
             {
-                throw new HttpException(500, "Cannot create or overwrite an existing content of path: " + path);
+                throw new HttpException(500, "Cannot create or overwrite an existing content: " + path);
             }
 
             return this.CreateOrUpdate(path, data, uri);
@@ -109,7 +116,7 @@
         {
             var content = new ContentModel()
             {
-                Path = this.ApplyPathConvention(path),
+                Path = this.Normalize(path),
                 Host = this.GetTenantHost(uri)
             };
 
@@ -118,7 +125,7 @@
                 var localFilePath = this.ContentRepository.GetFolder(content);
                 
                 content.DataStream = new System.IO.FileStream(localFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                content.Path += ".zip";
+                content.Path = content.Path.Replace("/", "_") + ".zip";
                 return content;
             }
 
@@ -141,30 +148,35 @@
         /// <returns>Content model result.</returns>
         public virtual ContentModel CreateOrUpdate(string path, string data, Uri uri)
         {
-            return this.CreateOrUpdate(path, System.Text.Encoding.UTF8.GetBytes(data), uri);
+            return this.CreateOrUpdate(path, uri, data == null ? null : System.Text.Encoding.UTF8.GetBytes(data));
         }
 
         /// <summary>
         /// Creates the or update.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="data">The data.</param>
         /// <param name="uri">The URI.</param>
-        /// <returns>Content model result.</returns>
-        public virtual ContentModel CreateOrUpdate(string path, byte[] data, Uri uri)
+        /// <param name="data">The data.</param>
+        /// <returns>
+        /// Content model result.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Cannot update root path.;path</exception>
+        public virtual ContentModel CreateOrUpdate(string path, Uri uri, byte[] data)
         {
             var model = new ContentModel()
             {
-                Path = this.ApplyPathConvention(path),
+                Path = this.Normalize(path),
                 Data = data,
                 Host = this.GetTenantHost(uri),
                 CreateBy = System.Threading.Thread.CurrentPrincipal.Identity.Name,
                 ModifyBy = System.Threading.Thread.CurrentPrincipal.Identity.Name
             };
 
-            if (string.IsNullOrEmpty(model.Path) || string.Compare(model.Path, "/", StringComparison.OrdinalIgnoreCase) == 0)
+            // empty files are allowed, otherwise throw exception somewhere here
+            // root folder creation is not allow
+            if (string.Compare(model.Path, "/", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                throw new ArgumentException("Cannot update root path.", "path");
+                throw new HttpException(500, "Cannot update root path.");
             }
 
             this.ContentRepository.Save(model);
@@ -182,13 +194,13 @@
         {
             var model = new ContentModel()
                             {
-                                Path = this.ApplyPathConvention(path),
+                                Path = this.Normalize(path),
                                 Host = this.GetTenantHost(uri)
                             };
 
             if (model.Path.Equals("/", StringComparison.OrdinalIgnoreCase))
             {
-                throw new HttpException(500, "Unable to delete protected path '/'.");
+                throw new HttpException(500, "Unable to delete root path '/'.");
             }
 
             this.ContentRepository.Remove(model);
@@ -208,17 +220,17 @@
         {
             var model = new ContentModel()
             {
-                Path = this.ApplyPathConvention(path),
+                Path = this.Normalize(path),
                 Host = this.GetTenantHost(uri)
             };
 
-            if (model.Path.EndsWith("/"))
+            if (model.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 throw new HttpException(500, "History can only be retrieve for file.");
             }
             else if (!this.ContentRepository.Exists(model))
             {
-                throw new HttpException(401, "Content does not exists: " + path);
+                throw new HttpException(401, "Content does not exists for path: " + model.Path);
             }
 
             return this.ContentRepository.RetrieveHistory(model).Where(h => !HiddenFolderChars.IsMatch(h.ParentPath)).OrderByDescending(o => o.CreateDate);
@@ -239,33 +251,31 @@
         {
             var result = new ContentModel()
             {
-                Path = this.ApplyPathConvention(model.Path),
+                Path = this.Normalize(model.Path),
                 Host = this.GetTenantHost(uri),
                 DataIdString = model.DataIdString,
                 CreateBy = model.CreateBy,
                 CreateDate = model.CreateDate
             };
 
-            if (result.Path.EndsWith("/"))
+            if (model.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 throw new HttpException(500, "History can only be retrieve for file.");
             }
-
-            if (!this.ContentRepository.Exists(model))
+            else if (!this.ContentRepository.Exists(model))
             {
-                throw new HttpException(401, "Content does not exists: " + model.Path);
+                throw new HttpException(401, "Content does not exists for path: " + model.Path);
             }
-
-            if (!model.DataId.HasValue || string.IsNullOrEmpty(model.DataIdString))
+            else if (!model.DataId.HasValue || string.IsNullOrEmpty(model.DataIdString))
             {
                 throw new HttpException(500, "DataIdString is required for path: " + model.Path);
             }
 
-            this.ContentRepository.PopulateHistoryData(result, model.DataId.Value);
+            result = this.ContentRepository.PopulateHistoryData(result, model.DataId.Value);
 
             if (result.DataLength == null)
             {
-                throw new HttpException(404, "PhunCms download path not found.");
+                throw new HttpException(404, string.Format("History data Id '{0}' not found for path: {1}", result.DataIdString, result.Path));
             }
 
             return result;
@@ -279,10 +289,11 @@
         /// <returns>List of content models.</returns>
         public IQueryable<ContentModel> List(string path, Uri uri)
         {
+            // make sure it's a folder listing
             var model = new ContentModel
             {
                 Host = this.GetTenantHost(uri),
-                Path =  this.ApplyPathConvention(string.IsNullOrEmpty(path) ? "/" : "/" + path.Trim('/') + "/")
+                Path = this.Normalize(path).Trim().TrimEnd('/') + "/"
             };
 
             return this.ContentRepository.List(model).Where(h => !HiddenFolderChars.IsMatch(h.ParentPath));            
@@ -300,49 +311,74 @@
                 path = (httpContext.Request.Path + string.Empty).Trim().TrimEnd('/');
             }
 
-            // if somehow, CMS resource url get routed to here then we intercept
+            // if somehow, CMS Resource URL get routed here then intercept
             if (this.Config.IsResourceRoute(path))
             {
-                var vf = new ResourceVirtualFile(path);
-                vf.WriteFile(httpContext.Request.RequestContext.HttpContext);
+                this.Config.GetResourceFile(path).WriteFile(httpContext);
                 return;
             }
 
-            path = this.ApplyPathConvention(path);
-
-            // page must start with page path.
-            path = string.Concat("/page", path);
-
-
-            if (!path.EndsWith(".vash"))
-            {
-                // check for vash
-                var newModel = new ContentModel()
-                                   {
-                                       Host = this.GetTenantHost(httpContext.Request.Url),
-                                       Path = path + ".vash"
-                                   };
-
-                if (this.ContentRepository.Exists(newModel))
-                {
-                    path += ".vash";
-                }
-                else 
-                {
-                    // file not found, attempt to search for the default file of a folder
-                    path += "/_default.vash";
-                }
-            }
-
+            var tenantHost = this.GetTenantHost(httpContext.Request.Url);
             var model = new ContentModel()
             {
-                Host = this.GetTenantHost(httpContext.Request.Url),
-                Path = path
+                Host = tenantHost,
+                Path = this.ResolvePath(path, tenantHost, httpContext)
             };
 
             // now that it is a vash file, attempt to render the file
-            var engine = new TemplateHandler();
-            engine.Render(model, httpContext);
+            this.TemplateHandler.Render(model, this, httpContext);
+        }
+
+
+        /// <summary>
+        /// Resolves the path.  Also allow for caching path resolution.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="tenantHost">The tenant host.</param>
+        /// <param name="context">The context.</param>
+        /// <returns>
+        /// The path last resolved to.
+        /// </returns>
+        public virtual string ResolvePath(string path, string tenantHost, HttpContextBase context)
+        {
+            var resultKey = string.Format("__PhunStaticRoutingCache__{0}__{1}", tenantHost, path);
+            var result = context.Cache[resultKey] as string;
+
+            if (string.IsNullOrEmpty(result))
+            {
+                // only normalize after determine that it is not a CMS Resource URL
+                // it must also start with page path
+                result = string.Concat("/page", this.Normalize(path));
+                var newModel = new ContentModel()
+                {
+                    Host = tenantHost,
+                    Path = result
+                };
+
+                if (!result.EndsWith(".vash", StringComparison.OrdinalIgnoreCase))
+                {
+                    newModel.Path += ".vash";
+                    if (this.ContentRepository.Exists(newModel))
+                    {
+                        result = newModel.Path;
+                    }
+                    else
+                    {
+                        newModel.Path = result + "/_default.vash";
+                        result = this.ContentRepository.Exists(newModel) ? newModel.Path : "==NOT FOUND==";
+                    }
+                }
+
+                context.Cache.Insert(
+                        resultKey, result, null, System.Web.Caching.Cache.NoAbsoluteExpiration, TimeSpan.FromSeconds(this.Config.CacheDuration));
+            }
+
+            if (string.Compare("==NOT FOUND==", result, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                throw new HttpException(404, "Failed on all attempt to search vash file for: " + path);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -361,20 +397,12 @@
         /// Applies the path convention.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>The normalized path.</returns>
-        public string ApplyPathConvention(string path)
+        /// <returns>
+        /// The normalized path.
+        /// </returns>
+        public virtual string Normalize(string path)
         {
-            var myValue = string.Concat('/', (path + string.Empty).Replace("\\", "/").Replace("//", "/").TrimStart('/'));
-            var isFolder = myValue.EndsWith("/", StringComparison.OrdinalIgnoreCase);
-
-            if (!isFolder)
-            {
-                var parentPath = VirtualPathUtility.GetDirectory(myValue).ToSeoName();
-                var fileName = VirtualPathUtility.GetFileName(myValue);
-                return string.Concat(parentPath, fileName).TrimStart('~');
-            }
-
-            return myValue.ToSeoName();
+            return this.PathUtility.Normalize(path);
         }
     }
 }

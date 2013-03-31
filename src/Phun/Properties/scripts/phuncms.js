@@ -21,6 +21,9 @@
             path = window.location.pathname + "/" + path;
         }
 
+        // remove .vash extension from path
+        path = path.replace(/(\.vash)$/gi, '');
+        
         // set the path and content
         var myModel = {
             Data: model.get("content"),
@@ -48,6 +51,7 @@
             url: ajaxUrl,
             type: ajaxType,
             data: ajaxData,
+            cache: false,
             contentType: 'application/json',
             dataType: 'json',
             success: function (data) {
@@ -98,13 +102,16 @@
                 if (path.indexOf('/') === -1) {
                     path = window.location.pathname + "/" + path;
                 }
-                
+
+                // remove .vash extension from path
+                path = path.replace(/(\.vash)$/gi, '');
                 path = "/page/" + path.replace(/^(\/)+/, '');
                 
                 var url = "/" + PhunCms.contentRoute + "/Retrieve/?path=" + path;
                 
                 $.ajax({
                     url: url.replace(/\/\//gi, '/'),
+                    cache: false,
                     success: function (html) {
                         PhunCms.contentsToLoad--;
                         if (html == "") html = "";

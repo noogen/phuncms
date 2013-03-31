@@ -80,9 +80,10 @@
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="historyDataId">The history data id.</param>
-        public virtual void PopulateHistoryData(ContentModel content, System.Guid historyDataId)
+        /// <returns>The history data content.</returns>
+        public virtual ContentModel PopulateHistoryData(ContentModel content, System.Guid historyDataId)
         {
-            // default does nothing
+            return content;
         }
 
         /// <summary>

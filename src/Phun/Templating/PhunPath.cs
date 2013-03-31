@@ -16,7 +16,7 @@
         /// </returns>
         public string normalize(string path)
         {
-            return VirtualPathUtility.ToAppRelative(path);
+            return VirtualPathUtility.ToAppRelative(path).Replace("~", string.Empty);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// </returns>
         public string join(string left, string right)
         {
-            return VirtualPathUtility.Combine(VirtualPathUtility.ToAppRelative(left), right);
+            return VirtualPathUtility.Combine(this.normalize(left), right);
         }
 
         /// <summary>
