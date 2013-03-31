@@ -37,19 +37,6 @@ or
 }
 ```
 
-from any html page
-=========
-```html
-<div data-cmscontent="LeftHeader"></div><div data-cmscontent="RightHeader"></div>
-```
-- The contents are ajax loaded and will become inline editable for content admin.
-
-```html
-<div data-cmscontent="LeftHeader">%LeftHeader%</div><div data-cmscontent="RightHeader"></div>
-```
-- Example will render LeftHeader on server-side, while RightHeader get ajax load.
-- Because both contains data-cmscontent, both are inline editable.
-
 demo
 ========
 - http://phuncms.azurewebsites.net/
