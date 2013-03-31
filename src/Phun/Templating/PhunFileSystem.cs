@@ -51,6 +51,7 @@
             this.api = api;
             this.context = context;
             this.config = Bootstrapper.Config;
+            this.myUtility = new ResourcePathUtility();
         }
 
         /// <summary>
