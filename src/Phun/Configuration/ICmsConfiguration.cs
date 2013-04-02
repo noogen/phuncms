@@ -84,24 +84,6 @@
         int DomainLevel { get; set; }
 
         /// <summary>
-        /// Determines whether [is resource route] [the specified path].
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        ///   <c>true</c> if [is resource route] [the specified path]; otherwise, <c>false</c>.
-        /// </returns>
-        bool IsResourceRoute(string path);
-
-        /// <summary>
-        /// Determines whether [is content route] [the specified path].
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        ///   <c>true</c> if [is content route] [the specified path]; otherwise, <c>false</c>.
-        /// </returns>
-        bool IsContentRoute(string path);
-
-        /// <summary>
         /// Gets or sets the cache in seconds.
         /// </summary>
         /// <value>
@@ -129,10 +111,38 @@
         string FileEditor { get; set; }
 
         /// <summary>
+        /// Gets or sets the static content extension.
+        /// </summary>
+        /// <value>
+        /// The static content extension.
+        /// </value>
+        [ConfigurationProperty("staticContentExtension", IsRequired = false, DefaultValue = "ico|pdf|flv|jpg|jpeg|png|gif|js|css|htm|html|mp4|avi")]
+        string StaticContentExtension { get; set; }
+
+        /// <summary>
         /// Gets the resource file.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The resource virtual file.</returns>
         ResourceVirtualFile GetResourceFile(string path);
+
+        /// <summary>
+        /// Determines whether [is resource route] [the specified path].
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if [is resource route] [the specified path]; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsResourceRoute(string path);
+
+        /// <summary>
+        /// Determines whether [is content route] [the specified path].
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if [is content route] [the specified path]; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsContentRoute(string path);
+
     }
 }

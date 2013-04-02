@@ -97,8 +97,15 @@
         /// Contenturls the specified path.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
+        /// <returns>The content url.</returns>
         string contentUrl(string path);
+
+        /// <summary>
+        /// Pages the content URL.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The page content url.</returns>
+        string pageContentUrl(string path);
 
         /// <summary>
         /// Gets or sets the file.

@@ -202,6 +202,18 @@
         /// <returns>Get the content url.</returns>
         public string contentUrl(string path)
         {
+            return string.Format("/{0}/download/content/{1}", this.utility.Config.ContentRouteNormalized, path).Replace("//", "/");
+        }
+
+        /// <summary>
+        /// Pages the content URL.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        /// The page content url.
+        /// </returns>
+        public string pageContentUrl(string path)
+        {
             return string.Format("/{0}/download/page/{1}", this.utility.Config.ContentRouteNormalized, path).Replace("//", "/");
         }
     }

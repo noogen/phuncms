@@ -119,12 +119,15 @@
                 || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js")
                 || context.Request.QueryString.Count > 0)
             {
+                context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                context.Response.Cache.SetExpires(DateTime.MinValue);
                 return false;
             }
 
             var currentDate = System.IO.File.GetCreationTime(Assembly.GetExecutingAssembly().Location);
             context.Response.Cache.SetLastModified(currentDate);
             context.Response.Cache.SetCacheability(HttpCacheability.Public);
+            context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
  
             DateTime previousDate;
             string data = context.Request.Headers["If-Modified-Since"] + string.Empty;

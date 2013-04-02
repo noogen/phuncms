@@ -6,6 +6,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Web.Hosting;
     using System.Web.Mvc;
     using System.Web.Routing;
@@ -22,13 +23,21 @@
         /// <summary>
         /// The API list
         /// </summary>
-        internal static IDictionary<string, Type> ApiList = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        internal static IDictionary<string, Type> ApiList =
+            new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The API scripts
         /// </summary>
-        internal static IDictionary<string, string> ApiScripts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
- 
+        internal static IDictionary<string, string> ApiScripts =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+
+        /// <summary>
+        /// The internal static content regular expression
+        /// </summary>
+        internal static Regex internalStaticContentRegEx = null;
+        
         /// <summary>
         /// Gets the config.
         /// </summary>
@@ -44,6 +53,25 @@
         /// The content config.
         /// </value>
         public static IMapRouteConfiguration ContentConfig { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the static content regular expression.
+        /// </summary>
+        /// <value>
+        /// The static content regular expression.
+        /// </value>
+        public static Regex StaticContentRegEx
+        {
+            get
+            {
+                if (internalStaticContentRegEx == null)
+                {
+                    internalStaticContentRegEx = new Regex("\\.(" + Config.StaticContentExtension + ")+$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+                }
+
+                return internalStaticContentRegEx;
+            }
+        }
 
         /// <summary>
         /// Registers the template API.

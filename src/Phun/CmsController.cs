@@ -96,6 +96,11 @@
         public virtual ActionResult RetrieveSecure(string path)
         {
             var result = this.ContentConnector.Retrieve(path, this.Request.Url);
+            if (this.TrySet304(result))
+            {
+                this.Response.Flush();
+                return new EmptyResult();
+            }
 
             return result.DataStream != null
                        ? (ActionResult)
@@ -107,6 +112,43 @@
                            result.Data,
                            MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
                            result.FileName);
+        }
+
+
+        /// <summary>
+        /// Tries the set304.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>Attempt to set 304 response.</returns>
+        protected virtual bool TrySet304(ContentModel content)
+        {
+            var context = this.HttpContext;
+
+            if (this.ContentConnector.Config.DisableResourceCache || !Bootstrapper.StaticContentRegEx.IsMatch(content.FileName))
+            {
+                context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                context.Response.Cache.SetExpires(DateTime.MinValue);
+                return false;
+            }
+
+            var currentDate = content.ModifyDate ?? DateTime.Now;
+            context.Response.Cache.SetLastModified(currentDate);
+            context.Response.Cache.SetCacheability(HttpCacheability.Public);
+            context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
+
+            DateTime previousDate;
+            string data = context.Request.Headers["If-Modified-Since"] + string.Empty;
+            if (DateTime.TryParse(data, out previousDate))
+            {
+                if (currentDate > previousDate.AddMilliseconds(100))
+                {
+                    context.Response.StatusCode = 304;
+                    context.Response.StatusDescription = "Not Modified";
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

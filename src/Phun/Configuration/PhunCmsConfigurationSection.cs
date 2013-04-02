@@ -12,6 +12,19 @@
     public class PhunCmsConfigurationSection : ConfigurationSection, ICmsConfiguration
     {
         /// <summary>
+        /// Gets or sets the static content extension.
+        /// </summary>
+        /// <value>
+        /// The static content extension.
+        /// </value>
+        [ConfigurationProperty("staticContentExtension", IsRequired = false, DefaultValue = "ico|pdf|flv|jpg|jpeg|png|gif|js|css|htm|html|mp4|avi")]
+        public string StaticContentExtension
+        {
+            get { return (string)this["staticContentExtension"]; }
+            set { this["staticContentExtension"] = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the duration of the cache.
         /// </summary>
         /// <value>
