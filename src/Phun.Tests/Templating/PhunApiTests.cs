@@ -81,7 +81,7 @@
         /// Tests the phun API content URL returns page download path.
         /// </summary>
         [TestMethod]
-        public void TestPhunApiContentUrlReturnsPageDownloadPath()
+        public void TestPhunApiPageContentUrlReturnsPageDownloadPath()
         {
             // Arrange 
             var connector = new ContentConnector();
@@ -91,6 +91,40 @@
             var context = new Mock<HttpContextBase>();
             var fakeConfig = new Mock<ICmsConfiguration>();
             var expected = "/asdf/download/page/testz";
+
+            fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(true);
+            mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testz"));
+            mockRequest.Setup(rq => rq.Path).Returns("/testz");
+            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+            context.Setup(c => c.Cache).Returns(HttpRuntime.Cache);
+            mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
+            fakeConfig.Setup(cf => cf.ContentRouteNormalized).Returns("asdf");
+            fakeUtility.Setup(u => u.Config).Returns(fakeConfig.Object);
+
+            var api = new PhunApi(context.Object, connector);
+            api.utility = fakeUtility.Object;
+
+            // Act
+            var result = api.pageContentUrl("/testz");
+
+            // Assert
+            Assert.AreEqual(expected, result);
+        }
+
+        /// <summary>
+        /// Tests the phun API content URL returns page download path.
+        /// </summary>
+        [TestMethod]
+        public void TestPhunApiContentUrlReturnsContentDownloadPath()
+        {
+            // Arrange 
+            var connector = new ContentConnector();
+            var fakeUtility = new Mock<ResourcePathUtility>();
+            var fakeRepository = new Mock<IContentRepository>();
+            var mockRequest = new Mock<HttpRequestBase>();
+            var context = new Mock<HttpContextBase>();
+            var fakeConfig = new Mock<ICmsConfiguration>();
+            var expected = "/asdf/download/content/testz";
 
             fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(true);
             mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testz"));

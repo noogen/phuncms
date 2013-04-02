@@ -32,6 +32,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.3.08")]
-[assembly: AssemblyFileVersion("1.0.0401.03")]
+[assembly: AssemblyVersion("1.0.3.11")]
+[assembly: AssemblyFileVersion("1.0.0402.02")]
 [assembly: InternalsVisibleTo("Phun.Tests")]
