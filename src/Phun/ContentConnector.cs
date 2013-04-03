@@ -308,7 +308,7 @@
             var path = httpContext.Request.QueryString["path"];
             if (string.IsNullOrEmpty(path))
             {
-                path = (httpContext.Request.Path + string.Empty).Trim().TrimEnd('/');
+                path = (httpContext.Request.Path + string.Empty).Trim();
             }
 
             // if somehow, CMS Resource URL get routed here then intercept
@@ -318,6 +318,13 @@
                 return;
             }
 
+            if (!path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                httpContext.Response.RedirectPermanent(path + "/");
+                return;
+            }
+
+            path = path.TrimEnd('/');
             var tenantHost = this.GetTenantHost(httpContext.Request.Url);
             var model = new ContentModel()
             {
