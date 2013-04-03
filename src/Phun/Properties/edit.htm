@@ -58,7 +58,7 @@
 		                data += '';
 		                $(".bar").hide();
 		                $(".content").show();
-		                if (filePath.indexOf(".vash") > 0) {
+		                if (filePath.indexOf(".vash") > 0 || filePath.indexOf(".js")) {
 		                    var editor = CodeMirror.fromTextArea(editorHolder[0], {
 		                        lineNumbers: true,
 		                        mode: 'application/x-razor',

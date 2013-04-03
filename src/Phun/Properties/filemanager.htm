@@ -113,7 +113,7 @@
                 function addPage(openEdit) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
-                    var theName = $("#pageName").val();
+                    var theName = $("#pageName").val().replace(/\.(vash)/gi, '');
                     theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
 
                     if (theName != "") {
@@ -145,10 +145,17 @@
 
                 function addFile(fileName, openEdit) {
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
+                    var fileExt = '';
+                    
                     var theName = fileName;
+                    if (fileName.indexOf('.') > 0) {
+                        fileExt = fileName.substr(fileName.indexOf('.'));
+                        theName = theName.replace(fileExt, '');
+                    }
+                    
                     theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
-
+                    theName += fileExt;
+                    
                     if (theName != "") {
                         if (!node.data.isFolder) {
                             node = node.getParent();
