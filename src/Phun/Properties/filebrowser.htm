@@ -298,7 +298,7 @@
                     }
                     var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
 
-                    window.open(contentPath + "/Download" + node.data.key, '', '');
+                    window.open(contentPath + "/RetrieveSecure?path=" + encodeURI(node.data.key), '', '');
                     return true;
                 });
 
