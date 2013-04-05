@@ -106,8 +106,8 @@
                 this.Response.Flush();
                 return new EmptyResult();
             }
-            var forEdit = string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
-            this.Response.AddHeader("Content-Disposition", "inline; filename=" + result.FileName);
+            var forEdit = !string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
+            this.Response.AddHeader("Content-Disposition", "attachment; filename=" + result.FileName);
 
             return result.DataStream != null
                        ? (ActionResult)
