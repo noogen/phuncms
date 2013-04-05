@@ -106,17 +106,17 @@
                 this.Response.Flush();
                 return new EmptyResult();
             }
-
+            var forEdit = string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
             this.Response.AddHeader("Content-Disposition", "inline; filename=" + result.FileName);
 
             return result.DataStream != null
                        ? (ActionResult)
                          this.File(
                              result.DataStream,
-                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)))
+                             forEdit ? "text/html" : MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)))
                        : this.File(
                            result.Data,
-                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)));
+                           forEdit ? "text/html" : MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)));
         }
 
         /// <summary>

@@ -41,9 +41,9 @@
         } else if (method == 'delete') {
             ajaxType = 'DELETE';
         } else {
-            // retrieve don't need ajaxData, also our controller action is viewcontent and not retrieve
+            // retrieve don't need ajaxData
             ajaxData = null;
-            ajaxUrl = ajaxUrl + "/?path=" + path;
+            ajaxUrl = ajaxUrl + "/?forEdit=true&path=" + path;
         }
 
         // make ajax call
