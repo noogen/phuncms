@@ -107,16 +107,16 @@
                 return new EmptyResult();
             }
 
+            this.Response.AddHeader("Content-Disposition", "inline; filename=" + result.FileName);
+
             return result.DataStream != null
                        ? (ActionResult)
                          this.File(
                              result.DataStream,
-                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
-                             result.FileName)
+                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)))
                        : this.File(
                            result.Data,
-                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
-                           result.FileName);
+                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)));
         }
 
         /// <summary>
