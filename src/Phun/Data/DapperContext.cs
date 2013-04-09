@@ -155,7 +155,7 @@
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameter">The parameter.</param>
-        public void Execute(string sql, object parameter = null)
+        public void ExecuteSchema(string sql, object parameter = null)
         {
             var sql2 = sql.Trim().Replace("@", parameterPrefix)
                     .Replace("bytea", imageType)
@@ -180,7 +180,7 @@
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameter">The parameter.</param>
-        public void ExecuteCommand(string sql, object parameter = null)
+        public void Execute(string sql, object parameter = null)
         {
             var sql2 = sql.Trim().Replace("@", parameterPrefix);
 

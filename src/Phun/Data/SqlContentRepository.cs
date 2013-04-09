@@ -370,7 +370,7 @@ this.TableName);
                         foreach (var sql in
                             phunDataSchema.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            db.Execute(sql);
+                            db.ExecuteSchema(sql);
                         }
                     }
                 }
@@ -382,7 +382,7 @@ this.TableName);
 
                 foreach (var sql in this.SchemaSql.Split(new string[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    db.Execute(sql);
+                    db.ExecuteSchema(sql);
                 }
             }
         }

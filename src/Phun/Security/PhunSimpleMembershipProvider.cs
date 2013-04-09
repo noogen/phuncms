@@ -401,33 +401,33 @@
 
                     foreach (var sqlString in sql)
                     {
-                        db.Execute(sqlString);
+                        db.ExecuteSchema(sqlString);
                     }
                 }
 
                 if (!db.TableExists(OAuthMembershipTableName))
                 {
-                    db.Execute(
+                    db.ExecuteSchema(
                         string.Format(
-                            "create table {0} ( provider varchar(50) not null, provideruserid varchar(128) not null, userid integer not null, primary key (provider, provideruserid))",
+                            "create table {0} ( Provider varchar(50) not null, ProviderUserId varchar(128) not null, UserId integer not null, primary key (Provider, ProviderUserId))",
                             this.OAuthMembershipTableName));
                 }
 
                 if (!db.TableExists(MembershipTableName))
                 {
-                    db.Execute(string.Format(@"
+                    db.ExecuteSchema(string.Format(@"
 create table {0} (                           
-    userid                                  integer primary key not null, 
-    confirmationtoken                       varchar(128) null, 
-    createdate                              timestamp null, 
-    lastpasswordfailuredate                 timestamp null, 
-    password                                varchar(128) not null, 
-    passwordchangeddate                     timestamp null, 
-    passwordfailurecount                    integer not null, 
-    passwordsalt                            varchar(128) not null, 
-    passwordverifytoken                     varchar(128) null, 
-    passwordverifytokenexpiredate           timestamp null, 
-    confirmdate                             timestamp null
+    UserId                                  integer primary key not null, 
+    ConfirmationToken                       varchar(128) null, 
+    CreateDate                              timestamp null, 
+    LastPasswordFailureDate                 timestamp null, 
+    Password                                varchar(128) not null, 
+    PasswordChangedDate                     timestamp null, 
+    PasswordFailureCount                    integer not null, 
+    PasswordSalt                            varchar(128) not null, 
+    PasswordVerifyToken                     varchar(128) null, 
+    PasswordVerifyTokenExpireDate           timestamp null, 
+    ConfirmDate                             timestamp null
 )", this.MembershipTableName));
                 }
             }
@@ -441,9 +441,9 @@ create table {0} (
         {
             if (!db.TableExists(OAuthTokenTableName))
             {
-                db.Execute(
+                db.ExecuteSchema(
                     string.Format(
-                        "create table {0} (secret varchar(128) not null, token varchar(128) not null primary key)",
+                        "create table {0} (Secret varchar(128) not null, Token varchar(128) not null primary key)",
                         this.OAuthTokenTableName));
             }
         }
@@ -563,7 +563,7 @@ create table {0} (
 
                 if (string.Equals(accountConfirmationToken, row.ConfirmationToken, StringComparison.Ordinal))
                 {
-                    db.ExecuteCommand(string.Format("UPDATE {0} SET ConfirmDate = TIMESTAMP WHERE UserId = @UserId", this.MembershipTableName), new { UserId = int.Parse(row.UserId + string.Empty) });
+                    db.Execute(string.Format("UPDATE {0} SET ConfirmDate = TIMESTAMP WHERE UserId = @UserId", this.MembershipTableName), new { UserId = int.Parse(row.UserId + string.Empty) });
                     return true;
                 }
                 return false;
@@ -584,8 +584,8 @@ create table {0} (
         /// </remarks>
         public override bool ConfirmAccount(string accountConfirmationToken)
         {
-            VerifyInitialized();
-            using (var db = ConnectToDatabase())
+            this.VerifyInitialized();
+            using (var db = this.ConnectToDatabase())
             {
                 // We need to compare the token using a case insensitive comparison however it seems tricky to do this uniformly across databases when representing the token as a string. 
                 // Therefore verify the case on the client
@@ -601,9 +601,10 @@ create table {0} (
 
                 if (string.Equals(accountConfirmationToken, row.ConfirmationToken, StringComparison.Ordinal))
                 {
-                    db.ExecuteCommand(string.Format("UPDATE {0} SET ConfirmDate = TIMESTAMP WHERE UserId = @UserId", this.MembershipTableName), new { UserId = int.Parse(row.UserId + string.Empty) });
+                    db.Execute(string.Format("UPDATE {0} SET ConfirmDate = TIMESTAMP WHERE UserId = @UserId", this.MembershipTableName), new { UserId = int.Parse(row.UserId + string.Empty) });
                     return true;
                 }
+
                 return false;
             }
         }
@@ -676,7 +677,7 @@ create table {0} (
 
                 int defaultNumPasswordFailures = 0;
 
-                db.ExecuteCommand(
+                db.Execute(
                     string.Format(
                         "INSERT INTO {0} (UserId, Password, PasswordSalt, ConfirmationToken, CreateDate, PasswordChangedDate, PasswordFailureCount) VALUES (@UserId, @Password, @PasswordSalt, @ConfirmationToken, @CreateDate, @PasswordChangedDate, @PasswordFailureCount)",
                         this.MembershipTableName),
@@ -757,7 +758,7 @@ create table {0} (
                 }
 
                 // simple create
-                db.ExecuteCommand(string.Format("INSERT INTO {0} ({1}) VALUES (@UserName)", this.UserTableName, this.UserNameColumn), new { UserName = userName });
+                db.Execute(string.Format("INSERT INTO {0} ({1}) VALUES (@UserName)", this.UserTableName, this.UserNameColumn), new { UserName = userName });
                 return this.CreateAccount(userName, password, requireConfirmation);
             }
         }
@@ -797,7 +798,7 @@ create table {0} (
             }
 
             // Update new password
-                db.ExecuteCommand(
+                db.Execute(
                     string.Format(
                         "UPDATE {0} SET Password= @Password, PasswordSalt = @PasswordSalt, PasswordChangedDate = @ChangeDate WHERE UserId = @UserId", this.MembershipTableName),
                         new
@@ -978,7 +979,7 @@ create table {0} (
                     return false;
                 }
 
-                db.ExecuteCommand(string.Format("DELETE FROM {0} WHERE UserId = @UserId", this.MembershipTableName), new { UserId = userId });
+                db.Execute(string.Format("DELETE FROM {0} WHERE UserId = @UserId", this.MembershipTableName), new { UserId = userId });
                 return true;
             }
         }
@@ -1006,7 +1007,7 @@ create table {0} (
                     return false;
                 }
 
-                db.ExecuteCommand(string.Format("DELETE FROM {0} WHERE {1} = @UserId", this.UserTableName, this.UserIdColumn), new {UserId = userId});
+                db.Execute(string.Format("DELETE FROM {0} WHERE {1} = @UserId", this.UserTableName, this.UserIdColumn), new {UserId = userId});
                 return true;
             }
         }
@@ -1227,7 +1228,7 @@ create table {0} (
             if (verificationSucceeded)
             {
                 // Reset password failure count on successful credential check
-                db.ExecuteCommand(string.Format("UPDATE {0} SET PasswordFailureCount = 0 WHERE UserId = @UserId", this.MembershipTableName),
+                db.Execute(string.Format("UPDATE {0} SET PasswordFailureCount = 0 WHERE UserId = @UserId", this.MembershipTableName),
                     new { UserId = userId });
             }
             else
@@ -1235,7 +1236,7 @@ create table {0} (
                 int failures = this.GetPasswordFailureCount(db, userId);
                 if (failures != -1)
                 {
-                    db.ExecuteCommand(
+                    db.Execute(
                         string.Format(
                             "UPDATE {0} SET PasswordFailureCount = @Failures, LastPasswordFailureDate = @LastFailureDate WHERE UserId = @UserId",
                             this.MembershipTableName),
@@ -1365,10 +1366,11 @@ create table {0} (
                 {
                     token = this.GenerateToken();
 
-                    db.ExecuteCommand(string.Format("UPDATE {0} SET PasswordVerifyToken = @Token, PasswordVerifyTokenExpireDate = @ExpireDate WHERE UserId = @UserId", this.MembershipTableName),
+                    db.Execute(string.Format("UPDATE {0} SET PasswordVerifyToken = @Token, PasswordVerifyTokenExpireDate = @ExpireDate WHERE UserId = @UserId", this.MembershipTableName),
                         new { UserId = userId, ExpireDate = DateTime.UtcNow.AddMinutes(tokenExpirationInMinutesFromNow), Token = token });
                    
                 }
+
                 return token;
             }
         }
@@ -1429,7 +1431,7 @@ create table {0} (
                     if (success)
                     {
                         // Clear the Token on success
-                        db.ExecuteCommand(
+                        db.Execute(
                                 string.Format(
                                     "UPDATE {0} SET PasswordVerifyToken = NULL, PasswordVerifyTokenExpirationDate = NULL WHERE UserId = @UserId",
                                     this.MembershipTableName),
@@ -1596,7 +1598,7 @@ create table {0} (
                 if (oldUserId == -1)
                 {
                     // account doesn't exist. create a new one.
-                    db.ExecuteCommand(
+                    db.Execute(
                         string.Format(
                             "INSERT INTO {0} (Provider, ProviderUserId, UserId) VALUES (@Provider, @ProviderUserId, @UserId)",
                             this.OAuthMembershipTableName),
@@ -1605,7 +1607,7 @@ create table {0} (
                 }
                 else
                 {
-                    db.ExecuteCommand(
+                    db.Execute(
                         string.Format(
                             "UPDATE {0} SET UserId = @UserId WHERE Provider = @ProviderId AND ProviderUserId = @ProviderUserId",
                             this.OAuthMembershipTableName),
@@ -1625,7 +1627,7 @@ create table {0} (
 
             using (var db = this.ConnectToDatabase())
             {
-                db.ExecuteCommand(
+                db.Execute(
                     string.Format(
                         "DELETE FROM {0} WHERE Provider = @Provider AND ProviderUserId = @ProviderId",
                             this.OAuthMembershipTableName),
@@ -1715,7 +1717,7 @@ create table {0} (
                     this.CreateOAuthTokenTableIfNeeded(db);
 
                     // insert new record
-                    db.ExecuteCommand(string.Format("INSERT INTO {0} (Token, Secret) VALUES(@Token, @Secret)", this.OAuthTokenTableName), new { Secret = requestTokenSecret, Token = requestToken });
+                    db.Execute(string.Format("INSERT INTO {0} (Token, Secret) VALUES(@Token, @Secret)", this.OAuthTokenTableName), new { Secret = requestTokenSecret, Token = requestToken });
                 }
             }
         }
@@ -1736,7 +1738,7 @@ create table {0} (
                 this.CreateOAuthTokenTableIfNeeded(db);
 
                 // delete token
-                db.ExecuteCommand(string.Format("DELETE FROM {0} WHERE Token = @Token", this.OAuthTokenTableName), new { Token = requestToken });
+                db.Execute(string.Format("DELETE FROM {0} WHERE Token = @Token", this.OAuthTokenTableName), new { Token = requestToken });
 
                 // Although there are two different types of tokens, request token and access token,
                 // we treat them the same in database records.
@@ -1757,7 +1759,7 @@ create table {0} (
                 this.CreateOAuthTokenTableIfNeeded(db);
 
                 // Note that token is case-sensitive
-                db.ExecuteCommand(
+                db.Execute(
                     string.Format("DELETE FROM {0} WHERE Token = @Token", this.OAuthTokenTableName), new { Token = token });
             }
         }
@@ -1833,7 +1835,7 @@ create or replace trigger trg_{0}
 before insert on {0}
 for each row
 begin           
-  if :new.{1}is null then
+  if :new.{1} is null then
     select seq_{0}.nextval into :new.{1} from dual;
   end if;
 end;

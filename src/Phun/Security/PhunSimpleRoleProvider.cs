@@ -5,6 +5,7 @@
     using System.Configuration.Provider;
     using System.Globalization;
     using System.Linq;
+    using System.Web;
     using System.Web.Security;
 
     using Phun.Data;
@@ -37,6 +38,7 @@
         /// <param name="previousProvider">The previous provider.</param>
         public PhunSimpleRoleProvider(RoleProvider previousProvider)
         {
+            this.Context = new HttpContextWrapper(HttpContext.Current);
             this._previousProvider = previousProvider;
         }
 
@@ -88,6 +90,58 @@
             {
                 return "SimpleUsersInRoles";
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the context.
+        /// </summary>
+        /// <value>
+        /// The context.
+        /// </value>
+        public HttpContextBase Context { get; set; }
+
+        /// <summary>
+        /// Gets the roles cache key.
+        /// </summary>
+        /// <value>
+        /// The roles cache key.
+        /// </value>
+        public virtual string RolesCacheKey(string userName)
+        {
+            return string.Concat(this.ApplicationName, ":RoleCache:", userName);
+        }
+
+        /// <summary>
+        /// Clears the cache.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <returns>Clear role cache.</returns>
+        public virtual void RemoveCache(string userName)
+        {
+            this.Context.Cache.Remove(this.RolesCacheKey(userName));
+        }
+
+        /// <summary>
+        /// Adds the cache.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="roles">The roles.</param>
+        public virtual void AddCache(string userName, string[] roles)
+        {
+            var key = this.RolesCacheKey(userName);
+
+            if (this.Context.Cache[key] != null)
+            {
+                this.RemoveCache(userName);
+            }
+
+            if (roles == null)
+            {
+                return;
+            }
+
+            // Cache the roles for 1 minutes to improve operation performance
+            this.Context.Cache.Insert(key, roles, null, DateTime.Now.AddMinutes(1), System.Web.Caching.Cache.NoSlidingExpiration); 
         }
 
         /// <summary>
@@ -146,7 +200,7 @@
                 }
                 else
                 {
-                    return PreviousProvider.ApplicationName;
+                    return this.PreviousProvider.ApplicationName;
                 }
             }
 
@@ -199,18 +253,18 @@
 
                     foreach (var sqlString in sql)
                     {
-                        db.Execute(sqlString);
+                        db.ExecuteSchema(sqlString);
                     }
 
-                    db.Execute(
+                    db.ExecuteSchema(
                         string.Format(
                             @"create table {0}
 (
-    roleid                      integer not null, 
-    userid                      integer not null,
-    constraint pk_{0}           primary key (roleid, userid),
-    constraint fk_uir_roleid    foreign key (roleid) references {1} (roleid),
-    constraint fk_uir_userid    foreign key (userid) references {2} ({3})
+    RoleId                      integer not null, 
+    UserId                      integer not null,
+    constraint pk_{0}           primary key (RoleId, UserId),
+    constraint fk_uir_RoleId    foreign key (RoleId) references {1} (RoleId),
+    constraint fk_uir_UserId    foreign key (UserId) references {2} ({3})
 )", 
 this.UsersInRoleTableName, 
 this.RoleTableName, 
@@ -225,7 +279,7 @@ this.UserIdColumn));
         /// </summary>
         /// <param name="db">The db.</param>
         /// <param name="usernames">The usernames.</param>
-        /// <returns></returns>
+        /// <returns>List of user ids.</returns>
         private List<int> GetUserIdsFromNames(DapperContext db, string[] usernames)
         {
             var userIds = new List<int>(usernames.Length);
@@ -233,8 +287,7 @@ this.UserIdColumn));
             {
                 var provider = new PhunSimpleMembershipProvider();
 
-                int id = provider.GetUserId(
-                    db, this.UserTableName, this.UserNameColumn, this.UserIdColumn, username);
+                var id = provider.GetUserId(db, this.UserTableName, this.UserNameColumn, this.UserIdColumn, username);
                 if (id == -1)
                 {
                     throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "No user found '{0}'.", username));
@@ -251,7 +304,7 @@ this.UserIdColumn));
         /// </summary>
         /// <param name="db">The db.</param>
         /// <param name="roleNames">The role names.</param>
-        /// <returns></returns>
+        /// <returns>List of role ids.</returns>
         /// <exception cref="System.InvalidOperationException"></exception>
         private List<int> GetRoleIdsFromNames(DapperContext db, string[] roleNames)
         {
@@ -306,12 +359,14 @@ this.UserIdColumn));
                                         roleNames[rId]));
                             }
 
-                            db.ExecuteCommand(
+                            db.Execute(
                                 string.Format(
                                     "INSERT INTO {0} (UserId, RoleId) VALUES (@UserId, @RoleId)",
                                     this.UsersInRoleTableName),
                                 new { UserId = userIds[uId], RoleId = roleIds[rId] });
                         }
+
+                        this.RemoveCache(usernames[uId]);
                     }
                 }
             }
@@ -340,7 +395,7 @@ this.UserIdColumn));
                                 CultureInfo.InvariantCulture, "Role '{0}' does not exists.", roleName));
                     }
 
-                    db.ExecuteCommand(
+                    db.Execute(
                         string.Format("INSERT INTO {0} (RoleName) VALUES (@RoleName)", this.RoleTableName),
                         new { RoleName = roleName });
                 }
@@ -371,6 +426,8 @@ this.UserIdColumn));
                     return false;
                 }
 
+                var users = this.GetUsersInRole(roleName);
+
                 if (throwOnPopulatedRole)
                 {
                     if (this.GetUsersInRole(roleName).Any())
@@ -382,14 +439,20 @@ this.UserIdColumn));
                 }
                 else
                 {
-                    db.ExecuteCommand(
+                    db.Execute(
                         string.Format("DELETE FROM {0} WHERE RoleId = @RoleId", this.UsersInRoleTableName),
                         new { RoleId = roleId });
                 }
 
-                db.ExecuteCommand(
+                db.Execute(
                         string.Format("DELETE FROM {0} WHERE RoleId = @RoleId", this.RoleTableName),
                         new { RoleId = roleId });
+
+                foreach (var userName in users)
+                {
+                    this.RemoveCache(userName);
+                }
+
                 return true;
             }
         }
@@ -447,6 +510,13 @@ this.UserIdColumn));
                 return this.PreviousProvider.GetRolesForUser(username);
             }
 
+            var data = this.Context.Cache[username] as string[];
+
+            if (data != null)
+            {
+                return data;
+            }
+
             using (var db = this.ConnectToDatabase())
             {
                 int userId = (new PhunSimpleMembershipProvider()).GetUserId(db, this.UserTableName, this.UserNameColumn, this.UserIdColumn, username);
@@ -456,7 +526,10 @@ this.UserIdColumn));
                 }
 
                 string query = string.Format("SELECT RoleName FROM {0} INNER JOIN {1} ON {0}.UserId = {1}.{2} Where {0}.UserId = @UserId GROUP BY RoleName", this.UsersInRoleTableName, this.UserTableName, this.UserIdColumn);
-                return db.Query<string>(query, new { UserId = userId }).ToArray();
+                var result = db.Query<string>(query, new { UserId = userId }).ToArray();
+
+                this.AddCache(username, result);
+                return result;
             }
         }
 
@@ -536,7 +609,7 @@ this.UserIdColumn));
                 {
                     foreach (string rolename in roleNames)
                     {
-                        if (!IsUserInRole(username, rolename))
+                        if (!this.IsUserInRole(username, rolename))
                         {
                             throw new InvalidOperationException(
                                 string.Format(
@@ -557,9 +630,15 @@ this.UserIdColumn));
                     {
                         foreach (int roleId in roleIds)
                         {
-                            db.ExecuteCommand(string.Format("DELETE FROM {0} WHERE UserId = @UserId and RoleId = @RoleId", this.UsersInRoleTableName), new { UserId = userId, RoleId = roleId });
+                            db.Execute(string.Format("DELETE FROM {0} WHERE UserId = @UserId and RoleId = @RoleId", this.UsersInRoleTableName), new { UserId = userId, RoleId = roleId });
                         }
                     }
+                }
+
+                // refresh cache
+                foreach (var userName in usernames)
+                {
+                    this.RemoveCache(userName);
                 }
             }
         }
@@ -569,7 +648,7 @@ this.UserIdColumn));
         /// </summary>
         /// <param name="db">The db.</param>
         /// <param name="roleName">Name of the role.</param>
-        /// <returns></returns>
+        /// <returns>RoleId or -1 if not exists.</returns>
         private int FindRoleId(DapperContext db, string roleName)
         {
             var result = db.Query<int>(string.Format("SELECT RoleId FROM {0} WHERE RoleName = @RoleName", this.RoleTableName), new {RoleName = roleName}).FirstOrDefault();
@@ -592,7 +671,7 @@ this.UserIdColumn));
 
             using (var db = this.ConnectToDatabase())
             {
-                return (this.FindRoleId(db, roleName) != -1);
+                return this.FindRoleId(db, roleName) != -1;
             }
         }
 
