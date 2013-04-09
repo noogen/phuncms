@@ -102,7 +102,7 @@
         string FileManager { get; set; }
 
         /// <summary>
-        /// The file editor
+        /// Gets or sets the file editor.
         /// </summary>
         /// <value>
         /// The file editor.

@@ -106,6 +106,8 @@
                 this.Response.Flush();
                 return new EmptyResult();
             }
+
+            // determine if we should return text/html for different text file types so the browser doesn't complain about security issue
             var forEdit = !string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
             this.Response.AddHeader("Content-Disposition", "attachment; filename=" + result.FileName);
 
@@ -213,6 +215,12 @@
         [HttpGet, AllowAnonymous]
         public virtual ActionResult Page()
         {
+            // is static content
+            if (Bootstrapper.StaticContentRegEx.IsMatch(this.Request.Path))
+            {
+                return this.Retrieve(this.Request.Path);
+            }
+
             this.ContentConnector.RenderPage(this.Request.RequestContext.HttpContext);
             return new EmptyResult();
         }

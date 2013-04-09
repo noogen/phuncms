@@ -63,7 +63,7 @@
         IQueryable<ContentModel> RetrieveHistory(ContentModel content);
 
         /// <summary>
-        /// Popuplates the history data.
+        /// Populates the history data.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="historyDataId">The history data id.</param>

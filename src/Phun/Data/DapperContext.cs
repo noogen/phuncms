@@ -6,6 +6,7 @@
     using System.Data;
     using System.Data.Common;
     using System.Data.SqlClient;
+    using System.Linq;
 
     using Dapper;
 
@@ -40,6 +41,27 @@
         private static string charType = "varchar";
 
         /// <summary>
+        /// The long data type
+        /// </summary>
+        private static string longDataType = "bigint";
+
+        /// <summary>
+        /// The integer data type
+        /// </summary>  
+        private static string intDataType = "integer";
+
+        /// <summary>
+        /// The identity replace
+        /// </summary>
+        private static string identityReplace = "serial";
+
+        /// <summary>
+        /// The connection type
+        /// </summary>
+        private string connectionType;
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DapperContext"/> class.
         /// </summary>
         public DapperContext()
@@ -69,34 +91,46 @@
             if (!hasInitialized)
             {
                 hasInitialized = true;
-                var connectionType = this.Connection.GetType().FullName.ToLowerInvariant();
-                if (connectionType.Contains("pgsql") || connectionType.Contains("postgres"))
+                this.connectionType = this.Connection.GetType().FullName.ToLowerInvariant();
+                if (this.connectionType.Contains("pgsql") || this.connectionType.Contains("postgres"))
                 {
                     imageType = "bytea";
                     dateTimeType = "timestamp";
                     parameterPrefix = ":";
                     charType = "varchar";
+                    longDataType = "bigint";
+                    intDataType = "integer";
+                    identityReplace = "serial";
                 }
-                else if (connectionType.Contains("oracle"))
+                else if (this.connectionType.Contains("oracle"))
                 {
                     imageType = "blob";
-                    dateTimeType = "datetime";
+                    dateTimeType = "timestamp";
                     parameterPrefix = ":";
                     charType = "nvarchar2";
+                    longDataType = "number(19)";
+                    intDataType = "number(9)";
+                    identityReplace = "number(9)";
                 }
-                else if (connectionType.Contains("mysql"))
+                else if (this.connectionType.Contains("mysql"))
                 {
                     imageType = "blob";
                     dateTimeType = "datetime";
                     parameterPrefix = "?";
                     charType = "nvarchar";
+                    longDataType = "bigint";
+                    intDataType = "integer";
+                    identityReplace = "integer auto_increment";
                 }
-                else if (connectionType.Contains("sqlclient") || connectionType.Contains("sqlce"))
+                else if (this.connectionType.Contains("sqlclient") || this.connectionType.Contains("sqlce"))
                 {
                     imageType = "image";
                     dateTimeType = "datetime";
                     parameterPrefix = "@";
                     charType = "nvarchar";
+                    longDataType = "bigint";
+                    intDataType = "integer";
+                    identityReplace = "integer identity(1,1)";
                 }
             }
 
@@ -123,10 +157,45 @@
         /// <param name="parameter">The parameter.</param>
         public void Execute(string sql, object parameter = null)
         {
-            var sql2 = sql.Replace("@", parameterPrefix).Replace("bytea", imageType).Replace("timestamp", dateTimeType).Replace("varchar", charType);
+            var sql2 = sql.Trim().Replace("@", parameterPrefix)
+                    .Replace("bytea", imageType)
+                    .Replace("timestamp", dateTimeType)
+                    .Replace("varchar", charType)
+                    .Replace("bigint", longDataType)
+                    .Replace("integer", intDataType)
+                    .Replace("serial", identityReplace);
+        
+            // do not execute oracle specific statements
+            if ((sql2.Contains("create or replace") || sql2.Contains("create sequence"))
+                && !this.connectionType.Contains("oracle"))
+            {
+                return;
+            }
+
             this.Connection.Execute(sql2, parameter);
         }
 
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameter">The parameter.</param>
+        public void ExecuteCommand(string sql, object parameter = null)
+        {
+            var sql2 = sql.Trim().Replace("@", parameterPrefix);
+
+            this.Connection.Execute(sql2, parameter);
+        }
+
+        /// <summary>
+        /// Tables the exists.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <returns>True if table exists.</returns>
+        public bool TableExists(string tableName)
+        {
+            return this.Query<string>(string.Format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", tableName), null).Any();
+        }
 
         /// <summary>
         /// Gets the wrapped connection.

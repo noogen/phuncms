@@ -15,7 +15,7 @@
         /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
         /// <returns>
-        /// Content model with populated datastream.
+        /// Content model with populated data stream.
         /// </returns>
         ContentModel PopulateData(DapperContext context, ContentModel content, string tableName, string cachePath);
 

@@ -128,6 +128,8 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\System.Web.Mvc.dll</HintPath>
@@ -138,6 +140,14 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WebMatrix.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.WebData, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.WebData.2.0.20710.0\lib\net40\WebMatrix.WebData.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmsAdminAuthorizeAttribute.cs" />
@@ -175,6 +185,10 @@
     <Compile Include="Data\IContentRepository.cs" />
     <Compile Include="Data\SqlContentRepository.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Security\PhunConfigUtil.cs" />
+    <Compile Include="Security\PhunSimpleMembershipProvider.cs" />
+    <Compile Include="Security\PhunSimpleRoleProvider.cs" />
+    <Compile Include="Security\PhunWebSecurity.cs" />
     <Compile Include="Templating\ICache.cs" />
     <Compile Include="Templating\IFileSystem.cs" />
     <Compile Include="Templating\IPhunApi.cs" />
