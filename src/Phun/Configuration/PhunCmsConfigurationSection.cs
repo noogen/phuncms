@@ -30,7 +30,7 @@
         /// <value>
         /// The duration of the cache.
         /// </value>
-        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 2)]
+        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 60)]
         public int CacheDuration
         {
             get { return (int)this["cacheDuration"]; }

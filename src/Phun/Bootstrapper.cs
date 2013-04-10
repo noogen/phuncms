@@ -193,6 +193,16 @@
             {
                 HostingEnvironment.RegisterVirtualPathProvider(new ResourceVirtualPathProvider());
             }
+
+            if (ControllerBuilder.Current != null)
+            {
+                // only replace controller factory if this is not an ioc factory
+                var controllerFactory = ControllerBuilder.Current.GetControllerFactory();
+                if (controllerFactory is DefaultControllerFactory)
+                {
+                    ControllerBuilder.Current.SetControllerFactory(new ControllerFactoryWrapper());
+                }
+            }
         }
     }
 }

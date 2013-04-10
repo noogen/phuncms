@@ -48,16 +48,32 @@
         {
             // keep a list of registered controller.
             var controllerName = requestContext.RouteData.Values["controller"] + string.Empty;
+            if (string.IsNullOrEmpty(controllerName))
+            {
+                // just get out for bad controller name
+                return;
+            }
+
             var controllerBuilder = this.ControllerBuilder ?? ControllerBuilder.Current;
             var controllerFactory = controllerBuilder.GetControllerFactory();
             if (!string.IsNullOrEmpty(controllerName) && !ControllerFoundCache.ContainsKey(controllerName))
             {
                 try
                 {
-                    var controller = controllerFactory.CreateController(requestContext, controllerName);
-                    if (!ControllerFoundCache.ContainsKey(controllerName))
+                    var wrapper = controllerFactory as ControllerFactoryWrapper;
+
+                    if (wrapper != null)
                     {
-                        ControllerFoundCache.Add(controllerName, controller != null);
+                        ControllerFoundCache.Add(
+                            controllerName, wrapper.FindController(requestContext, controllerName) != null);
+                    }
+                    else
+                    {
+                        var controller = controllerFactory.CreateController(requestContext, controllerName);
+                        if (!ControllerFoundCache.ContainsKey(controllerName))
+                        {
+                            ControllerFoundCache.Add(controllerName, controller != null);
+                        }
                     }
                 }
                 catch

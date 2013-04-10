@@ -89,7 +89,7 @@
         /// <value>
         /// The cache in seconds.
         /// </value>                
-        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 2)]
+        [ConfigurationProperty("cacheDuration", IsRequired = false, DefaultValue = 60)]
         int CacheDuration { get; set; }
 
         /// <summary>

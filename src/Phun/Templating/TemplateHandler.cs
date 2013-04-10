@@ -71,6 +71,10 @@
                     {
                         vashjsString = System.Text.Encoding.UTF8.GetString(stream.ReadAll());
                     }
+
+                    vashjsString = vashjsString.Replace(
+                        "d.tplcache[e]||(d.tplcache[e]=b.compile(a.readFileSync(e,\"utf8\")))",
+                        "d.tplcache.get(e)||(d.tplcache.set(e,b.compile(a.readFileSync(e,\"utf8\"))))");
                 }
 
                 var context = new PhunApi(httpContext, connector);
