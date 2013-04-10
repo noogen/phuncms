@@ -9,6 +9,6 @@
 </h2>
 <p>Controller = @Model.ControllerName</p>
 <p>Action = @Model.ActionName</p>
-<p>Message = @Model.Exception.Message</p>
+<p>Message = @Model.Exception.Message.Replace("\r\n", "<br />")</p>
 <p>StackTrace :</p>
 <pre>@Model.Exception.StackTrace</pre>
