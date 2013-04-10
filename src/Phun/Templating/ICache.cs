@@ -17,6 +17,7 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        void set(string key, object value);
+        /// <returns></returns>
+        object set(string key, object value);
     }
 }

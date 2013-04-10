@@ -445,70 +445,70 @@
             fakeResourceFile.VerifyAll();
         }
 
-        /// <summary>
-        /// Tests the render page result in HTTP exception.
-        /// </summary>
-        [TestMethod, ExpectedException(typeof(HttpException))]
-        public void TestRenderPageResultInHttpException()
-        {
-            // Arrange
-            var connector = new ContentConnector();
-            var fakeUtility = new Mock<ResourcePathUtility>();
-            var fakeRepository = new Mock<IContentRepository>();
-            var mockRequest = new Mock<HttpRequestBase>();
-            var context = new Mock<HttpContextBase>();
-            var fakeConfig = new Mock<ICmsConfiguration>();
+        ///// <summary>
+        ///// Tests the render page result in HTTP exception.
+        ///// </summary>
+        //[TestMethod, ExpectedException(typeof(HttpException))]
+        //public void TestRenderPageResultInHttpException()
+        //{
+        //    // Arrange
+        //    var connector = new ContentConnector();
+        //    var fakeUtility = new Mock<ResourcePathUtility>();
+        //    var fakeRepository = new Mock<IContentRepository>();
+        //    var mockRequest = new Mock<HttpRequestBase>();
+        //    var context = new Mock<HttpContextBase>();
+        //    var fakeConfig = new Mock<ICmsConfiguration>();
 
-            fakeUtility.Setup(u => u.GetTenantHost(It.IsAny<Uri>())).Returns("localhost");
-            fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(false);
-            connector.ContentRepository = fakeRepository.Object;
-            connector.PathUtility = fakeUtility.Object;
-            mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testfailed"));
-            mockRequest.Setup(rq => rq.Path).Returns("/testfailed");
-            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            context.Setup(c => c.Cache).Returns(HttpRuntime.Cache);
-            mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
-            fakeConfig.Setup(cf => cf.IsResourceRoute(It.IsAny<string>())).Returns(false);
-            connector.Config = fakeConfig.Object;
+        //    fakeUtility.Setup(u => u.GetTenantHost(It.IsAny<Uri>())).Returns("localhost");
+        //    fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(false);
+        //    connector.ContentRepository = fakeRepository.Object;
+        //    connector.PathUtility = fakeUtility.Object;
+        //    mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testfailed"));
+        //    mockRequest.Setup(rq => rq.Path).Returns("/testfailed");
+        //    context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+        //    context.Setup(c => c.Cache).Returns(HttpRuntime.Cache);
+        //    mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
+        //    fakeConfig.Setup(cf => cf.IsResourceRoute(It.IsAny<string>())).Returns(false);
+        //    connector.Config = fakeConfig.Object;
 
-            // Act
-            connector.RenderPage(context.Object);
-        }
+        //    // Act
+        //    connector.RenderPage(context.Object);
+        //}
 
-        /// <summary>
-        /// Tests the render page with valid path calls template handler.
-        /// </summary>
-        [TestMethod]
-        public void TestRenderPageWithValidPathCallsTemplateHandler()
-        {
-            // Arrange
-            var connector = new ContentConnector();
-            var fakeUtility = new Mock<ResourcePathUtility>();
-            var fakeRepository = new Mock<IContentRepository>();
-            var mockRequest = new Mock<HttpRequestBase>();
-            var context = new Mock<HttpContextBase>();
-            var fakeConfig = new Mock<ICmsConfiguration>();
-            var fakeHandler = new Mock<ITemplateHandler>();
+        ///// <summary>
+        ///// Tests the render page with valid path calls template handler.
+        ///// </summary>
+        //[TestMethod]
+        //public void TestRenderPageWithValidPathCallsTemplateHandler()
+        //{
+        //    // Arrange
+        //    var connector = new ContentConnector();
+        //    var fakeUtility = new Mock<ResourcePathUtility>();
+        //    var fakeRepository = new Mock<IContentRepository>();
+        //    var mockRequest = new Mock<HttpRequestBase>();
+        //    var context = new Mock<HttpContextBase>();
+        //    var fakeConfig = new Mock<ICmsConfiguration>();
+        //    var fakeHandler = new Mock<ITemplateHandler>();
 
-            fakeUtility.Setup(u => u.GetTenantHost(It.IsAny<Uri>())).Returns("localhost");
-            fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(true);
-            connector.ContentRepository = fakeRepository.Object;
-            connector.PathUtility = fakeUtility.Object;
-            mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testgood"));
-            mockRequest.Setup(rq => rq.Path).Returns("/testgood");
-            context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
-            context.Setup(c => c.Cache).Returns(HttpRuntime.Cache);
-            mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
-            fakeConfig.Setup(cf => cf.IsResourceRoute(It.IsAny<string>())).Returns(false);
-            fakeHandler.Setup( h => h.Render(It.IsAny<ContentModel>(), It.IsAny<IContentConnector>(), It.IsAny<HttpContextBase>())).Verifiable();
-            connector.TemplateHandler = fakeHandler.Object;
-            connector.Config = fakeConfig.Object;
+        //    fakeUtility.Setup(u => u.GetTenantHost(It.IsAny<Uri>())).Returns("localhost");
+        //    fakeRepository.Setup(r => r.Exists(It.IsAny<ContentModel>())).Returns(true);
+        //    connector.ContentRepository = fakeRepository.Object;
+        //    connector.PathUtility = fakeUtility.Object;
+        //    mockRequest.Setup(rq => rq.Url).Returns(new Uri("http://localhost/testgood"));
+        //    mockRequest.Setup(rq => rq.Path).Returns("/testgood");
+        //    context.Setup(ctx => ctx.Request).Returns(mockRequest.Object);
+        //    context.Setup(c => c.Cache).Returns(HttpRuntime.Cache);
+        //    mockRequest.Setup(rq => rq.QueryString).Returns(new NameValueCollection());
+        //    fakeConfig.Setup(cf => cf.IsResourceRoute(It.IsAny<string>())).Returns(false);
+        //    fakeHandler.Setup( h => h.Render(It.IsAny<ContentModel>(), It.IsAny<IContentConnector>(), It.IsAny<HttpContextBase>())).Verifiable();
+        //    connector.TemplateHandler = fakeHandler.Object;
+        //    connector.Config = fakeConfig.Object;
 
-            // Act
-            connector.RenderPage(context.Object);
+        //    // Act
+        //    connector.RenderPage(context.Object);
 
-            // Assert
-            fakeHandler.VerifyAll();
-        }
+        //    // Assert
+        //    fakeHandler.VerifyAll();
+        //}
     }
 }

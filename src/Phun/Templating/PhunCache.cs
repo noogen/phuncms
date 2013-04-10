@@ -45,10 +45,11 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        public void set(string key, object value)
+        public object set(string key, object value)
         {
             string myKey = string.Format("__PhunUserCache__${0}${1}", this.tenantHost, key);
             this.httpContext.Cache[myKey] = value;
+            return value;
         }
     }
 }

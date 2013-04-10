@@ -50,7 +50,7 @@
             fakeApi.Setup(r => r.request).Returns(new PhunRequest(context.Object));
 
             // Act                               
-            var fs = new PhunFileSystem(fakeApi.Object, fakeConnector.Object, context.Object);
+            var fs = new PhunFileSystem(fakeApi.Object, fakeConnector.Object);
             fs.myUtility = fakeUtility.Object;
             var result = fs.readFileSync("/test", null);
 
@@ -90,7 +90,7 @@
             fakeApi.Setup(r => r.FileModel.ParentPath).Returns("/fake/");
 
             // Act                               
-            var fs = new PhunFileSystem(fakeApi.Object, fakeConnector.Object, context.Object);
+            var fs = new PhunFileSystem(fakeApi.Object, fakeConnector.Object);
             fs.myUtility = fakeUtility.Object;
             var result = fs.readFileSync("test", null);
 

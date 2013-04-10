@@ -51,12 +51,13 @@
             this.host = this.utility.GetTenantHost(httpContext.Request.Url);
             this.request = new PhunRequest(httpContext);
             this.response = new PhunResponse(httpContext);
-            this.phunFileSystem = new PhunFileSystem(this, connector, httpContext);
+            this.phunFileSystem = new PhunFileSystem(this, connector);
             this.phunPath = new PhunPath();
 
             this.user = httpContext.User;
             this.cache = new PhunCache(httpContext);
             this.trace = new Trace();
+            this.templateCache = new TemplateCache(this, httpContext);
         }
 
         /// <summary>
@@ -82,6 +83,14 @@
         /// The cache.
         /// </value>
         public ICache cache { get; set; }
+
+        /// <summary>
+        /// Gets or sets the template cache.
+        /// </summary>
+        /// <value>
+        /// The template cache.
+        /// </value>
+        public TemplateCache templateCache { get; set; }
 
         /// <summary>
         /// Gets or sets the user.

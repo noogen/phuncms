@@ -203,6 +203,7 @@
     <Compile Include="Templating\PhunPath.cs" />
     <Compile Include="Templating\PhunRequest.cs" />
     <Compile Include="Templating\PhunResponse.cs" />
+    <Compile Include="Templating\TemplateCache.cs" />
     <Compile Include="Templating\TemplateHandler.cs" />
     <Compile Include="Templating\Trace.cs" />
     <EmbeddedResource Include="Properties\filebrowser.htm" />

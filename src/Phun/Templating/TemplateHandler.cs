@@ -74,7 +74,7 @@
                 // set application start
                 // set api object
                 // set require method
-                ctx.SetParameter("__httpcontext__", context); 
+                ctx.SetParameter("__httpcontext__", context);
                 ctx.Run(@"phun = { api: __httpcontext__ }; module = { exports: {}, require: phun.api.require }; 
 require = phun.api.require;
 console = { 
@@ -86,8 +86,21 @@ console = {
     }
 };
 ");
-                ctx.Run(vashjsString + Environment.NewLine + 
+                ctx.Run(vashjsString + Environment.NewLine +
 @"vash = module.exports;
+vash.config.cache = true;      
+vash.helpers.tplcache = {
+    get: function(key) {
+        var result = phun.api.cache.get('templateCache$' + phun.api.FileModel.Path + '$' + key);
+        return result ? eval(result) : null;
+    },
+    set: function(key, value) {
+        
+        var result = phun.api.cache.set('templateCache$' + phun.api.FileModel.Path + '$' + key, value + '');
+        return value;
+    }
+};
+
 var vashHtmlReportError = vash.helpers.constructor.reportError;
 vashHtmlExceptionMessage = '';
 vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {

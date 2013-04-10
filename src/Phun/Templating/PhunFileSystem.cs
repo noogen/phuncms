@@ -25,11 +25,6 @@
         protected internal IPhunApi api;
 
         /// <summary>
-        /// The context
-        /// </summary>                            
-        protected internal HttpContextBase context;
-
-        /// <summary>
         /// The config
         /// </summary>
         protected internal ICmsConfiguration config;
@@ -45,11 +40,10 @@
         /// <param name="api">The API.</param>
         /// <param name="connector">The connector.</param>
         /// <param name="context">The context.</param>
-        public PhunFileSystem(IPhunApi api, IContentConnector connector, HttpContextBase context)
+        public PhunFileSystem(IPhunApi api, IContentConnector connector)
         {
             this.connector = connector;
             this.api = api;
-            this.context = context;
             this.config = Bootstrapper.Config;
             this.myUtility = new ResourcePathUtility();
         }
@@ -103,29 +97,19 @@
         /// </returns>
         protected virtual string CacheRetrieve(string filename)
         {
-            var resultKey = string.Format("__PhunRetrieveCache__{0}__{1}", this.api.tenantHost, filename);
-            var result = this.context.Cache[resultKey] as string;
+            var path = filename;
+            var content = new ContentModel() { Path = path, Host = this.api.tenantHost };
 
-            if (result == null)
+            // search the shared folder for file 
+            if (!this.connector.ContentRepository.Exists(content))
             {
-                var path = filename;
-                var content = new ContentModel() { Path = path, Host = this.api.tenantHost };
-
-                // search the shared folder for file 
-                if (!this.connector.ContentRepository.Exists(content))
-                {
-                    content.Path = "/page/shared/" + content.FileName;
-                }
-
-                // connector should be good for handling and retrieve error
-                var contentResult = this.connector.Retrieve(content.Path, this.api.request.url);
-                contentResult.SetDataFromStream();
-                result = System.Text.Encoding.UTF8.GetString(contentResult.Data);
-
-                // implement sliding expiration for content cache to provide some performance and/or DOS attack
-                this.context.Cache.Insert(
-                    resultKey, result, null, System.Web.Caching.Cache.NoAbsoluteExpiration, TimeSpan.FromSeconds(this.config.CacheDuration));
+                content.Path = "/page/shared/" + content.FileName;
             }
+
+            // connector should be good for handling and retrieve error
+            var contentResult = this.connector.Retrieve(content.Path, this.api.request.url);
+            contentResult.SetDataFromStream();
+            var result = System.Text.Encoding.UTF8.GetString(contentResult.Data);
 
             return result;
         }

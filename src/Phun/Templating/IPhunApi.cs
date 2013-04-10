@@ -32,6 +32,14 @@
         ICache cache { get; set; }
 
         /// <summary>
+        /// Gets or sets the template cache.
+        /// </summary>
+        /// <value>
+        /// The template cache.
+        /// </value>
+        TemplateCache templateCache { get; set; }
+
+        /// <summary>
         /// Gets or sets the user.
         /// </summary>
         /// <value>
