@@ -22,6 +22,11 @@
         private static string vashjsString;
 
         /// <summary>
+        /// The API scripts
+        /// </summary>
+        private static string apiScripts;
+
+        /// <summary>
         /// The utility
         /// </summary>
         protected internal ResourcePathUtility Utility;
@@ -75,19 +80,20 @@
                 // set api object
                 // set require method
                 ctx.SetParameter("__httpcontext__", context);
-                ctx.Run(@"phun = { api: __httpcontext__ }; module = { exports: {}, require: phun.api.require }; 
+                ctx.Run(
+@"phun = { api: __httpcontext__ }; module = { exports: {}, require: phun.api.require }; 
 require = phun.api.require;
 console = { 
     log: function() {
         // we need this for vash and everybody else
-        for(var i = 0; i < arguments.length; i++) {
-            phun.api.trace.log('' + arguments[i]);
-        }
+//        for(var i = 0; i < arguments.length; i++) {
+//            phun.api.trace.log('' + arguments[i]);
+//        }
     }
-};
-");
-                ctx.Run(vashjsString + Environment.NewLine +
-@"vash = module.exports;
+};" +
+vashjsString + 
+@"
+vash = module.exports;
 vash.config.cache = true;      
 vash.helpers.tplcache = {
     get: function(key) {
@@ -95,7 +101,6 @@ vash.helpers.tplcache = {
         return result ? eval(result) : null;
     },
     set: function(key, value) {
-        
         var result = phun.api.cache.set('templateCache$' + phun.api.FileModel.Path + '$' + key, value + '');
         return value;
     }
@@ -113,14 +118,18 @@ vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {
 };
 ");
 
-                // load api scripts
-                foreach (var script in Bootstrapper.ApiScripts.Values)
+                if (apiScripts == null)
                 {
-                    ctx.Run(script);
-                }
+                    var sb = new StringBuilder();
 
-                // finally execute the script, render directly to chars array
-                ctx.Run(
+                    // load api scripts
+                    foreach (var script in Bootstrapper.ApiScripts.Values)
+                    {
+                        sb.AppendLine(script);
+                    }
+
+                    // execute file
+                    sb.AppendLine(
 @"try {
     vash.renderFile(
         phun.api.FileModel.Path, 
@@ -133,8 +142,12 @@ vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {
 } catch(ee) {
     // provide better exception message
     throw new Error(ee + '\r\n' + vashHtmlExceptionMessage);
-}
-");
+}");
+                    apiScripts = sb.ToString();
+                }
+
+                // finally execute entire apiScripts
+                ctx.Run(apiScripts);
                 httpContext.Response.End();
             }
         }
