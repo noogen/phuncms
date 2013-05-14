@@ -257,13 +257,13 @@ window.PhunCms = (function (PhunCms, $, undefined) [
                 var myAttributes = new RouteValueDictionary(htmlAttributes);
                 foreach (var key in myAttributes.Keys)
                 {
-                    sb.AppendFormat("{0}=\"{1}\"", key, myAttributes[key]);
+                    sb.AppendFormat(" {0}=\"{1}\"", key, myAttributes[key]);
                 }
             }
 
             sb.Append(">");
             var data = this.PhunPartial(contentName, url);
-            sb.Append(string.Concat("<div property=\"content\">", data, "</div>"));
+            sb.Append(string.Concat("<div property=\"content\">", string.IsNullOrWhiteSpace(data) ? "[todo-content]" : data, "</div>"));
             sb.AppendFormat("</{0}>", tagName);
             return sb.ToString();
         }

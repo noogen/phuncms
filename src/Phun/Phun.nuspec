@@ -29,5 +29,6 @@ using this tokenized nuspec file.
   </metadata>
   <files>
     <file src="Web.config.transform" target="content" />
+    <file src="..\lib\Microsoft.WindowsAzure.ServiceRuntime.dll" target="lib\net45" />
   </files>
 </package>
