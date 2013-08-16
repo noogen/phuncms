@@ -6,7 +6,7 @@
     /// <summary>
     /// Host authorization config.
     /// </summary>
-    public interface IHostAuthorizationConfiguration
+    public interface IKeyValueConfiguration
     {
         /// <summary>
         /// Gets or sets the key or host name.

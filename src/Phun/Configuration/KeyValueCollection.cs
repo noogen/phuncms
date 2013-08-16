@@ -6,7 +6,7 @@
     /// <summary>
     /// Host authorization collection.
     /// </summary>
-    public class HostAuthorizationCollection : AConfigurationElementCollection<HostAuthorizationConfiguration>, ICollection<IHostAuthorizationConfiguration>
+    public class KeyValueCollection : AConfigurationElementCollection<KeyValueConfiguration>, ICollection<IKeyValueConfiguration>
     {
         /// <summary>
         /// Gets the name of the element.
@@ -28,16 +28,16 @@
         /// </returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((HostAuthorizationConfiguration)element).Key;
+            return ((KeyValueConfiguration)element).Key;
         }
 
         /// <summary>
         /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </summary>
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
-        public void Add(IHostAuthorizationConfiguration item)
+        public void Add(IKeyValueConfiguration item)
         {
-            base.Add(item as HostAuthorizationConfiguration);
+            base.Add(item as KeyValueConfiguration);
         }
 
         /// <summary>
@@ -47,9 +47,9 @@
         /// <returns>
         /// true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.
         /// </returns>
-        public bool Contains(IHostAuthorizationConfiguration item)
+        public bool Contains(IKeyValueConfiguration item)
         {
-            return base.Contains(item as HostAuthorizationConfiguration);
+            return base.Contains(item as KeyValueConfiguration);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@
         /// <param name="array">The array.</param>
         /// <param name="arrayIndex">Index of the array.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void CopyTo(IHostAuthorizationConfiguration[] array, int arrayIndex)
+        public void CopyTo(IKeyValueConfiguration[] array, int arrayIndex)
         {
             throw new System.NotImplementedException();
         }
@@ -70,9 +70,9 @@
         /// <returns>
         /// true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </returns>
-        public bool Remove(IHostAuthorizationConfiguration item)
+        public bool Remove(IKeyValueConfiguration item)
         {
-            return base.Remove(item as HostAuthorizationConfiguration);
+            return base.Remove(item as KeyValueConfiguration);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
         /// </returns>
-        public new IEnumerator<IHostAuthorizationConfiguration> GetEnumerator()
+        public new IEnumerator<IKeyValueConfiguration> GetEnumerator()
         {
             return base.GetEnumerator();
         }

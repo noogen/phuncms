@@ -28,7 +28,8 @@
             var expected = RouteTable.Routes[0];
             var notExpectedLength = RouteTable.Routes.Count;
 
-            // Act
+            // Act                          
+            Bootstrapper.hasInitialized = false;
             Bootstrapper.Initialize(false, false);
 
             // Assert
@@ -52,6 +53,7 @@
             var notExpectedLength = RouteTable.Routes.Count;
 
             // Act
+            Bootstrapper.hasInitialized = false;
             Bootstrapper.Initialize(true, false);
 
             // Assert

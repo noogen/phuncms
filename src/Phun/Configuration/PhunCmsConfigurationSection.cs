@@ -117,19 +117,19 @@
         }
 
         /// <summary>
-        /// Gets or sets the content map.
+        /// Gets or sets the host authorization collection.
         /// </summary>
         /// <value>
-        /// The content map.
+        /// The host authorization collection.
         /// </value>
         [ConfigurationProperty("hostAuthorization")]
-        [ConfigurationCollection(typeof(HostAuthorizationCollection),
+        [ConfigurationCollection(typeof(KeyValueCollection),
               AddItemName = "add",
               ClearItemsName = "clear",
               RemoveItemName = "remove")]
-        public HostAuthorizationCollection HostAuthorizationCollection
+        public KeyValueCollection HostAuthorizationCollection
         {
-            get { return (HostAuthorizationCollection)this["hostAuthorization"]; }
+            get { return (KeyValueCollection)this["hostAuthorization"]; }
             set { this["hostAuthorization"] = value; }
         }
 
@@ -140,7 +140,7 @@
         /// The other contents.
         /// </value>
         [ConfigurationProperty("contentMap")]
-        [ConfigurationCollection(typeof(HostAuthorizationCollection),
+        [ConfigurationCollection(typeof(KeyValueCollection),
               AddItemName = "add",
               ClearItemsName = "clear",
               RemoveItemName = "remove")]
@@ -151,21 +151,39 @@
         }
 
         /// <summary>
-        /// Gets or sets the content map.
+        /// Gets or sets the host alias collection.
         /// </summary>
         /// <value>
-        /// The content map.
+        /// The host alias collection.
         /// </value>
-        public ICollection<IHostAuthorizationConfiguration> HostAuthorizations
+        [ConfigurationProperty("hostAlias")]
+        [ConfigurationCollection(typeof(KeyValueCollection),
+              AddItemName = "add",
+              ClearItemsName = "clear",
+              RemoveItemName = "remove")]
+        public KeyValueCollection HostAliasCollection
+        {
+            get { return (KeyValueCollection)this["hostAlias"]; }
+            set { this["hostAlias"] = value; }
+        }
+
+
+        /// <summary>
+        /// Gets or sets the host authorizations.
+        /// </summary>
+        /// <value>
+        /// The host authorizations.
+        /// </value>
+        public ICollection<IKeyValueConfiguration> HostAuthorizations
         {
             get
             {
-                return this.HostAuthorizationCollection as ICollection<IHostAuthorizationConfiguration>;
+                return this.HostAuthorizationCollection as ICollection<IKeyValueConfiguration>;
             }
 
             set
             {
-                this.HostAuthorizationCollection = value as HostAuthorizationCollection;
+                this.HostAuthorizationCollection = value as KeyValueCollection;
             }
         }
 
@@ -185,6 +203,25 @@
             set
             {
                 this.ContentMapCollection = value as MapRouteCollection;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the host aliases.
+        /// </summary>
+        /// <value>
+        /// The host aliases.
+        /// </value>
+        public ICollection<IKeyValueConfiguration> HostAliases
+        {
+            get
+            {
+                return this.HostAliasCollection as ICollection<IKeyValueConfiguration>;
+            }
+
+            set
+            {
+                this.HostAliasCollection = value as KeyValueCollection;
             }
         }
 

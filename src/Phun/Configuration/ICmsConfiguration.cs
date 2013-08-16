@@ -43,12 +43,12 @@
         string ContentRoute { get; set; }
 
         /// <summary>
-        /// Gets or sets the content map.
+        /// Gets or sets the host authorizations.
         /// </summary>
         /// <value>
-        /// The content map.
+        /// The host authorizations.
         /// </value>
-        ICollection<IHostAuthorizationConfiguration> HostAuthorizations { get; set; }
+        ICollection<IKeyValueConfiguration> HostAuthorizations { get; set; }
 
         /// <summary>
         /// Gets or sets the other contents.
@@ -57,6 +57,14 @@
         /// The other contents.
         /// </value>
         ICollection<IMapRouteConfiguration> ContentMaps { get; set; }
+
+        /// <summary>
+        /// Gets or sets the host aliases.
+        /// </summary>
+        /// <value>
+        /// The host aliases.
+        /// </value>
+        ICollection<IKeyValueConfiguration> HostAliases { get; set; }
 
         /// <summary>
         /// Gets the resource route stripped of all invalid characters.

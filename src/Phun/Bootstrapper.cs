@@ -21,6 +21,11 @@
     public static class Bootstrapper
     {
         /// <summary>
+        /// The has initialized
+        /// </summary>
+        internal static bool hasInitialized = false;
+
+        /// <summary>
         /// The API list
         /// </summary>
         internal static IDictionary<string, Type> ApiList =
@@ -32,12 +37,17 @@
         internal static IDictionary<string, string> ApiScripts =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-
         /// <summary>
         /// The internal static content regular expression
         /// </summary>
         internal static Regex internalStaticContentRegEx = null;
-        
+
+        /// <summary>
+        /// The host aliases
+        /// </summary>
+        internal static IDictionary<string, string> HostAliases =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Gets the config.
         /// </summary>
@@ -127,6 +137,13 @@
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         public static void Initialize(bool routeMissingUrlToPhunCms = true, bool registerPhunCmsVirtualPath = true)
         {
+            if (hasInitialized)
+            {
+                return;
+            }
+
+            hasInitialized = true;
+
             // attempt to resolve phuncms configuration;
             ICmsConfiguration config = null;
 
@@ -186,6 +203,11 @@
                                         routeMap.RouteNormalized + "/Download/{*path}",
                                         new RouteValueDictionary(new { controller = routeMap.Controller, action = "Retrieve", path = UrlParameter.Optional }),
                                                                    new MvcRouteHandler()));
+            }
+
+            foreach (var hostAlias in config.HostAliases)
+            {
+                HostAliases.Add(hostAlias.Key, hostAlias.Value);
             }
 
             // handle embedded resources route 

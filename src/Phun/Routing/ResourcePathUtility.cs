@@ -169,6 +169,12 @@ window.PhunCms = (function (PhunCms, $, undefined) [
                 currentHost = string.Join(".", names);
             }
 
+            // lookup host aliases
+            if (Bootstrapper.HostAliases.ContainsKey(currentHost))
+            {
+                currentHost = Bootstrapper.HostAliases[currentHost];
+            }
+
             return currentHost;
         }
 

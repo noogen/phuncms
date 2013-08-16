@@ -48,8 +48,8 @@
             var authContext = new Mock<AuthorizationContext>();
             authContext.Setup(ac => ac.HttpContext.Request.Url).Returns(new Uri("http://localhost/BogusRoute"));
             var config = new PhunCmsConfigurationSection() { AdminRoles = "test,test2" };
-            var expectedElement = new HostAuthorizationConfiguration() { Key = "localhost", Value = expected };
-            config.HostAuthorizations = (new HostAuthorizationCollection()) as ICollection<IHostAuthorizationConfiguration>;
+            var expectedElement = new KeyValueConfiguration() { Key = "localhost", Value = expected };
+            config.HostAuthorizations = (new KeyValueCollection()) as ICollection<IKeyValueConfiguration>;
             config.HostAuthorizations.Add(expectedElement);
  
             // Act

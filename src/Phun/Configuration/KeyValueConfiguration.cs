@@ -5,7 +5,7 @@
     /// <summary>
     /// Host authorization configuration element.
     /// </summary>
-    public class HostAuthorizationConfiguration : ConfigurationElement, IHostAuthorizationConfiguration
+    public class KeyValueConfiguration : ConfigurationElement, IKeyValueConfiguration
     {
         /// <summary>
         /// Gets or sets the key or host name.

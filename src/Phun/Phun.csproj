@@ -159,7 +159,7 @@
   <ItemGroup>
     <Compile Include="CmsAdminAuthorizeAttribute.cs" />
     <Compile Include="Configuration\ICmsConfiguration.cs" />
-    <Compile Include="Configuration\IHostAuthorizationConfiguration.cs" />
+    <Compile Include="Configuration\IKeyValueConfiguration.cs" />
     <Compile Include="Configuration\IMapRouteConfiguration.cs" />
     <Compile Include="ContentConnector.cs" />
     <Compile Include="Data\AContentRepository.cs" />
@@ -168,8 +168,8 @@
     <Compile Include="Data\SqlDataRepository.cs" />
     <Compile Include="Extensions\HtmlHelpers.cs" />
     <Compile Include="Configuration\AConfigurationElementCollection.cs" />
-    <Compile Include="Configuration\HostAuthorizationCollection.cs" />
-    <Compile Include="Configuration\HostAuthorizationConfiguration.cs" />
+    <Compile Include="Configuration\KeyValueCollection.cs" />
+    <Compile Include="Configuration\KeyValueConfiguration.cs" />
     <Compile Include="Configuration\MapRouteCollection.cs" />
     <Compile Include="Configuration\MapRouteConfiguration.cs" />
     <Compile Include="Configuration\PhunCmsConfigurationSection.cs" />
