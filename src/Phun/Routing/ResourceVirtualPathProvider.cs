@@ -21,7 +21,7 @@
         /// </summary>
         public ResourceVirtualPathProvider()
         {
-            this.Config = Bootstrapper.Config;
+            this.Config = Bootstrapper.Default.Config;
         }
 
         /// <summary>

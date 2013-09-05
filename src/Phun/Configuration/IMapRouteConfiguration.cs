@@ -65,15 +65,6 @@
         string RepositoryCache { get; set; }
 
         /// <summary>
-        /// Gets or sets the history file extension.
-        /// </summary>
-        /// <value>
-        /// The history file extension.
-        /// </value>
-        [ConfigurationProperty("historyFileExtension", IsRequired = false)]
-        string HistoryFileExtension { get; set; }
-
-        /// <summary>
         /// Gets the content repository.
         /// </summary>
         /// <value>

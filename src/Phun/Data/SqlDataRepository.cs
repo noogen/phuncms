@@ -95,7 +95,7 @@
         /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
         /// <param name="keepHistory">if set to <c>true</c> [keep history].</param>
-        public virtual void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath, bool keepHistory)
+        public virtual void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath)
         {
             var newDataId = Guid.NewGuid();
             var newContent = new ContentModel()
@@ -119,12 +119,7 @@
                 newContent.CreateDate = DateTime.UtcNow;
             }
 
-            if (!keepHistory)
-            {
-                context.Execute(
-                    string.Format("DELETE FROM {0} WHERE Host = @Host AND Path = @Path", tableName), newContent);
-            }
-
+            context.Execute(string.Format("DELETE FROM {0} WHERE Host = @Host AND Path = @Path", tableName), newContent);
             context.Execute(
                     string.Format("INSERT INTO {0} (IdString, Host, Path, Data, DataLength, CreateDate, CreateBy) VALUES (@DataIdString, @Host, @Path, @Data, @DataLength, @CreateDate, @CreateBy)", tableName), newContent);
             content.Data = newContent.Data;

@@ -23,7 +23,7 @@
         public static void MyTestInitialize(TestContext testContext)
         {
             // Arrange
-            Bootstrapper.Config = ConfigurationManager.GetSection("phuncms") as ICmsConfiguration;
+            Bootstrapper.Default.Config = ConfigurationManager.GetSection("phuncms") as ICmsConfiguration;
 
             var repo =
                 new SqlContentRepository(new SqlDataRepository(), "DefaultDatabase", "CmsContent", string.Empty);

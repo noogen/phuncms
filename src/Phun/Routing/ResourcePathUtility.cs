@@ -75,8 +75,8 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// </summary>
         public ResourcePathUtility()
         {
-            this.Config = Bootstrapper.Config;
-            this.ContentConfig = Bootstrapper.ContentConfig;
+            this.Config = Bootstrapper.Default.Config;
+            this.ContentConfig = Bootstrapper.Default.ContentConfig;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
         /// </returns>
         public virtual string GetTenantHost(Uri url)
         {
-            var config = this.Config ?? Bootstrapper.Config;
+            var config = this.Config ?? Bootstrapper.Default.Config;
             Uri requestUrl = url;
             var currentHost = (requestUrl.Host + string.Empty).Trim().ToLowerInvariant().Replace("www.", string.Empty);
 
@@ -170,9 +170,9 @@ window.PhunCms = (function (PhunCms, $, undefined) [
             }
 
             // lookup host aliases
-            if (Bootstrapper.HostAliases.ContainsKey(currentHost))
+            if (Bootstrapper.Default.HostAliases.ContainsKey(currentHost))
             {
-                currentHost = Bootstrapper.HostAliases[currentHost];
+                currentHost = Bootstrapper.Default.HostAliases[currentHost];
             }
 
             return currentHost;
@@ -205,7 +205,7 @@ window.PhunCms = (function (PhunCms, $, undefined) [
             }
 
             var result = string.Empty;
-            var config = this.ContentConfig ?? Bootstrapper.ContentConfig;
+            var config = this.ContentConfig ?? Bootstrapper.Default.ContentConfig;
             var content = new ContentModel()
             {
                 Path = this.Normalize(

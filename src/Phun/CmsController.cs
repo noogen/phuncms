@@ -91,7 +91,7 @@
         }
 
         /// <summary>
-        /// Retrieves the secure.
+        /// Securely retrieve the content template.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
@@ -100,6 +100,14 @@
         [HttpGet]
         public virtual ActionResult RetrieveSecure(string path)
         {
+            var forEdit = !string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
+
+            // cannot edit folder, must ment vash
+            if (forEdit && (path + string.Empty).EndsWith("/"))
+            {
+                path += "_default.vash";
+            }
+
             var result = this.ContentConnector.Retrieve(path, this.Request.Url);
             if (this.TrySet304(result))
             {
@@ -108,7 +116,6 @@
             }
 
             // determine if we should return text/html for different text file types so the browser doesn't complain about security issue
-            var forEdit = !string.IsNullOrEmpty(this.Request.QueryString["forEdit"]);
             this.Response.AddHeader("Content-Disposition", "attachment; filename=" + result.FileName);
 
             return result.DataStream != null
@@ -167,46 +174,6 @@
         #endregion
 
         /// <summary>
-        /// Histories this instance.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// Path content history.
-        /// </returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.</exception>
-        [HttpPost]
-        public virtual ActionResult History(string path)
-        {
-            var result = this.ContentConnector.History(path, this.Request.Url);
-            return this.Json(result.ToList());
-        }
-
-        /// <summary>
-        /// Get the history data.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>The history data content.</returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.
-        /// or
-        /// 401;Content does not exists:  + path</exception>
-        [HttpPost]
-        public virtual ActionResult HistoryRetrieve(ContentModel model)
-        {
-            var result = this.ContentConnector.HistoryData(model, this.Request.Url);
-
-            return result.DataStream != null
-                       ? (ActionResult)
-                         this.File(
-                             result.DataStream,
-                             MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
-                             result.FileName)
-                       : this.File(
-                           result.Data,
-                           MimeTypes.GetContentType(System.IO.Path.GetExtension(result.Path)),
-                           result.FileName);
-        }
-
-        /// <summary>
         /// View content.
         /// </summary>
         /// <returns>
@@ -215,13 +182,27 @@
         [HttpGet, AllowAnonymous]
         public virtual ActionResult Page()
         {
+            if (!string.IsNullOrWhiteSpace(this.Request.QueryString["redirectToEdit"]))
+            {
+                return this.Edit(this.Request.Path);
+            }
+
             // is static content
-            if (Bootstrapper.StaticContentRegEx.IsMatch(this.Request.Path))
+            if (Bootstrapper.Default.ContentRegEx.IsMatch(this.Request.Path))
             {
                 return this.Retrieve(this.Request.Path);
             }
 
-            this.ContentConnector.RenderPage(this.Request.RequestContext.HttpContext);
+            var result = this.ContentConnector.RenderPage(this.Request.RequestContext.HttpContext);
+
+            // cache page for 10th of one hour or 6 minutes
+            if (result != null && !this.TrySet304(result, 0.1))
+            {
+                return result.DataStream != null
+                            ? (ActionResult)this.File(result.DataStream, "text/html")
+                            : this.File(result.Data, "text/html");
+            }
+
             return new EmptyResult();
         }
 
@@ -235,6 +216,12 @@
         [HttpGet]
         public virtual ActionResult Edit(string path)
         {
+            // cannot edit folder, must ment default page
+            if ((path + string.Empty).EndsWith("/"))
+            {
+                path += "_default.vash";
+            }
+
             var url = string.Format(
                 "{0}?contentPath={1}&path={2}&_={3}",
                 this.ContentConnector.Config.FileEditor.ToLowerInvariant()
@@ -247,88 +234,108 @@
         }
 
         /// <summary>
-        /// Lists the DYNATREE.
+        /// Lists the specified path.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="isRootPath">if set to <c>true</c> [is root path].</param>
-        /// <returns>
-        /// DYNATREE result.
-        /// </returns>
-        public virtual ActionResult FileManagerDynatree(string path, bool? isRootPath)
+        /// <returns></returns>
+        public virtual ActionResult List(string path)
         {
+            if (!path.EndsWith("/"))
+            {
+                path += "/";
+            }
+
             path = this.ContentConnector.Normalize(path);
-            var myJsonResult = this.ContentConnector.List(path, this.Request.Url).Select(item => new DynaTreeViewModel(item.Path)).ToList();
+            var myJsonResult = this.ContentConnector.List(path, this.Request.Url).ToList();
 
             // return extra root path
-            return (string.IsNullOrEmpty(path) || path == "/" || (isRootPath.HasValue && isRootPath.Value))
-                    ? this.Json(new DynaTreeViewModel(path) { children = myJsonResult, title = path, key = path, expand = true, isFolder = true, isLazy = false }) 
-                    : this.Json(myJsonResult);
+            return this.Json(myJsonResult, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Creates the page.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="data">The data.</param>
+        /// <returns>Result of created page</returns>
+        [HttpPost, ValidateInput(false)]
+        public virtual ActionResult CreatePage(string path, string data)
+        {
+            if (!path.ToLowerInvariant().EndsWith("_default.htm") || !path.ToLowerInvariant().EndsWith("_default.vash"))
+            {
+                throw new HttpException(500, "Page path must ends with _default.htm or _default.vash: " + path);
+            }
+
+            var model = new ContentModel() { Path = this.ContentConnector.Normalize(path) };
+            var folderPath = model.ParentPath;
+
+            this.Create(folderPath + "app.js", string.Empty, null);
+            this.Create(folderPath + "app.css", string.Empty, null);
+            return this.Create(model.Path, data, null);
         }
 
         /// <summary>
         /// Files the browser.
         /// </summary>
-        /// <param name="hashPath">The hash path.</param>
         /// <returns>
         /// View result that display a file browser.
         /// </returns>
         [HttpGet]
-        public virtual ActionResult FileManager(string hashPath)
+        public virtual ActionResult FileManager(string mode)
         {
             var url = string.Format(
-                "{0}?contentPath={1}&_={2}#{3}",
+                "{0}?contentPath={1}&mode={2}&_={3}",
                 this.ContentConnector.Config.FileManager.ToLowerInvariant()
                     .Replace("[resourceroute]", this.ContentConnector.Config.ResourceRouteNormalized)
                     .Replace("[contentroute]", this.ContentConnector.Config.ContentRouteNormalized),
                 this.ContentConnector.Config.ContentRouteNormalized,
-                DateTime.Now.Ticks,
-                hashPath);
+                string.IsNullOrWhiteSpace(mode) ? "all" : mode,
+                DateTime.Now.Ticks);
 
             return this.Redirect(url);
         }
 
         /// <summary>
-        /// Files the upload.
+        /// Get the Page manager.
         /// </summary>
-        /// <param name="upload">The upload.</param>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// Result for file upload.
-        /// </returns>
-        [HttpPost]
-        public virtual ActionResult FileManager(HttpPostedFileBase upload, string path)
+        /// <returns>Page Manager redirect</returns>
+        [HttpGet]
+        public virtual ActionResult PageManager()
         {
-            return this.FileManager(this.Upload(upload, path));
+            return this.FileManager("page");
         }
 
         /// <summary>
-        /// Files the browser.
+        /// Get the File Browser.
         /// </summary>
-        /// <param name="upload">The upload.</param>
-        /// <param name="path">The path.</param>
-        /// <returns>Result for file upload.</returns>
-        [HttpPost]
-        public virtual ActionResult FileBrowser(HttpPostedFileBase upload, string path)
+        /// <returns>File Browser redirect</returns>
+        [HttpGet]
+        public virtual ActionResult FileBrowser()
         {
-            var hashPath = this.FileManager(this.Upload(upload, path));
+            return this.FileManager("browser");
+        }
 
-            var url = string.Format(
-                "/{0}/filebrowser.htm?contentPath={1}&_={2}#{3}",
-                this.ContentConnector.Config.ResourceRouteNormalized,
-                this.ContentConnector.Config.ContentRouteNormalized,
-                DateTime.Now.Ticks,
-                hashPath);
+        /// <summary>
+        /// Put file from file browser.
+        /// </summary>
+        /// <param name="files">The files.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        [HttpPost]
+        public virtual ActionResult FileManagerUpload(HttpPostedFileBase[] files, string path)
+        {
+            var resultUrl = this.Upload(this.Request.Files[0], path);
 
-            return this.Redirect(url);
+            return this.Json(new {success = true});
         }
 
         /// <summary>
         /// Uploads the specified upload.
         /// </summary>
-        /// <param name="upload">The upload.</param>
+        /// <param name="file">The upload.</param>
         /// <param name="path">The path.</param>
         /// <returns>Parent path.</returns>
-        protected virtual string Upload(HttpPostedFileBase upload, string path)
+        protected virtual string Upload(HttpPostedFileBase file, string path)
         {
             var contentModel = new ContentModel()
             {
@@ -344,10 +351,10 @@
                 contentModel.Path = contentModel.Path.Substring(0, contentModel.Path.LastIndexOf('/'));
             }
 
-            var fileName = (upload.FileName + string.Empty).Replace("\\", "/").Replace("//", "/");
-            contentModel.Path = string.Concat(contentModel.Path, "/", fileName.IndexOf('/') >= 0 ? System.IO.Path.GetFileName(upload.FileName) : upload.FileName);
+            var fileName = (file.FileName + string.Empty).Replace("\\", "/").Replace("//", "/");
+            contentModel.Path = string.Concat(contentModel.Path, "/", fileName.IndexOf('/') >= 0 ? System.IO.Path.GetFileName(file.FileName) : file.FileName);
 
-            this.ContentConnector.CreateOrUpdate(contentModel.Path, this.Request.Url, upload.InputStream.ReadAll());
+            this.ContentConnector.CreateOrUpdate(contentModel.Path, this.Request.Url, file.InputStream.ReadAll());
 
             return contentModel.ParentPath;
         }
@@ -356,22 +363,24 @@
         /// Tries the set304.
         /// </summary>
         /// <param name="content">The content.</param>
-        /// <returns>Attempt to set 304 response.</returns>
-        protected virtual bool TrySet304(ContentModel content)
+        /// <returns>True if content has not been modified since last retrieve.</returns>
+        protected virtual bool TrySet304(ContentModel content, double hours = 24)
         {
             var context = this.HttpContext;
 
-            if (this.ContentConnector.Config.DisableResourceCache || !Bootstrapper.StaticContentRegEx.IsMatch(content.FileName))
+            if (this.ContentConnector.Config.DisableResourceCache || !Bootstrapper.Default.ContentRegEx.IsMatch(content.FileName))
             {
                 context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
                 context.Response.Cache.SetExpires(DateTime.MinValue);
                 return false;
             }
 
+            // allow static file to access core
+            context.Response.AddHeader("Access-Control-Allow-Origin", "*"); 
             var currentDate = content.ModifyDate ?? DateTime.Now;
             context.Response.Cache.SetLastModified(currentDate);
             context.Response.Cache.SetCacheability(HttpCacheability.Public);
-            context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
+            context.Response.Cache.SetExpires(DateTime.Now.AddHours(hours));
 
             DateTime previousDate;
             string data = context.Request.Headers["If-Modified-Since"] + string.Empty;

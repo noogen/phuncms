@@ -104,13 +104,21 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="bbv.Common, Version=7.1.0.0, Culture=neutral, PublicKeyToken=917bca444d1f2b4c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\bbv.Common.7.1.12149.1635\lib\Net40\bbv.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="bbv.Common.EventBroker, Version=7.1.0.0, Culture=neutral, PublicKeyToken=917bca444d1f2b4c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\bbv.Common.EventBroker.7.1.12149.1635\lib\Net40\bbv.Common.EventBroker.dll</HintPath>
+    </Reference>
     <Reference Include="Dapper, Version=1.12.1.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Dapper.1.13\lib\net45\Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+      <HintPath>..\packages\Unofficial.Microsoft.WindowsAzure.ServiceRuntime.1.8.0.0\lib\net35\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
@@ -162,6 +170,7 @@
     <Compile Include="Configuration\IKeyValueConfiguration.cs" />
     <Compile Include="Configuration\IMapRouteConfiguration.cs" />
     <Compile Include="ContentConnector.cs" />
+    <Compile Include="ContentConnectorEventArgument.cs" />
     <Compile Include="Data\AContentRepository.cs" />
     <Compile Include="Data\DapperContext.cs" />
     <Compile Include="Data\ISqlDataRepository.cs" />
@@ -173,7 +182,6 @@
     <Compile Include="Configuration\MapRouteCollection.cs" />
     <Compile Include="Configuration\MapRouteConfiguration.cs" />
     <Compile Include="Configuration\PhunCmsConfigurationSection.cs" />
-    <Compile Include="DynaTreeViewModel.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="IContentConnector.cs" />
     <Compile Include="MimeTypes.cs" />
@@ -197,6 +205,7 @@
     <Compile Include="Security\PhunSimpleMembershipProvider.cs" />
     <Compile Include="Security\PhunSimpleRoleProvider.cs" />
     <Compile Include="Security\PhunWebSecurity.cs" />
+    <Compile Include="Singleton.cs" />
     <Compile Include="Templating\ICache.cs" />
     <Compile Include="Templating\IFileSystem.cs" />
     <Compile Include="Templating\IPhunApi.cs" />
@@ -214,7 +223,25 @@
     <Compile Include="Templating\TemplateCache.cs" />
     <Compile Include="Templating\TemplateHandler.cs" />
     <Compile Include="Templating\Trace.cs" />
-    <EmbeddedResource Include="Properties\filebrowser.htm" />
+    <EmbeddedResource Include="Properties\scripts\es5-shim.min.js" />
+    <EmbeddedResource Include="Properties\scripts\json3.min.js" />
+    <EmbeddedResource Include="Properties\css\jquery_ui\images\animated-overlay.gif" />
+    <EmbeddedResource Include="Properties\scripts\fastclick.min.js" />
+    <EmbeddedResource Include="Properties\partials\folder-list.htm" />
+    <EmbeddedResource Include="Properties\filemanager.htm" />
+    <EmbeddedResource Include="Properties\scripts\beautify\beautify-css.js" />
+    <EmbeddedResource Include="Properties\scripts\beautify\beautify-html.js" />
+    <EmbeddedResource Include="Properties\scripts\beautify\beautify.js" />
+    <EmbeddedResource Include="Properties\scripts\phun\editor.js" />
+    <EmbeddedResource Include="Properties\css\base.css" />
+    <EmbeddedResource Include="Properties\scripts\components\angular.min.js" />
+    <EmbeddedResource Include="Properties\css\fonts\glyphicons-halflings-regular.svg" />
+    <EmbeddedResource Include="Properties\css\bootstrap\bootstrap.min.css" />
+    <EmbeddedResource Include="Properties\scripts\bootstrap.min.js" />
+    <EmbeddedResource Include="Properties\scripts\jquery.fileupload.js" />
+    <EmbeddedResource Include="Properties\scripts\jquery.iframe-transport.js" />
+    <EmbeddedResource Include="Properties\css\jquery.fileupload-ui.css" />
+    <EmbeddedResource Include="Properties\scripts\phun\filemanager.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\clike.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\index.html" />
     <EmbeddedResource Include="Properties\scripts\codemirror\mode\clike\scala.html" />
@@ -315,7 +342,7 @@
     <EmbeddedResource Include="Properties\scripts\codemirror\util\xml-hint.js" />
     <EmbeddedResource Include="Properties\css\editor.css" />
     <EmbeddedResource Include="Properties\scripts\phuncms.util.js" />
-    <EmbeddedResource Include="Properties\edit.htm" />
+    <EmbeddedResource Include="Properties\editor.htm" />
     <EmbeddedResource Include="Properties\scripts\vash.js" />
     <EmbeddedResource Include="Properties\css\jquery_ui\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <EmbeddedResource Include="Properties\css\jquery_ui\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -436,11 +463,13 @@
     <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\codemirror\theme\twilight.css" />
     <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\codemirror\theme\vibrant-ink.css" />
     <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\codemirror\theme\xq-dark.css" />
-    <EmbeddedResource Include="Properties\filemanager.htm" />
     <None Include="App.config" />
     <None Include="Phun.nuspec" />
     <Content Include="App_Start\PhunCms.cs.pp" />
     <EmbeddedResource Include="Properties\scripts\ckeditor\plugins\codemirror\README.md" />
+    <EmbeddedResource Include="Properties\css\fonts\glyphicons-halflings-regular.eot" />
+    <EmbeddedResource Include="Properties\css\fonts\glyphicons-halflings-regular.ttf" />
+    <EmbeddedResource Include="Properties\css\fonts\glyphicons-halflings-regular.woff" />
     <None Include="Web.config.transform" />
   </ItemGroup>
   <ItemGroup>
@@ -466,31 +495,31 @@
     <EmbeddedResource Include="Properties\css\midgard_notifications\leftright.png" />
     <EmbeddedResource Include="Properties\css\midgard_notifications\midgardnotif.css" />
     <EmbeddedResource Include="Properties\css\midgard_notifications\topbottom.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\application.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\code.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\css.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\db.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\directory.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\doc.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\file.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\film.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\flash.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\folder_open.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\html.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\java.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\linux.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\music.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\pdf.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\php.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\picture.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\ppt.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\psd.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\ruby.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\script.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\spinner.gif" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\txt.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\xls.png" />
-    <EmbeddedResource Include="Properties\css\dynatree\images\zip.png" />
+    <EmbeddedResource Include="Properties\css\images\application.png" />
+    <EmbeddedResource Include="Properties\css\images\code.png" />
+    <EmbeddedResource Include="Properties\css\images\css.png" />
+    <EmbeddedResource Include="Properties\css\images\db.png" />
+    <EmbeddedResource Include="Properties\css\images\directory.png" />
+    <EmbeddedResource Include="Properties\css\images\doc.png" />
+    <EmbeddedResource Include="Properties\css\images\file.png" />
+    <EmbeddedResource Include="Properties\css\images\film.png" />
+    <EmbeddedResource Include="Properties\css\images\flash.png" />
+    <EmbeddedResource Include="Properties\css\images\folder_open.png" />
+    <EmbeddedResource Include="Properties\css\images\html.png" />
+    <EmbeddedResource Include="Properties\css\images\java.png" />
+    <EmbeddedResource Include="Properties\css\images\linux.png" />
+    <EmbeddedResource Include="Properties\css\images\music.png" />
+    <EmbeddedResource Include="Properties\css\images\pdf.png" />
+    <EmbeddedResource Include="Properties\css\images\php.png" />
+    <EmbeddedResource Include="Properties\css\images\picture.png" />
+    <EmbeddedResource Include="Properties\css\images\ppt.png" />
+    <EmbeddedResource Include="Properties\css\images\psd.png" />
+    <EmbeddedResource Include="Properties\css\images\ruby.png" />
+    <EmbeddedResource Include="Properties\css\images\script.png" />
+    <EmbeddedResource Include="Properties\css\images\spinner.gif" />
+    <EmbeddedResource Include="Properties\css\images\txt.png" />
+    <EmbeddedResource Include="Properties\css\images\xls.png" />
+    <EmbeddedResource Include="Properties\css\images\zip.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\scripts\create.js" />
@@ -517,12 +546,11 @@
     <EmbeddedResource Include="Properties\scripts\jquery.cookie.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\css\dynatree\icons-rtl.gif" />
-    <EmbeddedResource Include="Properties\css\dynatree\icons.gif" />
-    <EmbeddedResource Include="Properties\css\dynatree\loading.gif" />
-    <EmbeddedResource Include="Properties\css\dynatree\ui.dynatree.css" />
-    <EmbeddedResource Include="Properties\css\dynatree\vline-rtl.gif" />
-    <EmbeddedResource Include="Properties\css\dynatree\vline.gif" />
+    <EmbeddedResource Include="Properties\css\icons-rtl.gif" />
+    <EmbeddedResource Include="Properties\css\icons.gif" />
+    <EmbeddedResource Include="Properties\css\loading.gif" />
+    <EmbeddedResource Include="Properties\css\vline-rtl.gif" />
+    <EmbeddedResource Include="Properties\css\vline.gif" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\css\font_awesome\css\font-awesome-ie7.css" />
@@ -783,9 +811,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Properties\scripts\phuncms.config.js" />
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <PropertyGroup>

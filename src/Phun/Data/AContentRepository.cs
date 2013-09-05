@@ -44,19 +44,6 @@
         }
 
         /// <summary>
-        /// Histories of the specified content.
-        /// File repository does not have the ability store history.
-        /// </summary>
-        /// <param name="content">The content.</param>
-        /// <returns>
-        /// Specific content change history.
-        /// </returns>
-        public virtual IQueryable<ContentModel> RetrieveHistory(ContentModel content)
-        {
-            return new List<ContentModel>().AsQueryable();
-        }
-
-        /// <summary>
         /// Populate or gets the content provided specific host, path, and name property.
         /// </summary>
         /// <param name="content">The content - requires host, path, and name property.</param>
@@ -74,17 +61,6 @@
         /// Enumerable to content model.
         /// </returns>
         public abstract System.Linq.IQueryable<ContentModel> List(ContentModel content);
-
-        /// <summary>
-        /// Populates the history data.
-        /// </summary>
-        /// <param name="content">The content.</param>
-        /// <param name="historyDataId">The history data id.</param>
-        /// <returns>The history data content.</returns>
-        public virtual ContentModel PopulateHistoryData(ContentModel content, System.Guid historyDataId)
-        {
-            return content;
-        }
 
         /// <summary>
         /// Normalized the path.

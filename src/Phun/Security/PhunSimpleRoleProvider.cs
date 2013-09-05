@@ -74,7 +74,7 @@
         {
             get
             {
-                return "SimpleRoles";
+                return "simpleroles";
             }
         }
 
@@ -88,7 +88,7 @@
         {
             get
             {
-                return "SimpleUsersInRoles";
+                return "simpleusersinroles";
             }
         }
 

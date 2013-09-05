@@ -29,8 +29,8 @@
             var notExpectedLength = RouteTable.Routes.Count;
 
             // Act                          
-            Bootstrapper.hasInitialized = false;
-            Bootstrapper.Initialize(false, false);
+            Bootstrapper.Default.hasInitialized = false;
+            Bootstrapper.Default.Initialize(false, false);
 
             // Assert
             Assert.IsInstanceOfType(((Route)expected).RouteHandler, typeof(MvcRouteHandler));
@@ -53,8 +53,8 @@
             var notExpectedLength = RouteTable.Routes.Count;
 
             // Act
-            Bootstrapper.hasInitialized = false;
-            Bootstrapper.Initialize(true, false);
+            Bootstrapper.Default.hasInitialized = false;
+            Bootstrapper.Default.Initialize(true, false);
 
             // Assert
             Assert.IsInstanceOfType(((Route)expected).RouteHandler, typeof(MvcRouteHandler));

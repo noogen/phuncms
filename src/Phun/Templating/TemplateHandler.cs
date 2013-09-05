@@ -90,9 +90,13 @@ require = phun.api.require;
 console = { 
     log: function() {
         // we need this for vash and everybody else
-//        for(var i = 0; i < arguments.length; i++) {
-//            phun.api.trace.log('' + arguments[i]);
-//        }
+try {
+        for(var i = 0; i < arguments.length; i++) {
+            phun.api.trace.log('' + arguments[i]);
+        }
+} catch(e) {
+    // do nothing
+}
     }
 };" +
 vashjsString + 
@@ -127,7 +131,7 @@ vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {
                     var sb = new StringBuilder();
 
                     // load api scripts
-                    foreach (var script in Bootstrapper.ApiScripts.Values)
+                    foreach (var script in Bootstrapper.Default.ApiScripts.Values)
                     {
                         sb.AppendLine(script);
                     }

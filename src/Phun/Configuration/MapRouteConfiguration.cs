@@ -7,8 +7,6 @@
     using System.Reflection;
     using System.Web.Mvc;
 
-    using Microsoft.WindowsAzure.ServiceRuntime;
-
     using Phun.Data;
 
     /// <summary>

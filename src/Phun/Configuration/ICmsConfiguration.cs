@@ -115,7 +115,7 @@
         /// <value>
         /// The file editor.
         /// </value>
-        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/edit.htm")]
+        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/editor.htm")]
         string FileEditor { get; set; }
 
         /// <summary>
@@ -124,7 +124,7 @@
         /// <value>
         /// The static content extension.
         /// </value>
-        [ConfigurationProperty("staticContentExtension", IsRequired = false, DefaultValue = "ico|pdf|flv|jpg|jpeg|png|gif|js|css|htm|html|mp4|avi")]
+        [ConfigurationProperty("staticContentExtension", IsRequired = false, DefaultValue = "ico|pdf|flv|jpg|jpeg|png|gif|js|css|htm|html|mp4|avi|txt")]
         string StaticContentExtension { get; set; }
 
         /// <summary>

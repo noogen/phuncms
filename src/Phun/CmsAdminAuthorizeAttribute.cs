@@ -24,7 +24,7 @@
         /// <param name="filterContext">The filter context, which encapsulates information for using <see cref="T:System.Web.Mvc.AuthorizeAttribute" />.</param>
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
-            var config = Bootstrapper.Config;
+            var config = Bootstrapper.Default.Config;
             this.PopulateRolesFromConfiguration(config, filterContext);
             base.OnAuthorization(filterContext);
         }

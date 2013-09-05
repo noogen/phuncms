@@ -19,7 +19,7 @@
         /// </summary>
         public PhunUrlRoutingModule()
         {
-            this.Config = Bootstrapper.Config;
+            this.Config = Bootstrapper.Default.Config;
         }
 
         /// <summary>

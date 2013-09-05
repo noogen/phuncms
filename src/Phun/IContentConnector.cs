@@ -89,30 +89,6 @@
         ContentModel Delete(string path, Uri uri);
 
         /// <summary>
-        /// Histories this instance.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="uri">The URI.</param>
-        /// <returns>
-        /// Path content history.
-        /// </returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.</exception>
-        IQueryable<ContentModel> History(string path, Uri uri);
-
-        /// <summary>
-        /// Get the history the data.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="uri">The URI.</param>
-        /// <returns>
-        /// The history data content.
-        /// </returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.
-        /// or
-        /// 401;Content does not exists:  + path</exception>
-        ContentModel HistoryData(ContentModel model, Uri uri);
-
-        /// <summary>
         /// Lists the specified path.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -126,7 +102,7 @@
         /// <param name="httpContext">
         /// The HTTP context.
         /// </param>
-        void RenderPage(HttpContextBase httpContext);
+        ContentModel RenderPage(HttpContextBase httpContext);
 
         /// <summary>
         /// Gets the current host.

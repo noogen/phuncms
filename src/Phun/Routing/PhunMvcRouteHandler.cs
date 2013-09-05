@@ -92,7 +92,7 @@
                 // attempt to get content controller info
                 if (string.IsNullOrEmpty(contentControllerName))
                 {
-                    var config = this.Config ?? Bootstrapper.Config;
+                    var config = this.Config ?? Bootstrapper.Default.Config;
                     var routeController = config.ContentRouteNormalized + "/";
 
                     var route =

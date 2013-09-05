@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">      
+    <head>
+        <meta charset="utf-8" />
+        <title>Editor</title>
+        <link rel="stylesheet" href="css/create_ui/css/create-ui.css"/>
+        <link rel="stylesheet" href="css/midgard_notifications/midgardnotif.css"/>
+        <link rel="stylesheet" href="css/font_awesome/css/font-awesome.css"/>      
+        <link rel="stylesheet" href="scripts/codemirror/codemirror.css">
+		<link rel="stylesheet" href="scripts/codemirror/addon/hint/show-hint.css">  
+        <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.min.css">       
+        <link rel="stylesheet" type="text/css" href="scripts/components/angular-ui.min.css">  
+        <link rel="stylesheet" type="text/css" href="css/base.css">  
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+        
+        <!--[if lt IE 9]>
+<script src="scripts/es5-shim.min.js"></script>
+<script src="scripts/json3.min.js"></script>
+        <![endif]-->
+
+        <nav class="navbar navbar-default" role="navigation" ng-controller="NavCtrl">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="glyphicon icon-bar"></span>
+                    <span class="glyphicon icon-bar"></span>
+                    <span class="glyphicon icon-bar"></span>
+                </button>
+                <span class="navbar-brand">Editor</span>
+            </div>    
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav" style="text-align: left">                          
+                    <li><a href ng-click="doViewPage()" data-ng-show="canViewPage"><i class="glyphicon glyphicon-eye-open"></i> View Page</a></li>  
+                    <li><a href ng-click="doSave()"><i class="glyphicon glyphicon-floppy-disk"></i> Save</a></li>  
+                    <li><a href ng-click="doClose()" data-ng-show="isNotInsideIFrame"><i class="glyphicon glyphicon-remove"></i> Close</a></li>           
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </nav>      
+        <header>Path: <span>{{filePath}}</span></header> 
+        <div class="main-container" data-ng-controller="MainCtrl">   
+            <div class="main-content">   
+                <div class="bar">
+                    <span class="sphere"></span>
+                    <br />
+                    Loading, please wait...
+                </div>
+                <div class="content" style="display: none">
+                    <form data-action="Update" method="POST">
+                        <input type="hidden" name="returnUrl" value="{{returnUrl}}"/>
+                        <input type="hidden" name="path" value="{{filePath}}"/>
+                        <textarea class="CodeMirror" id="code" name="data" ></textarea>
+                    </form>
+                </div> 
+            </div>
+        </div>     
+
+        <!-- 3rd party js libs -->  
+        <script type="text/javascript" src="scripts/jquery.js"></script>
+        <script type="text/javascript" src="scripts/jqueryui.js"></script>
+        <script type="text/javascript" src="scripts/underscore.js"></script>
+        <script type="text/javascript" src="scripts/backbone.js"></script>
+        <script type="text/javascript" src="scripts/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="scripts/phuncms.config.js"></script>
+        <script type="text/javascript" src="scripts/vie.js"></script>
+        <script type="text/javascript" src="scripts/create.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/codemirror.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/addon/hint/show-hint.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/addon/edit/closetag.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/addon/hint/html-hint.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/addon/mode/overlay.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/xml/xml.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/clike/clike.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/javascript/javascript.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/css/css.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+        <script type="text/javascript" src="scripts/codemirror/mode/vash/vash.js"></script>              
+        <script type="text/javascript" src="scripts/beautify/beautify-css.js"></script>                         
+        <script type="text/javascript" src="scripts/beautify/beautify-html.js"></script>                         
+        <script type="text/javascript" src="scripts/beautify/beautify.js"></script>                          
+        <script type="text/javascript" src="scripts/bootstrap.min.js"></script>                          
+        <script type="text/javascript" src="scripts/components/angular.min.js"></script>     
+                                                                                
+        <script type="text/javascript" src="scripts/phuncms.js"></script>
+        <script type="text/javascript" src="scripts/phuncms.util.js"></script> 
+        <script type="text/javascript" src="scripts/phun/editor.js"></script>
+    </body>
+</html>

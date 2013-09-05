@@ -1,0 +1,21 @@
+﻿<table class="table table-striped">
+    <thead>
+        <tr>
+            <th></th> 
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-ng-repeat="element in elements">
+            <td>
+                <a href data-ng-click="goElement(element)"><span class="{{element.ClassName}}" data-ng-class="{'phun-folder-closed': element.IsFolder }"><span class="phun-icons"></span> {{element.FileName}}</span></a>
+            </td>  
+            <td>                                                                                     
+                <a href data-ng-click="doDownload(element)"><i class="glyphicon glyphicon-cloud-download"></i> Download</a>   
+                <a href data-ng-click="doDelete(element)"><i class="glyphicon glyphicon-remove"></i> Delete</a>    
+                <a href data-ng-click="doViewPage(element)" data-ng-show="element.IsFolder && element.Path.indexOf('/page') == 0 && mode != 'browser'"><i class="glyphicon glyphicon-eye-open"></i> View Page</a>                                
+                <a href data-ng-click="doEdit(element)" data-ng-show="!element.IsFolder && mode != 'browser'"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -37,11 +37,11 @@ CKEDITOR.editorConfig = function( config ) {
     ];
     
     if (typeof(PhunCms) != "undefined") {
-        config.filebrowserBrowseUrl = '/' + PhunCms.resourceRoute + '/filebrowser.htm?contentPath=/' + PhunCms.contentRoute + '/';
+        config.filebrowserBrowseUrl = '/' + PhunCms.resourceRoute + '/filemanager.htm?mode=browser&contentPath=/' + PhunCms.contentRoute + '/';
     }
 
-    config.filebrowserWindowWidth = '960';
-    config.filebrowserWindowHeight = '540';
+    config.filebrowserWindowWidth = '800';
+    config.filebrowserWindowHeight = '450';
     config.extraPlugins = 'codemirror';
     
     config.codemirror = {

@@ -1,394 +1,90 @@
 ﻿<!DOCTYPE html>
-<html>      
+<html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Phun CMS file manager</title>
-        <script src="scripts/jquery.js" type="text/javascript"></script>
-        <script src="scripts/jqueryui.js" type="text/javascript"></script>
-        <script src="scripts/jquery.cookie.js" type="text/javascript"></script>
-        <script src="scripts/jquery.dynatree.js" type="text/javascript"></script>
-        <script src="scripts/phuncms.util.js" type="text/javascript"></script>
-        
-        <link rel="stylesheet" type="text/css" href="css/jquery_ui/jqueryui.css">
-        <link rel="stylesheet" type="text/css" href="css/dynatree/ui.dynatree.css">
-        <script type="text/javascript">
-            var initialUrl = window.location.hash.replace("#", "").toLowerCase();
-            var initialUrlParts = initialUrl.split('/');
-            var initialUrlLoading = "/";
-
-            // ckeditor callback model
-            function ckEditorCallback(fileId) {
-                var funcNum = getParameterByName('CKEditorFuncNum');
-                window.opener.CKEDITOR.tools.callFunction(funcNum, contentPath + '/download' + fileId);
-                window.close();
-            }
-
-            function continueInitialLoad() {
-                var tree = $("#tree").dynatree("getTree");
-                var foundNode = null;
-
-                if (initialUrlLoading != initialUrl && $.isArray(initialUrlParts)) {
-                    var part = initialUrlParts.pop();
-                    while (initialUrlParts.length > 0 && part == "") {
-                        part = initialUrlParts.pop();
-                    }
-                    if (part == "") return;
-
-                    initialUrlLoading += part;
-                    foundNode = tree.getNodeByKey(initialUrlLoading);
-                    if (initialUrlParts.length > 0) {
-                        initialUrlLoading += "/";
-                        foundNode = tree.getNodeByKey(initialUrlLoading);
-                        if (foundNode) {
-                            foundNode.expand();
-                        }
-                    }
-                    else if (foundNode) {
-                        foundNode.activate();
-                    } else {
-                        foundNode = tree.getNodeByKey(initialUrlLoading + '/');
-                        if (foundNode) {
-                            foundNode.activate();
-                        }
-                    }
-                }
-                else if (initialUrlLoading == initialUrl) {
-                    foundNode = tree.getNodeByKey(initialUrlLoading);
-                    if (foundNode) {
-                        foundNode.activate();
-                    }
-                }
-            }
-
-            $(document).ready(function () {
-
-                if (window.opener != null) {
-                    if (typeof (window.opener) != "undefined" && typeof (window.opener.CKEDITOR) != "undefined")
-                        $(".select").show();
-                }
-
-                // Attach the dynatree widget to an existing <div id="tree"> element
-                // and pass the tree options as an argument to the dynatree() function:
-                var tree = $("#tree").dynatree({
-                    fx: { height: "toggle", duration: 200 },
-                    autoFocus: false,
-                    selectMode: 1,
-                    clickFolderMode: 1,
-                    persist: false,
-                    autoCollapse: true,
-                    initAjax: {
-                        type: "POST",
-                        url: contentPath + "/FileManagerDynatree",
-                        data: { path: '/' },
-                        cache: false
-                    },
-                    onActivate: function (node) {
-                        window.location.hash = node.data.key;
-                        $(".path").html(window.location.hash.replace("#", ""));
-                        $(".pathinput").val(window.location.hash.replace("#", ""));
-                    },
-                    onLazyRead: function (node) {
-                        node.appendAjax({
-                            type: "POST",
-                            url: contentPath + "/FileManagerDynatree",
-                            data: { path: node.data.key },
-                            cache: false,
-                            success: function (loadedNode) {
-                                var url = window.location.hash.replace("#", "");
-                                if (url == "") {
-                                    return;
-                                }
-                                continueInitialLoad();
-                            }
-                        });
-                    },
-                    onPostInit: function (isLoading, isError) {
-                        if (initialUrlLoading != initialUrl && $.isArray(initialUrlParts)) {
-                            initialUrlParts = initialUrlParts.reverse();
-                        }
-                        continueInitialLoad();
-                    }
-                });
-
-                function addPage(openEdit) {
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    var theName = $("#pageName").val().replace(/\.(vash)/gi, '');
-                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
-
-                    if (theName != "") {
-                        if (!node.data.isFolder) {
-                            node = node.getParent();
-                        }
-
-                        var newKey = (node.data.key + theName + "\/");
-                        if (tree.dynatree("getTree").getNodeByKey(newKey) != null) {
-                            alert('Page exists, please use edit instead.');
-                            return;
-                        }
-
-                        var newNode = node.addChild({ title: theName, key: newKey, isFolder: true, isLazy: true });
-                        $.ajax({
-                            type: "POST",
-                            url: contentPath + "/Create",
-                            data: { path: newKey + "_default.vash", data: '<!DOCTYPE html><html><head><title>' + $("#pageName").val() + '</title></head><body></body></html>' },
-                            cache: false,
-                            success: function (data) {
-                                newNode.activate();
-                                if (openEdit) {
-                                    window.open(contentPath + "/Edit?path=" + newKey, '', '');
-                                }
-                            }
-                        });
-                    }
-                }
-
-                function addFile(fileName, openEdit) {
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-                    var fileExt = '';
-                    
-                    var theName = fileName;
-                    if (fileName.indexOf('.') > 0) {
-                        fileExt = fileName.substr(fileName.indexOf('.'));
-                        theName = theName.replace(fileExt, '');
-                    }
-                    
-                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
-                    theName += fileExt;
-                    
-                    if (theName != "") {
-                        if (!node.data.isFolder) {
-                            node = node.getParent();
-                        }
-
-                        var newKey = (node.data.key + theName);
-                        if (tree.dynatree("getTree").getNodeByKey(newKey) != null) {
-                            alert('File exists, please use edit instead.');
-                            return;
-                        }
-
-                        var newNode = node.addChild({ title: theName, key: newKey, isFolder: false, isLazy: false });
-                        $.ajax({
-                            type: "POST",
-                            url: contentPath + "/Create",
-                            data: { path: newKey, data: 'TODO: Please replace me with content.' },
-                            cache: false,
-                            success: function (data) {
-                                if (openEdit) {
-                                    window.open(contentPath + "/Edit?path=" + newKey, '', '');
-                                }
-                            }
-                        });
-                    }
-                }
-
-
-                var addAPage = $("#addAPage").dialog({
-                    modal: true,
-                    autoOpen: false,
-                    width: 500,
-                    buttons: {
-                        "Add and edit": function () {
-
-                            addPage(true);
-
-                            $(this).dialog("close");
-                        },
-
-                        "Add": function () {
-
-                            addPage(false);
-
-                            $(this).dialog("close");
-                        },
-
-                        // creates a button to cancel the dialog.
-                        "Cancel": function () {
-
-                            // Close the dialog
-                            $(this).dialog("close");
-
-                            // Clear any values that may of been entered.
-                            $("#pageName").val("");
-                        }
-                    }
-                });
-
-                function ensurePageNode() {
-                    var pageNode = tree.dynatree("getTree").getNodeByKey("/page/");
-                    if (pageNode == null) {
-                        var rootNode = tree.dynatree("getTree").getNodeByKey("/");
-                        rootNode.addChild({ title: "page", key: "/page/", isFolder: true });
-                    }
-                }
-                
-                $(".new-page").click(function (e) {
-                    var location = window.location.hash.replace("#", "");
-                    var node = tree.dynatree("getTree").getNodeByKey(location);
-
-                    if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
-                        ensurePageNode();
-                        alert("Please select a folder under page folder.");
-                        return false;
-                    }
-
-                    addAPage.dialog('open');
-                });
-
-                $(".new-partial").click(function (e) {
-                    var location = window.location.hash.replace("#", "");
-                    var node = tree.dynatree("getTree").getNodeByKey(location);
-                    
-                    if (window.location.hash == "#" || node == null || location.indexOf('/page') != 0) {
-                        ensurePageNode();
-                        alert("Please select a folder under page folder.");
-                        return false;
-                    }
-
-                    var fileName = prompt("Enter a file name:");
-                    if (fileName && fileName != '') {
-                        addFile(fileName, true);
-                    }
-                });
-                
-                $(".new-folder").click(function (e) {
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    if (window.location.hash == "#" || node == null) {
-                        alert("Please select a folder.");
-                        return false;
-                    }
-
-                    var theName = window.prompt("Enter name of new folder under current folder: ", "");
-                    theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
-
-                    if (theName != null && theName != "") {
-                        if (!node.data.isFolder) {
-                            node = node.getParent();
-                        }
-
-                        var newKey = (node.data.key + theName + "\/");
-
-                        node.addChild({ title: theName, key: newKey, isFolder: true });
-                    }
-                });
-
-                $(".delete").click(function (e) {
-                    if (window.location.hash == "#" || window.location.hash.replace("#", "") == "/") {
-                        alert("Root path delete is not allowed.");
-                        return false;
-                    }
-
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-                    var parent = node.getParent();
-                    var message = "Delete " + (node.data.isFolder ? "folder: " : "file: ");
-                    message += node.data.key + "?";
-                    if (confirm(message)) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: contentPath + "/Delete",
-                            data: { path: window.location.hash.replace("#", "") },
-                            cache: false,
-                            success: function (data) {
-                                parent.removeChild(node);
-                            }
-                        });
-                    }
-                });
-
-                $(".upload").click(function (e) {
-                    if (window.location.hash == "#") {
-                        alert("Please select a folder.");
-                        return false;
-                    }
-                    if ($("#upload").val() == "") {
-                        alert("Please select a file.");
-                        return false;
-                    }
-                    return true;
-                });
-
-                $(".download").click(function (e) {
-                    if (window.location.hash == "#") {
-                        alert("Please select a file or folder.");
-                        return false;
-                    }
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    window.open(contentPath + "/RetrieveSecure?path=" + encodeURI(node.data.key), '', '');
-                    return true;
-                });
-
-                $(".edit").click(function (e) {
-                    if (window.location.hash == "#") {
-                        alert("Please select a file.");
-                        return false;
-                    }
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    if (node.data.isFolder) {
-                        alert("Please select a file.");
-                        return false;
-                    }
-
-                    window.open(contentPath + "/Edit?path=" + node.data.key, '', '');
-                    return true;
-                });
-
-                $(".select").click(function (e) {
-                    if (window.location.hash == "#") {
-                        alert("Please select a file.");
-                        return false;
-                    }
-                    var node = tree.dynatree("getTree").getNodeByKey(window.location.hash.replace("#", ""));
-
-                    if (node.data.isFolder) {
-                        alert("Please select a file.");
-                        return false;
-                    }
-
-                    ckEditorCallback(node.data.key);
-                    return true;
-                });
-            });
-
-        </script>
-        <style type="text/css">
-            body { text-align: center; }
-            .content {
-                margin: 0 auto;
-                width: 800px;
-                text-align: left;
-            }
-            .action_menu {
-                background-color: white;
-                border: 1px solid #BBBBBB;
-                padding: 0 0 10px 10px;
-            }
-        </style>
+        <title>Page Manager</title> 
+        <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.min.css">       
+        <link rel="stylesheet" type="text/css" href="css/base.css">            
+        <link rel="stylesheet" type="text/css" href="css/jquery.fileupload-ui.css">
     </head>
-    <body>
-        <header>
-            <h1><a href="/">Phun Cms File Manager</a></h1>
-        </header>
-        <div class="content">
-            <div class="action_menu">
-                <span style="font-weight: bold"> Actions: </span> <input type="button" class="download" title="Save selected" value="Download"/> <input type="button" class="delete" title="remove selected" value="Delete"/> <input type="button" class="edit" title="edit selected" value="Edit"/><input type="button" class="new-folder" value="New Folder"/> <input type="button" class="new-partial" value="New Partial"/> <input type="button" class="new-page" value="New Page"/> <input type="button" class="select" title="select for editor" value="Select" style="display:none"/> 
-                <hr/>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td><span style="font-weight: bold">Upload: </span><span class="path" style="padding-right: 20px;">/</span> </td>
-                            <td><form method="post" enctype="multipart/form-data" data-action="FileManager"><input type="hidden" name="path" class="pathinput"/><input type="file" name="upload" id="upload"/><input type="submit" value="Upload" class="upload"/></form></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="tree"></div> 
-        </div>
-        <div id="addAPage" title="Add a page" style="text-align: left">
-            <p>Please enter a new page name.  The name you entered will automatically be converted to a url friendly name.</p>
-            <div><label for="pageName">Name:</label> <input type="text" id="pageName" name="pageName"></div>
-        </div>
+    <body>                        
+        <!--[if lt IE 7]>
+<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+        
+        <!--[if lt IE 9]>
+<script src="scripts/es5-shim.min.js"></script>
+<script src="scripts/json3.min.js"></script>
+        <![endif]-->
+                       
+        <div class="page-container" data-ng-controller="NavCtrl">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="glyphicon icon-bar"></span>
+                        <span class="glyphicon icon-bar"></span>
+                        <span class="glyphicon icon-bar"></span>
+                    </button>
+                    <a href="/" class="navbar-brand" title="Home">{{brand}}</a>
+                </div>    
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <ul class="nav navbar-nav" style="text-align: left">                          
+                        <li class="dropdown">
+                            <a href class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-folder-close"></i> Create Page <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a data-toggle="modal" href="#myModal" >Client-side application (.htm)</a></li>
+                                <li><a data-toggle="modal" href="#myModal" >Server-side template (.vash)</a></li>
+                            </ul>
+                        </li>
+                        <li><a href data-ng-click="doCreatePartial()" data-ng-show="mode == 'page'"><i class="glyphicon glyphicon-file"></i> Create Partial</a></li>     
+                        <li><a href data-ng-click="doClose()" data-ng-show="mode == 'browser'"><i class="glyphicon glyphicon-remove"></i> Close</a></li>           
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </nav>                                      
+            <div style="text-align: left;">
+                <a href="#/" class="btn btn-default">  /  </a> Path: <span data-ng-show="paths.length > 0"><span data-ng-repeat="path in paths"> / <a href="#{{path.value}}">{{path.name}}</a></span></span> / <span data-ng-show="lastPath"><span style="font-weight: bold">{{lastPath}}</span> / </span>  
+                <a href class="btn btn-default" data-ng-click="doCreateFolder()" data-ng-show="mode != 'page'"><i class="glyphicon glyphicon-folder-open"></i> Create Folder</a>
+                <span class="btn btn-default fileinput-button"><i class="glyphicon glyphicon-file"></i> Upload File
+                    <input id="fileupload" type="file" name="files[]" >
+                </span>
+            </div>  
+            <div class="main-container">   
+                <div class="main-content" data-ng-view></div>
+            </div> 
+
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Create a Page</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>To create a page, please enter a page name below.  <br/>
+                                The name you entered will automatically be converted to a url friendly name.<br /> {{resultPageName()}}</p>  
+                            <label for="pageName">Name:</label> <input type="text" data-ng-model="newPageName" name="pageName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->   
+        </div>  
+
+
+        <!-- 3rd party js libs -->  
+        <script type="text/javascript" src="scripts/jquery.js"></script>
+        <script type="text/javascript" src="scripts/jqueryui.js"></script>              
+        <script type="text/javascript" src="scripts/bootstrap.min.js"></script>                          
+        <script type="text/javascript" src="scripts/components/angular.min.js"></script>                  
+        <script type="text/javascript" src="scripts/jquery.iframe-transport.js"></script>  
+        <script type="text/javascript" src="scripts/jquery.fileupload.js"></script>       
+        <script type="text/javascript" src="scripts/fastclick.min.js"></script>     
+                                                                              
+        <script type="text/javascript" src="scripts/phuncms.util.js"></script> 
+        <script type="text/javascript" src="scripts/phun/filemanager.js"></script>
     </body>
 </html>

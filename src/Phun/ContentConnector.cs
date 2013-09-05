@@ -1,20 +1,18 @@
 ﻿namespace Phun
 {
     using System;
-    using System.Collections.Generic;
-    using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Web;
-    using System.Web.Mvc;
 
     using Phun.Configuration;
     using Phun.Data;
-    using Phun.Extensions;
     using Phun.Routing;
     using Phun.Templating;
+
+    using bbv.Common.EventBroker;
 
     /// <summary>
     /// This is the default content connector.  It allow for PhunCMS
@@ -34,11 +32,39 @@
         /// </summary>
         public ContentConnector()
         {
-            this.Config = Bootstrapper.Config;
-            this.ContentConfig = Bootstrapper.ContentConfig;
+            this.Config = Bootstrapper.Default.Config;
+            this.ContentConfig = Bootstrapper.Default.ContentConfig;
             this.ContentRepository = (this.ContentConfig != null) ? this.ContentConfig.ContentRepository : null;
             this.PathUtility = new ResourcePathUtility();
             this.TemplateHandler = new TemplateHandler();
+        }
+
+        /// <summary>
+        /// Occurs when [content event].
+        /// </summary>
+        [EventPublication("ContentEvent")]
+        public event EventHandler<ContentConnectorEventArgument> ContentEvent;
+
+        /// <summary>
+        /// Called when [content event].
+        /// </summary>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+        public void OnContentEvent(ContentConnectorEventArgument e)
+        {
+            if (this.ContentEvent != null)
+            {
+                this.ContentEvent(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Called when [content event].
+        /// </summary>
+        /// <param name="eventName">Name of the event.</param>
+        /// <param name="model">The model.</param>
+        public void OnContentEvent(string eventName, ContentModel model)
+        {
+            this.OnContentEvent(new ContentConnectorEventArgument(eventName, model));
         }
 
         /// <summary>
@@ -97,12 +123,15 @@
                                 Host = this.GetTenantHost(uri)
                             };
 
+            this.OnContentEvent("Creating", model);
             if (this.ContentRepository.Exists(model))
             {
                 throw new HttpException(500, "Cannot create or overwrite an existing content: " + path);
             }
 
-            return this.CreateOrUpdate(path, data, uri);
+            var result = this.CreateOrUpdate(path, data, uri);
+            this.OnContentEvent("Created", result);
+            return result;
         }
 
         /// <summary>
@@ -120,12 +149,17 @@
                 Host = this.GetTenantHost(uri)
             };
 
+
+            this.OnContentEvent("Retrieving", content);
+
             if (content.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 var localFilePath = this.ContentRepository.GetFolder(content);
                 
                 content.DataStream = new System.IO.FileStream(localFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 content.Path = content.Path.Replace("/", "_") + ".zip";
+
+                this.OnContentEvent("RetrievedFolder", content);
                 return content;
             }
 
@@ -136,6 +170,7 @@
                 throw new HttpException(404, "PhunCms path not found: " + path);
             }
 
+            this.OnContentEvent("Retrieved", result);
             return result;
         }
 
@@ -172,6 +207,8 @@
                 ModifyBy = System.Threading.Thread.CurrentPrincipal.Identity.Name
             };
 
+            this.OnContentEvent("CreateOrUpdating", model);
+
             // empty files are allowed, otherwise throw exception somewhere here
             // root folder creation is not allow
             if (string.Compare(model.Path, "/", StringComparison.OrdinalIgnoreCase) == 0)
@@ -180,6 +217,8 @@
             }
 
             this.ContentRepository.Save(model);
+
+            this.OnContentEvent("CreateOrUpdated", model);
             return model;
         }
 
@@ -198,87 +237,25 @@
                                 Host = this.GetTenantHost(uri)
                             };
 
-            if (model.Path.Equals("/", StringComparison.OrdinalIgnoreCase))
+            this.OnContentEvent("Deleting", model);
+            var thePath = model.Path.TrimEnd('/');
+            if (thePath.Equals(string.Empty, StringComparison.OrdinalIgnoreCase))
             {
                 throw new HttpException(500, "Unable to delete root path '/'.");
             }
+            else if (thePath.Equals("/page", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new HttpException(500, "Unable to delete path '/page'.");
+            }
+            else if (thePath.Equals("/content", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new HttpException(500, "Unable to delete path '/content'.");
+            }
 
             this.ContentRepository.Remove(model);
+
+            this.OnContentEvent("Deleted", model);
             return model;
-        }
-
-        /// <summary>
-        /// Histories this instance.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="uri">The URI.</param>
-        /// <returns>
-        /// Path content history.
-        /// </returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.</exception>
-        public virtual IQueryable<ContentModel> History(string path, Uri uri)
-        {
-            var model = new ContentModel()
-            {
-                Path = this.Normalize(path),
-                Host = this.GetTenantHost(uri)
-            };
-
-            if (model.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new HttpException(500, "History can only be retrieve for file.");
-            }
-            else if (!this.ContentRepository.Exists(model))
-            {
-                throw new HttpException(401, "Content does not exists for path: " + model.Path);
-            }
-
-            return this.ContentRepository.RetrieveHistory(model).Where(h => !HiddenFolderChars.IsMatch(h.ParentPath)).OrderByDescending(o => o.CreateDate);
-        }
-
-        /// <summary>
-        /// Get the history the data.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="uri">The URI.</param>
-        /// <returns>
-        /// The history data content.
-        /// </returns>
-        /// <exception cref="System.Web.HttpException">500;History can only be retrieve for file.
-        /// or
-        /// 401;Content does not exists:  + path</exception>
-        public virtual ContentModel HistoryData(ContentModel model, Uri uri)
-        {
-            var result = new ContentModel()
-            {
-                Path = this.Normalize(model.Path),
-                Host = this.GetTenantHost(uri),
-                DataIdString = model.DataIdString,
-                CreateBy = model.CreateBy,
-                CreateDate = model.CreateDate
-            };
-
-            if (model.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new HttpException(500, "History can only be retrieve for file.");
-            }
-            else if (!this.ContentRepository.Exists(model))
-            {
-                throw new HttpException(401, "Content does not exists for path: " + model.Path);
-            }
-            else if (!model.DataId.HasValue || string.IsNullOrEmpty(model.DataIdString))
-            {
-                throw new HttpException(500, "DataIdString is required for path: " + model.Path);
-            }
-
-            result = this.ContentRepository.PopulateHistoryData(result, model.DataId.Value);
-
-            if (result.DataLength == null)
-            {
-                throw new HttpException(404, string.Format("History data Id '{0}' not found for path: {1}", result.DataIdString, result.Path));
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -296,14 +273,17 @@
                 Path = this.Normalize(path).Trim().TrimEnd('/') + "/"
             };
 
-            return this.ContentRepository.List(model).Where(h => !HiddenFolderChars.IsMatch(h.ParentPath));            
+            this.OnContentEvent("Listing", model);
+            var result = this.ContentRepository.List(model).Where(h => !HiddenFolderChars.IsMatch(h.ParentPath));
+            this.OnContentEvent(new ContentConnectorEventArgument("Listed", model) { Extra = result });
+            return result;
         }
 
         /// <summary>
         /// View content.
         /// </summary>
         /// <param name="httpContext">The HTTP context.</param>
-        public virtual void RenderPage(HttpContextBase httpContext)
+        public virtual ContentModel RenderPage(HttpContextBase httpContext)
         {
             var path = httpContext.Request.QueryString["path"];
             if (string.IsNullOrEmpty(path))
@@ -315,13 +295,13 @@
             if (this.Config.IsResourceRoute(path))
             {
                 this.Config.GetResourceFile(path).WriteFile(httpContext);
-                return;
+                return null;
             }
 
             if (!path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 httpContext.Response.RedirectPermanent(path + "/");
-                return;
+                return null;
             }
 
             path = path.TrimEnd('/');
@@ -332,8 +312,24 @@
                 Path = this.ResolvePath(path, tenantHost, httpContext)
             };
 
+            this.OnContentEvent("PageRendering", model);
+            var altModel = new ContentModel()
+                               {
+                                   Host = tenantHost,
+                                   Path = model.Path.Replace("/_default.vash", "/_default.htm")
+                               };
+            if (this.ContentRepository.Exists(altModel))
+            {
+                // set response 302
+                return this.ContentRepository.Retrieve(altModel, true);
+            }
+
             // now that it is a vash file, attempt to render the file
             this.TemplateHandler.Render(model, this, httpContext);
+
+            this.OnContentEvent("PageRendered", model);
+
+            return null;
         }
 
 

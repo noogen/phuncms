@@ -275,11 +275,11 @@
 
             var api = new PhunApi(context.Object, connector);
             api.utility = fakeUtility.Object;
-            Bootstrapper.RegisterRequireModule<ContentConnector>("connector");
+            Bootstrapper.Default.RegisterRequireJsModule<ContentConnector>("connector");
 
             // Act
             var result = api.require("connector");
-            Bootstrapper.ApiList.Clear();
+            Bootstrapper.Default.ApiList.Clear();
 
             // Assert
             Assert.IsNotNull(result);

@@ -132,9 +132,9 @@
                 case "path":
                     return this.phunPath;
                 default:
-                    if (Bootstrapper.ApiList.ContainsKey(name))
+                    if (Bootstrapper.Default.ApiList.ContainsKey(name))
                     {
-                        return Activator.CreateInstance(Bootstrapper.ApiList[name]);
+                        return Activator.CreateInstance(Bootstrapper.Default.ApiList[name]);
                     }
 
                     break;

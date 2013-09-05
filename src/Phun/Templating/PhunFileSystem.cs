@@ -44,7 +44,7 @@
         {
             this.connector = connector;
             this.api = api;
-            this.config = Bootstrapper.Config;
+            this.config = Bootstrapper.Default.Config;
             this.myUtility = new ResourcePathUtility();
         }
 

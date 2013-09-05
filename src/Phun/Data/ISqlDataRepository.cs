@@ -35,24 +35,6 @@
         /// <param name="content">The content.</param>
         /// <param name="tableName">Name of the table.</param>
         /// <param name="cachePath">The cache path.</param>
-        /// <param name="keepHistory">if set to <c>true</c> [keep history].</param>
-        void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath, bool keepHistory);
-
-        /// <summary>
-        /// Retrieves the history.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="content">The content.</param>
-        /// <param name="tableName">Name of the table.</param>
-        /// <returns>The content history.</returns>
-        IQueryable<ContentModel> RetrieveHistory(DapperContext context, ContentModel content, string tableName);
-
-        /// <summary>
-        /// Populates the history data.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="content">The content.</param>
-        /// <param name="tableName">Name of the table.</param>
-        void PopulateHistoryData(DapperContext context, ContentModel content, string tableName);
+        void SaveData(DapperContext context, ContentModel content, string tableName, string cachePath);
     }
 }

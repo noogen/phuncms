@@ -1,0 +1,150 @@
+﻿html, body, .page-container {                                              
+    height: 100%; /* needed for container min-height */
+    margin: 0;                
+    padding: 0 !important;
+
+    text-align: left;
+    vertical-align: top;
+    overflow: hidden;
+                                  
+    background-color: white;
+    /* even though bootstrap already defined this, we define again here just in case bootstrap is removed. */
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+}
+
+.main-container {
+    position: absolute;
+    margin: 80px 0 0 0;
+    top: 0; 
+    bottom:0; 
+    left: 0; 
+    right: 0;
+    overflow: hidden;
+}
+
+.main-content {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    min-height: 100%;
+    max-height: 100%;
+    text-align: left;
+
+    -webkit-overflow-scrolling: touch;
+    -moz-transition-duration: 0;
+    -o-transition-duration: 0;
+    -webkit-transition-duration: 0;
+    transition-duration: 0;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    -moz-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    -o-transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}
+
+header {
+    text-align: left;
+    background-color: #484848;
+    color: white;
+    font-weight: bold;
+    line-height: 15px;
+    width: 100%;
+    opacity: 1;
+
+    padding-left: 5px;
+}
+
+.navbar {
+    margin-bottom: 0px;
+}
+
+
+span.phun-icons /* Default icon */
+{
+	width: 16px;
+    height: 16px;
+    display: inline-block; /* Required to make a span sizeable */
+    vertical-align: top;
+    background-repeat: no-repeat;
+    background-position: left;
+    background-image: url("icons.gif");
+    background-position: 0 0;
+	margin-left: 3px;
+}
+
+span.phun-folder-closed  span.phun-icons
+{
+	background-position: 0px -16px;
+}
+
+span.phun-folder-open   span.phun-icons
+{
+	background-position: -64px -16px;
+}
+
+/* File Extensions*/
+span.ext_3gp     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_afp     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_afpa    span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_asp     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_aspx    span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_avi     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_bat     span.phun-icons { background: url(images/application.png) left top no-repeat; }
+span.ext_bmp     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_c       span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_cfm     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_cgi     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_com     span.phun-icons { background: url(images/application.png) left top no-repeat; }
+span.ext_cpp     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_css     span.phun-icons { background: url(images/css.png) left top no-repeat; }
+span.ext_doc     span.phun-icons { background: url(images/doc.png) left top no-repeat; }
+span.ext_exe     span.phun-icons { background: url(images/application.png) left top no-repeat; }
+span.ext_gif     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_fla     span.phun-icons { background: url(images/flash.png) left top no-repeat; }
+span.ext_h       span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_htm     span.phun-icons { background: url(images/html.png) left top no-repeat; }
+span.ext_html    span.phun-icons { background: url(images/html.png) left top no-repeat; }
+span.ext_jar     span.phun-icons { background: url(images/java.png) left top no-repeat; }
+span.ext_jpg     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_jpeg    span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_js      span.phun-icons { background: url(images/script.png) left top no-repeat; }
+span.ext_lasso   span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_log     span.phun-icons { background: url(images/txt.png) left top no-repeat; }
+span.ext_m4p     span.phun-icons { background: url(images/music.png) left top no-repeat; }
+span.ext_mov     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_mp3     span.phun-icons { background: url(images/music.png) left top no-repeat; }
+span.ext_mp4     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_mpg     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_mpeg    span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_ogg     span.phun-icons { background: url(images/music.png) left top no-repeat; }
+span.ext_pcx     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_pdf     span.phun-icons { background: url(images/pdf.png) left top no-repeat; }
+span.ext_php     span.phun-icons { background: url(images/php.png) left top no-repeat; }
+span.ext_png     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_ppt     span.phun-icons { background: url(images/ppt.png) left top no-repeat; }
+span.ext_psd     span.phun-icons { background: url(images/psd.png) left top no-repeat; }
+span.ext_pl      span.phun-icons { background: url(images/script.png) left top no-repeat; }
+span.ext_py      span.phun-icons { background: url(images/script.png) left top no-repeat; }
+span.ext_rb      span.phun-icons { background: url(images/ruby.png) left top no-repeat; }
+span.ext_rbx     span.phun-icons { background: url(images/ruby.png) left top no-repeat; }
+span.ext_rhtml   span.phun-icons { background: url(images/ruby.png) left top no-repeat; }
+span.ext_rpm     span.phun-icons { background: url(images/linux.png) left top no-repeat; }
+span.ext_ruby    span.phun-icons { background: url(images/ruby.png) left top no-repeat; }
+span.ext_sql     span.phun-icons { background: url(images/db.png) left top no-repeat; }
+span.ext_swf     span.phun-icons { background: url(images/flash.png) left top no-repeat; }
+span.ext_tif     span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_tiff    span.phun-icons { background: url(images/picture.png) left top no-repeat; }
+span.ext_txt     span.phun-icons { background: url(images/txt.png) left top no-repeat; }
+span.ext_vb      span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_wav     span.phun-icons { background: url(images/music.png) left top no-repeat; }
+span.ext_wmv     span.phun-icons { background: url(images/film.png) left top no-repeat; }
+span.ext_xls     span.phun-icons { background: url(images/xls.png) left top no-repeat; }
+span.ext_xml     span.phun-icons { background: url(images/code.png) left top no-repeat; }
+span.ext_zip     span.phun-icons { background: url(images/zip.png) left top no-repeat; }
+span.ext_vash    span.phun-icons { background: url(images/code.png) left top no-repeat; } 
+span.ext_cshtml  span.phun-icons { background: url(images/code.png) left top no-repeat; }

@@ -51,11 +51,6 @@
         private static readonly Regex illegalTableNameReplace = new Regex("[^a-zA-Z0-9]+", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// The history file extensions
-        /// </summary>
-        private static Regex historyFileExtensions;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SqlContentRepository" /> class.
         /// </summary>
         /// <param name="dataRepo">The data repo.</param>
@@ -82,11 +77,6 @@
 
             var dataRepo = (DependencyResolver.Current != null ? DependencyResolver.Current.GetService<ISqlDataRepository>() : null)
                            ?? new SqlDataRepository();
-
-            if (historyFileExtensions == null && !string.IsNullOrEmpty(config.HistoryFileExtension))
-            {
-                historyFileExtensions = new Regex(config.HistoryFileExtension, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-            }
 
             this.Initialize(dataRepo, config.RepositorySource, config.RepositoryTable, basePath);
         }
@@ -206,15 +196,7 @@ this.TableName);
                 {
                     content.DataLength = content.DataLength ?? content.Data.Length;
 
-                    // determine if history should be kept for this path
-                    var keepHistory = historyFileExtensions != null;
-                    if (keepHistory)
-                    {
-                        var fileExtension = (content.FileExtension + string.Empty).Trim().Replace(".", string.Empty);
-                        keepHistory = (fileExtension.Length > 1) && historyFileExtensions.IsMatch(fileExtension);
-                    }
-
-                    this.DataRepository.SaveData(db, content, this.TableName + "Data", this.CachePath, keepHistory);
+                    this.DataRepository.SaveData(db, content, this.TableName + "Data", this.CachePath);
                 }
                 else
                 {
@@ -292,47 +274,6 @@ this.TableName);
                             this.TableName),
                         new { Host = content.Host, ParentPath = content.Path }).AsQueryable();
             }
-        }
-
-        /// <summary>
-        /// Histories of the specified content.
-        /// File repository does not have the ability store history.
-        /// </summary>
-        /// <param name="content">The content.</param>
-        /// <returns>
-        /// Specific content change history.
-        /// </returns>
-        public override IQueryable<ContentModel> RetrieveHistory(ContentModel content)
-        {
-            using (var ctx = new DapperContext(this.ConnectionStringName))
-            {
-                return this.DataRepository.RetrieveHistory(ctx, content, this.TableName + "Data");
-            }
-        }
-
-        /// <summary>
-        /// Populates the history data.
-        /// </summary>
-        /// <param name="content">The content.</param>
-        /// <param name="historyDataId">The history data id.</param>
-        /// <returns>
-        /// The history data content.
-        /// </returns>
-        /// <exception cref="System.ArgumentException">PopulateHistoryData historyDataId is required.;historyDataId</exception>
-        public override ContentModel PopulateHistoryData(ContentModel content, Guid historyDataId)
-        {
-            if (historyDataId.Equals(Guid.Empty))
-            {
-                throw new ArgumentException("PopulateHistoryData historyDataId is required.", "historyDataId");
-            }
-
-            content.DataId = historyDataId;
-            using (var ctx = new DapperContext(this.ConnectionStringName))
-            {
-                this.DataRepository.PopulateHistoryData(ctx, content, this.TableName + "Data");
-            }
-
-            return content;
         }
 
         /// <summary>

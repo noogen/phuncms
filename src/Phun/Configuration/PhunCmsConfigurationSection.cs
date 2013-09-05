@@ -52,12 +52,25 @@
         }
 
         /// <summary>
+        /// Gets or sets the page manager.
+        /// </summary>
+        /// <value>
+        /// The page manager.
+        /// </value>
+        [ConfigurationProperty("pageManager", IsRequired = false, DefaultValue = "/[resourceroute]/pagemanager.htm")]
+        public string PageManager
+        {
+            get { return (string)this["pageManager"]; }
+            set { this["pageManager"] = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the file editor.
         /// </summary>
         /// <value>
         /// The file editor.
         /// </value>
-        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/edit.htm")]
+        [ConfigurationProperty("fileEditor", IsRequired = false, DefaultValue = "/[resourceroute]/editor.htm")]
         public string FileEditor
         {
             get { return (string)this["fileEditor"]; }

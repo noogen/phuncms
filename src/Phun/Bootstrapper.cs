@@ -18,34 +18,34 @@
     /// <summary>
     /// Class for MVC web initialization.
     /// </summary>
-    public static class Bootstrapper
+    public class Bootstrapper : Singleton<Bootstrapper>
     {
         /// <summary>
         /// The has initialized
         /// </summary>
-        internal static bool hasInitialized = false;
+        internal bool hasInitialized = false;
 
         /// <summary>
         /// The API list
         /// </summary>
-        internal static IDictionary<string, Type> ApiList =
+        internal IDictionary<string, Type> ApiList =
             new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The API scripts
         /// </summary>
-        internal static IDictionary<string, string> ApiScripts =
+        internal IDictionary<string, string> ApiScripts =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The internal static content regular expression
         /// </summary>
-        internal static Regex internalStaticContentRegEx = null;
+        internal Regex internalContentRegEx = null;
 
         /// <summary>
         /// The host aliases
         /// </summary>
-        internal static IDictionary<string, string> HostAliases =
+        internal IDictionary<string, string> HostAliases =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
@@ -54,7 +54,7 @@
         /// <value>
         /// The config.
         /// </value>
-        public static ICmsConfiguration Config { get; internal set; }
+        public ICmsConfiguration Config { get; internal set; }
 
         /// <summary>
         /// Gets the content config.
@@ -62,7 +62,7 @@
         /// <value>
         /// The content config.
         /// </value>
-        public static IMapRouteConfiguration ContentConfig { get; internal set; }
+        public IMapRouteConfiguration ContentConfig { get; internal set; }
 
         /// <summary>
         /// Gets or sets the static content regular expression.
@@ -70,16 +70,16 @@
         /// <value>
         /// The static content regular expression.
         /// </value>
-        public static Regex StaticContentRegEx
+        public Regex ContentRegEx
         {
             get
             {
-                if (internalStaticContentRegEx == null)
+                if (this.internalContentRegEx == null)
                 {
-                    internalStaticContentRegEx = new Regex("\\.(" + Config.StaticContentExtension + ")+$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+                    this.internalContentRegEx = new Regex("\\.(" + this.Config.StaticContentExtension + ")+$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
                 }
 
-                return internalStaticContentRegEx;
+                return this.internalContentRegEx;
             }
         }
 
@@ -88,15 +88,15 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="objectType">Type of the object.</param>
-        public static void RegisterRequireModule(string name, Type objectType)
+        public void RegisterRequireJsModule(string name, Type objectType)
         {
-            if (!ApiList.ContainsKey(name))
+            if (!this.ApiList.ContainsKey(name))
             {
-                ApiList.Add(name, objectType);
+                this.ApiList.Add(name, objectType);
             }
             else
             {
-                ApiList[name] = objectType;
+                this.ApiList[name] = objectType;
             }
         }
 
@@ -105,9 +105,9 @@
         /// </summary>
         /// <typeparam name="T">API object type to register.</typeparam>
         /// <param name="name">The name.</param>
-        public static void RegisterRequireModule<T>(string name)
+        public void RegisterRequireJsModule<T>(string name)
         {
-            RegisterRequireModule(name, typeof(T));
+            this.RegisterRequireJsModule(name, typeof(T));
         }
 
         /// <summary>
@@ -115,15 +115,15 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="script">The script.</param>
-        public static void RegisterApiScript(string name, string script)
+        public void RegisterApiScript(string name, string script)
         {
-            if (ApiScripts.ContainsKey(name))
+            if (this.ApiScripts.ContainsKey(name))
             {
-                ApiScripts.Add(name, script);
+                this.ApiScripts.Add(name, script);
             }
             else
             {
-                ApiScripts[name] = script;
+                this.ApiScripts[name] = script;
             }
         }
 
@@ -135,14 +135,14 @@
         /// <param name="registerPhunCmsVirtualPath">if set to <c>true</c> [register simple CMS virtual path].</param>
         /// <exception cref="System.ApplicationException">Unable to locate phun CMS configuration.</exception>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        public static void Initialize(bool routeMissingUrlToPhunCms = true, bool registerPhunCmsVirtualPath = true)
+        public void Initialize(bool routeMissingUrlToPhunCms = true, bool registerPhunCmsVirtualPath = true)
         {
-            if (hasInitialized)
+            if (this.hasInitialized)
             {
                 return;
             }
 
-            hasInitialized = true;
+            this.hasInitialized = true;
 
             // attempt to resolve phuncms configuration;
             ICmsConfiguration config = null;
@@ -164,8 +164,8 @@
                 throw new ApplicationException("Unable to locate phuncms configuration.");
             }
 
-            Config = config;
-            ContentConfig =
+            this.Config = config;
+            this.ContentConfig =
                 config.ContentMaps.FirstOrDefault(
                     m =>
                     string.Compare(m.RouteNormalized, config.ContentRouteNormalized, StringComparison.OrdinalIgnoreCase)

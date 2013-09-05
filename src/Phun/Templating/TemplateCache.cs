@@ -38,7 +38,7 @@ namespace Phun.Templating
         {
             this.api = api;
             this.context = context;
-            this.config = Bootstrapper.Config;
+            this.config = Bootstrapper.Default.Config;
         }
 
         /// <summary>

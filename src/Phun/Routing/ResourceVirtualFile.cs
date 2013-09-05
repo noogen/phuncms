@@ -34,7 +34,7 @@
         public ResourceVirtualFile(string virtualPath)
             : base(virtualPath)
         {
-            this.Config = Bootstrapper.Config;
+            this.Config = Bootstrapper.Default.Config;
             this.virtualFilePath = virtualPath;
         }
 
@@ -55,7 +55,6 @@
         public override System.IO.Stream Open()
         {
             var resourcePath = this.TranslateToResourcePath(this.virtualFilePath);
-            var util = new ResourcePathUtility();
             var result = Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Concat("Phun.Properties.", resourcePath));
             if (resourcePath.EndsWith("scripts.phuncms.config.js", StringComparison.OrdinalIgnoreCase))
             {
@@ -76,7 +75,7 @@
 
             if (result == null)
             {
-                throw new HttpException(404, "Resource virtual file not found.");
+                throw new HttpException(404, "Resource virtual file not found: " + resourcePath);
             }
 
             return result;
@@ -113,7 +112,7 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns>To to set 304 response.</returns>
-        public virtual bool TrySet304(HttpContextBase context)
+        public virtual bool TrySet304(HttpContextBase context, double hours = 24)
         {
             if (this.Config.DisableResourceCache
                 || context.Request.Path.ToLowerInvariant().Contains("phuncms.config.js")
@@ -127,7 +126,7 @@
             var currentDate = System.IO.File.GetCreationTime(Assembly.GetExecutingAssembly().Location);
             context.Response.Cache.SetLastModified(currentDate);
             context.Response.Cache.SetCacheability(HttpCacheability.Public);
-            context.Response.Cache.SetExpires(DateTime.Now.AddDays(1));
+            context.Response.Cache.SetExpires(DateTime.Now.AddHours(hours));
  
             DateTime previousDate;
             string data = context.Request.Headers["If-Modified-Since"] + string.Empty;

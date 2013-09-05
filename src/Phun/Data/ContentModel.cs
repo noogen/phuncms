@@ -4,6 +4,8 @@
     using System.IO;
     using System.Web;
 
+    using Newtonsoft.Json;
+
     using Phun.Extensions;
 
     /// <summary>
@@ -40,6 +42,20 @@
                 var myValue = (value + string.Empty).Replace("\\", "/").Replace("//", "/").TrimStart('/');
                 
                 this.path = string.Concat('/', myValue);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is folder.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is folder; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsFolder
+        {
+            get
+            {
+                return this.Path.EndsWith("/");
             }
         }
 
@@ -89,6 +105,7 @@
         /// <value>
         /// The data.
         /// </value>
+        [JsonIgnore]
         public byte[] Data { get; set; }
 
         /// <summary>
@@ -181,6 +198,7 @@
         /// <value>
         /// The data stream.
         /// </value>
+        [JsonIgnore]
         public Stream DataStream
         {
             get
