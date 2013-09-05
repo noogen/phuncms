@@ -43,7 +43,7 @@ demo
 - For now, go ahead and try it.  Grab the source and run Phun.Demo.Web or try out the nuget PhunCMS package.  Project requires Visual Studio 2012.
 - Drop a comment, suggestion or request on github issue page.
 
-What's new in 1.4
+What's new in 1.0.4
 ======
 - back to the basic, phuncms core should be simple
 - upgrade filemanager UI to help user understand page creation
