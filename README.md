@@ -47,3 +47,5 @@ What's new in 1.4
 ======
 - back to the basic, phuncms core should be simple
 - upgrade filemanager UI to help user understand page creation
+
+[What is a Page?](https://github.com/noogen/phuncms/wiki/What-is-a-Page%3F)
