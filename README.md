@@ -15,7 +15,7 @@ Base on the decoupled CMS concept - http://decoupledcms.org/
 ![Architecture](http://i.imgur.com/chzYYGN.png)
 
 howto 
-=======
+======
  - https://github.com/noogen/phuncms/wiki/How-to
  
 quick start
@@ -38,7 +38,12 @@ or
 ```
 
 demo
-========
+======
 - http://phuncms.azurewebsites.net/
 - For now, go ahead and try it.  Grab the source and run Phun.Demo.Web or try out the nuget PhunCMS package.  Project requires Visual Studio 2012.
 - Drop a comment, suggestion or request on github issue page.
+
+What's new in 1.4
+======
+- back to the basic, phuncms core should be simple
+- upgrade filemanager UI to help user understand page creation
