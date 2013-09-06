@@ -11,11 +11,11 @@ namespace Phun.Demo.Web.App_Start
         /// </summary>
         public static void Start()
         {
-            Phun.Bootstrapper.Initialize();
+            Phun.Bootstrapper.Default.Initialize();
             
             // opportunity to register template api
             // use inside of vash template @{ var customer = yourapi.getCustomerById(customerid) }
-            // Phun.Bootstrapper.RegisterTemplateApi<YourCustomerAPI>("yourapi");
+            // Phun.Bootstrapper.Default.RegisterTemplateApi<YourCustomerAPI>("yourapi");
         }
     }
 }

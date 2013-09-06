@@ -143,7 +143,14 @@ vash.helpers.constructor.reportError = function(e, lineno, chr, orig, lb) {
         phun.api.FileModel.Path, 
         { model : {} }, 
         function(err, html) {  
-            phun.api.response.write(html.split(''));
+            if (typeof(html) == 'string') {
+                phun.api.response.write(html.split(''));
+            }
+            else {
+
+                phun.api.response.write(err);
+                phun.api.response.write(html);
+            }                            
             phun.api.response.flush();
         }
     );

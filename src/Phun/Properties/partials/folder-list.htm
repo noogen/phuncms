@@ -1,4 +1,9 @@
-﻿<table class="table table-striped">
+﻿<div class="bar" data-ng-show="$parent.isWaiting" style="display: none">
+    <span class="sphere"></span>
+    <br />
+    Loading, please wait...
+</div>
+<table class="table table-striped" data-ng-hide="$parent.isWaiting" style="display: none">
     <thead>
         <tr>
             <th></th> 

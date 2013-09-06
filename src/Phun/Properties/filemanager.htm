@@ -33,8 +33,8 @@
                         <li class="dropdown">
                             <a href class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-folder-close"></i> Create Page <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a data-toggle="modal" href="#myModal" >Client-side application (.htm)</a></li>
-                                <li><a data-toggle="modal" href="#myModal" >Server-side template (.vash)</a></li>
+                                <li data-ng-click="newPageType = '.htm'"><a data-toggle="modal" href="#myModal">Client-side application (.htm)</a></li>
+                                <li data-ng-click="newPageType = '.vash'"><a data-toggle="modal" href="#myModal" >Server-side template (.vash)</a></li>
                             </ul>
                         </li>
                         <li><a href data-ng-click="doCreatePartial()" data-ng-show="mode == 'page'"><i class="glyphicon glyphicon-file"></i> Create Partial</a></li>     
@@ -58,22 +58,23 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">Create a Page</h4>
+                            <h4 class="modal-title">Create New Page ({{newPageType}})</h4>
                         </div>
                         <div class="modal-body">
-                            <p>To create a page, please enter a page name below.  <br/>
-                                The name you entered will automatically be converted to a url friendly name.<br /> {{resultPageName()}}</p>  
-                            <label for="pageName">Name:</label> <input type="text" data-ng-model="newPageName" name="pageName">
+                            <p>The name you entered will automatically be converted to a url friendly name.<br /> {{resultPageName()}}</p>  
+                            <div class="input-group">
+                              <span class="input-group-addon">Page Name</span>
+                              <input type="text" class="form-control" placeholder="Page Name" data-ng-model="newPageName" >
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-primary" data-ng-click="doCreatePage()">Save changes</button>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div><!-- /.modal -->   
         </div>  
-
 
         <!-- 3rd party js libs -->  
         <script type="text/javascript" src="scripts/jquery.js"></script>

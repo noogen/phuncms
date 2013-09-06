@@ -261,7 +261,7 @@
         [HttpPost, ValidateInput(false)]
         public virtual ActionResult CreatePage(string path, string data)
         {
-            if (!path.ToLowerInvariant().EndsWith("_default.htm") || !path.ToLowerInvariant().EndsWith("_default.vash"))
+            if (!path.ToLowerInvariant().EndsWith("_default.htm") && !path.ToLowerInvariant().EndsWith("_default.vash"))
             {
                 throw new HttpException(500, "Page path must ends with _default.htm or _default.vash: " + path);
             }
@@ -271,6 +271,19 @@
 
             this.Create(folderPath + "app.js", string.Empty, null);
             this.Create(folderPath + "app.css", string.Empty, null);
+            this.Create(folderPath + "layout.vash", @"<!DOCTYPE html>
+<html lang=""en"">
+<head>
+	<meta charset=""utf-8"" />
+	<title>@model.title</title>
+    <link   type=""text/css"" rel=""stylesheet"" href=""app.css"">   
+    <script type=""text/javascript"" src=""app.js""></script>
+</head>
+<body>
+    @html.block('content')
+</body>
+</html>", null);
+
             return this.Create(model.Path, data, null);
         }
 

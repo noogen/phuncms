@@ -47,6 +47,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="bbv.Common">
+      <HintPath>..\packages\bbv.Common.7.1.12149.1635\lib\Net40\bbv.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="bbv.Common.EventBroker">
+      <HintPath>..\packages\bbv.Common.EventBroker.7.1.12149.1635\lib\Net40\bbv.Common.EventBroker.dll</HintPath>
+    </Reference>
     <Reference Include="Dapper, Version=1.12.1.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Dapper.1.13\lib\net45\Dapper.dll</HintPath>
@@ -81,7 +87,7 @@
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\PhunCMS.1.0.3.205\lib\net45\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+      <HintPath>..\packages\PhunCMS.1.0.4.34\lib\net45\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
@@ -94,9 +100,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Noesis.Javascript.0.7.1.0\lib\net40\x86\Noesis.Javascript.dll</HintPath>
     </Reference>
-    <Reference Include="Phun, Version=1.0.3.205, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Phun, Version=1.0.4.34, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\PhunCMS.1.0.3.205\lib\net45\Phun.dll</HintPath>
+      <HintPath>..\packages\PhunCMS.1.0.4.34\lib\net45\Phun.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

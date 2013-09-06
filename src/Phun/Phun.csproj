@@ -340,7 +340,6 @@
     <EmbeddedResource Include="Properties\scripts\codemirror\util\searchcursor.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\util\simple-hint.js" />
     <EmbeddedResource Include="Properties\scripts\codemirror\util\xml-hint.js" />
-    <EmbeddedResource Include="Properties\css\editor.css" />
     <EmbeddedResource Include="Properties\scripts\phuncms.util.js" />
     <EmbeddedResource Include="Properties\editor.htm" />
     <EmbeddedResource Include="Properties\scripts\vash.js" />
@@ -525,7 +524,6 @@
     <EmbeddedResource Include="Properties\scripts\create.js" />
     <EmbeddedResource Include="Properties\scripts\jquery.js" />
     <EmbeddedResource Include="Properties\scripts\jqueryui.js" />
-    <EmbeddedResource Include="Properties\scripts\jquery.dynatree.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\scripts\underscore.js" />

@@ -516,7 +516,8 @@
                         application/vnd.openxmlformats-officedocument.presentationml.presentation pptx
                         application/vnd.openxmlformats-officedocument.presentationml.template potx
                         application/vnd.openxmlformats-officedocument.presentationml.slideshow ppsx
-                        application/vnd.ms-powerpoint.addin.macroEnabled.12 ppam";
+                        application/vnd.ms-powerpoint.addin.macroEnabled.12 ppam
+                        application/x-font-woff woff";
 
         #endregion
 

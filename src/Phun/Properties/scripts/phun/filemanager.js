@@ -4,13 +4,20 @@
 // it has to be defined like this for minification to work
 var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$http', function ($scope, $window, $location, $timeout, $rootScope, $http) {
     'use strict';
-
     $scope.elements = [];
     $scope.paths = [];
     $scope.savedPath = '';
     $scope.lastPath = '';
     $scope.brand = 'Page Manager';
     $scope.newPageName = '';
+    $scope.newPageType = '.htm';
+    $scope.clientTemplate = '<!DOCTYPE html>\r\n' +
+        '<html>\r\n    <head>\r\n        <meta charset="utf-8" />\r\n        <title>(pageName)</title>' +
+        '\r\n        <link   type="text/css" rel="stylesheet" href="app.css">' +
+        '\r\n        <script type="text/javascript" src="app.js"></script>' +
+        '\r\n    </head>\r\n    <body>\r\n    </body>\r\n</html>';
+    $scope.serverTemplate = '@{\r\nmodel.title = \'Page Title\';\r\n}\r\n@html.extend(\'layout\', function(){ \r\n@html.block(\'content\', function(){\r\n    <p>content body</p>\r\n    })\r\n})';
+    $scope.isWaiting = true;
     
     var checkPath = $location.url();
     if (checkPath.indexOf('&') > 0) {
@@ -23,72 +30,36 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
         $scope.brand = 'File Browser';
     }
 
-    var addAPage = $("#addAPage").dialog({
-        modal: true,
-        autoOpen: false,
-        width: 500,
-        buttons: {
-            "Add": function () {
-
-                var fileName = $("#pageName").val();
-                var fileExt = fileName.substr(fileName.indexOf('.')).replace('.', '');
-                var theName = fileName.replace(fileExt, '');
-                theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
-
-                if (theName != "") {
-                    $.ajax({
-                        type: "POST",
-                        url: $rootScope.contentPath + "/Create",
-                        data: { path: $location.path + theName + "/_default.htm", data: '<!DOCTYPE html><html><head><title>' + $("#pageName").val() + '</title></head><body></body></html>' },
-                        cache: false,
-                        success: function (data) {
-                            $location.path($location.path() + ' ');
-                        }
-                    });
-                }
-
-                $(this).dialog("close");
-            },
-
-            // creates a button to cancel the dialog.
-            "Cancel": function () {
-
-                // Close the dialog
-                $(this).dialog("close");
-
-                // Clear any values that may of been entered.
-                $("#pageName").val("");
-            }
-        }
-    });
-    
     $scope.resultPageName = function() {
-        var theName = $scope.newPageName;
+        return $scope.makePageName($scope.newPageName, false);
+    };
+
+    $scope.makePageName = function(pageName, withExtension) {
+        var theName = pageName;
+        var fileExt = '';
         if (theName.indexOf('.') != -1) {
-            var fileExt = theName.substr(theName.indexOf('.')).replace('.', '');
+            fileExt = theName.substr(theName.indexOf('.')).replace('.', '');
             theName = theName.replace(fileExt, '');
         }
+        
         theName = makeSlug(theName.replace(/\//gi, "").replace(/\\/gi, ""));
+        if (withExtension) {
+            theName += makeSlug(fileExt); 
+        }
+        
         return theName;
     };
     
     $scope.doCreatePartial = function () {
-        var fileExt = '';
+        var method = '/Create';
         var fileName = prompt("Enter a partial/file name:");
-        if (fileName && fileName != '') {
+        if (typeof(fileName) != "undefined" && fileName != '') {
+            var theName = $scope.makePageName(fileName, true);
 
-            var theName = fileName;
-            if (fileName.indexOf('.') > 0) {
-                fileExt = fileName.substr(fileName.indexOf('.')).replace('.', '');
-                theName = theName.replace(fileExt, '');
-            }
-
-            theName = makeSlug(theName.replace(/\//gi, '').replace(/\\/gi, ''));
-            theName += makeSlug(fileExt);
-            if (theName != "") {
+            if (theName != '') {
                 var fileExists = false;
                 for (var i = 0; i < $scope.elements.length; i++) {
-                    if (!$scope.elements[i].IsFolder && $scope.elements[i].FileName == theName) {
+                    if ($scope.elements[i].FileName == theName) {
                         fileExists = true;
                         break;
                     }
@@ -98,15 +69,17 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
                     if (!confirm('Existing file "' + theName + '" found.  Overwrite?')) {
                         return;
                     }
+                    
+                    method = '/Update';
                 }
-                
+                $scope.savedPath = basePath + $location.path();
                 $.ajax({
                     type: "POST",
-                    url: $rootScope.contentPath + "/Create",
-                    data: { path: $location.path() + theName, data: 'TODO: Please replace me with content.' },
+                    url: $rootScope.contentPath + method,
+                    data: { path: $scope.savedPath + theName, data: 'TODO: Please replace me with content.' },
                     cache: false,
                     success: function (data) {
-                        $location.path($location.path() + ' ');
+                        $timeout($scope.reload, 5);
                     }
                 });
             }
@@ -118,26 +91,57 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
     };
 
     $scope.doCreatePage = function () {
-        $scope.addPageOpen = true;
-    };
+        if ($scope.newPageName) {
 
-    $scope.doCreateFolder = function () {
-        var theName = window.prompt('Enter name of new folder under: ' + $location.path(), '');
-        theName = makeSlug(theName.replace(/\//gi, '').replace(/\\/gi, ''));
-
-        if (theName != null && theName != '') {
+            var theName = $scope.makePageName($scope.newPageName, false);
+            
             var fileExists = false;
             for (var i = 0; i < $scope.elements.length; i++) {
-                if ($scope.elements[i].IsFolder && $scope.elements[i].FileName == theName) {
+                if ($scope.elements[i].FileName == theName) {
                     fileExists = true;
                     break;
                 }
             }
 
             if (fileExists) {
-                if (alert('Unable to continue, existing page/folder "' + theName + '" found.')) {
-                    return;
+                alert('Unable to continue, existing page/folder "' + theName + '" found.');
+                return;
+            }
+
+            $('#myModal').modal('hide');
+            var myData = $scope.newPageType == '.htm' ? $scope.clientTemplate : $scope.serverTemplate;
+            $scope.savedPath = basePath + $location.path();
+            $.ajax({
+                type: "POST",
+                url: $rootScope.contentPath + "/CreatePage",
+                data: {
+                    path: $scope.savedPath + theName + "/_default" + $scope.newPageType,
+                    data: myData.replace('(pageName)', theName)
+                },
+                cache: false,
+                success: function (data) {
+                    $timeout($scope.reload, 5);
                 }
+            });
+        }
+    };
+
+    $scope.doCreateFolder = function () {
+        var theName = window.prompt('Enter name of new folder under: ' + $location.path(), '');
+        theName = $scope.makePageName(theName, false);
+
+        if (theName) {
+            var fileExists = false;
+            for (var i = 0; i < $scope.elements.length; i++) {
+                if ($scope.elements[i].FileName == theName) {
+                    fileExists = true;
+                    break;
+                }
+            }
+
+            if (fileExists) {
+                alert('Unable to continue, existing page/folder "' + theName + '" found.');
+                return;
             }
             
             $scope.elements.push({
@@ -164,11 +168,10 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
             data.submit();
         },
         done: function (e, data) {
-            // refresh path
-            $location.path($scope.savedPath);
+            $timeout($scope.reload, 5);
         }
     }).prop('disabled', !$.support.fileInput)
-        .parent().addClass($.support.fileInput ? undefined : 'disabled');;
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
     $scope.doViewPage = function (element) {
         window.open(element.Path.substr(5), '', '');
@@ -213,8 +216,9 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
         
         $scope.doDownload(element);
     };
-
+    
     $scope.reload = function () {
+        $scope.isWaiting = true;
         var queryPath = $rootScope.contentPath + '/List?path=' + basePath + $location.path();
         $http.get(queryPath).success(function (response) {
             $scope.elements.length = 0;
@@ -224,6 +228,10 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
                 response[i].ClassName = "ext" + response[i].FileExtension.toLowerCase().replace('.', '_');
                 $scope.elements.push(response[i]);
             }
+            $scope.isWaiting = false;
+        }).error(function() {
+            $scope.isWaiting = false;
+            alert('Error listing current path.  Please make sure you are logged in a try again.');
         });
     };
     
