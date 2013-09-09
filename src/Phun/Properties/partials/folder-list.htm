@@ -18,7 +18,7 @@
             <td>                                                                                     
                 <a href data-ng-click="doDownload(element)"><i class="glyphicon glyphicon-cloud-download"></i> Download</a>   
                 <a href data-ng-click="doDelete(element)"><i class="glyphicon glyphicon-remove"></i> Delete</a>    
-                <a href data-ng-click="doViewPage(element)" data-ng-show="element.IsFolder && element.Path.indexOf('/page') == 0 && mode != 'browser'"><i class="glyphicon glyphicon-eye-open"></i> View Page</a>                                
+                <a href data-ng-click="doViewPage(element)" data-ng-show="mode != 'browser' && (element.IsFolder && element.Path.indexOf('/page') == 0) || (!element.IsFolder && (element.Path.indexOf('.vash') > 0 || element.Path.indexOf('.htm') > 0))"><i class="glyphicon glyphicon-eye-open"></i> View Page</a>                                
                 <a href data-ng-click="doEdit(element)" data-ng-show="!element.IsFolder && mode != 'browser'"><i class="glyphicon glyphicon-edit"></i> Edit</a>
             </td>
         </tr>

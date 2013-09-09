@@ -313,15 +313,10 @@
             };
 
             this.OnContentEvent("PageRendering", model);
-            var altModel = new ContentModel()
-                               {
-                                   Host = tenantHost,
-                                   Path = model.Path.Replace("/_default.vash", "/_default.htm")
-                               };
-            if (this.ContentRepository.Exists(altModel))
+            if (model.Path.EndsWith(".htm"))
             {
                 // set response 302
-                return this.ContentRepository.Retrieve(altModel, true);
+                return this.ContentRepository.Retrieve(model, true);
             }
 
             // now that it is a vash file, attempt to render the file
@@ -332,6 +327,41 @@
             return null;
         }
 
+        /// <summary>
+        /// Checks the page.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="tenantHost">The tenant host.</param>
+        /// <param name="extension">The extension.</param>
+        /// <returns></returns>
+        private string CheckPage(string path, string tenantHost, string extension)
+        {
+            // only normalize after determine that it is not a CMS Resource URL
+            // it must also start with page path
+            var result = string.Concat("/page", this.Normalize(path));
+            var newModel = new ContentModel()
+            {
+                Host = tenantHost,
+                Path = result
+            };
+
+            if (!result.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            {
+
+                newModel.Path += extension;
+                if (this.ContentRepository.Exists(newModel))
+                {
+                    result = newModel.Path;
+                }
+                else
+                {
+                    newModel.Path = result + "/_default" + extension;
+                    result = this.ContentRepository.Exists(newModel) ? newModel.Path : "==NOT FOUND==";
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Resolves the path.  Also allow for caching path resolution.
@@ -342,6 +372,7 @@
         /// <returns>
         /// The path last resolved to.
         /// </returns>
+        /// <exception cref="System.Web.HttpException">404;Failed on all attempt to search vash file for:  + path</exception>
         public virtual string ResolvePath(string path, string tenantHost, HttpContextBase context)
         {
             var resultKey = string.Format("__PhunStaticRoutingCache__{0}__{1}", tenantHost, path);
@@ -351,25 +382,10 @@
             {
                 // only normalize after determine that it is not a CMS Resource URL
                 // it must also start with page path
-                result = string.Concat("/page", this.Normalize(path));
-                var newModel = new ContentModel()
+                result = this.CheckPage(path, tenantHost, ".htm");
+                if (string.Compare("==NOT FOUND==", result, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    Host = tenantHost,
-                    Path = result
-                };
-
-                if (!result.EndsWith(".vash", StringComparison.OrdinalIgnoreCase))
-                {
-                    newModel.Path += ".vash";
-                    if (this.ContentRepository.Exists(newModel))
-                    {
-                        result = newModel.Path;
-                    }
-                    else
-                    {
-                        newModel.Path = result + "/_default.vash";
-                        result = this.ContentRepository.Exists(newModel) ? newModel.Path : "==NOT FOUND==";
-                    }
+                    result = this.CheckPage(path, tenantHost, ".vash");
                 }
 
                 context.Cache.Insert(

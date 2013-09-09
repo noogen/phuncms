@@ -214,7 +214,7 @@ var NavCtrl = ['$scope', '$window', '$location', '$timeout', '$rootScope', '$htt
             return;
         }
         
-        $scope.doDownload(element);
+        $scope.doEdit(element);
     };
     
     $scope.reload = function () {

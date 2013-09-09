@@ -87,7 +87,7 @@
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\PhunCMS.1.0.4.34\lib\net45\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+      <HintPath>..\packages\PhunCMS.1.0.4.39\lib\net45\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.1.0\lib\net40\MiniProfiler.dll</HintPath>
@@ -100,9 +100,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Noesis.Javascript.0.7.1.0\lib\net40\x86\Noesis.Javascript.dll</HintPath>
     </Reference>
-    <Reference Include="Phun, Version=1.0.4.34, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Phun, Version=1.0.4.39, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\PhunCMS.1.0.4.34\lib\net45\Phun.dll</HintPath>
+      <HintPath>..\packages\PhunCMS.1.0.4.39\lib\net45\Phun.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
