@@ -1,3 +1,6 @@
+# Notice
+This repository is no longer maintained. 
+
 phuncms
 ======
 
